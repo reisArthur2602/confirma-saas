@@ -1,22 +1,25 @@
 # TECH SPECS — Confirma (SaaS de Confirmação de Agenda)
 
 > **Documento:** Especificação Técnica
-> **Projeto:** Confirma *(nome provisório)*
+> **Projeto:** Confirma _(nome provisório)_
 > **Autor:** Arthur
 > **Status:** Draft v0.5
 > **Referência:** ver `PRD.md`
 > **Última atualização:** 2026-07-11
 >
 > **Changelog v0.5:**
+>
 > - Nomes de pastas dos apps atualizados: `apps/dashboard` → `apps/painel`, `apps/marketing-docs` → `apps/marketing`. App `apps/blog` removido do escopo do monorepo (não haverá blog no MVP nem em fases futuras definidas).
 >
 > **Changelog v0.4:**
+>
 > - Provedor de e-mail transacional definido: **Resend** (substitui SMTP genérico), usado tanto para o Magic Link do Better Auth quanto para o e-mail de confirmação da lista de espera. Nodemailer sai do stack — o SDK oficial do Resend cobre os dois casos.
 > - Lista de espera: formulário **nativo** em `apps/marketing-docs` (Tally descartado) chamando `POST /v1/waitlist` na própria API, com CORS liberado para o domínio da landing, rate limit por IP e honeypot anti-spam.
 > - Estratégia de deploy dividida por app: `marketing-docs` (e opcionalmente `blog`) na **Vercel** (deploy nativo por push, `Root Directory` + `turbo-ignore`); `api` e `dashboard` continuam na **VPS** via GitHub Actions (SSH + Docker Compose), com `paths` filter para não redeployar a VPS por mudanças só na landing.
 > - Organização em **GitHub Org** com branch única de longa duração (`main`, protegida), branches de feature curtas via PR; CI (lint/test/build) em todo PR, CD (deploy) em push na `main`.
 >
 > **Changelog v0.3:**
+>
 > - Monorepo expandido para **4 apps**: `api`, `dashboard`, `marketing-docs` (Next.js), `blog` (Next.js/Astro) — isolamento de blast radius e SEO.
 > - Modelo de canal WhatsApp redefinido para **BYO-Instance**: cliente cadastra sua própria Evolution API; adapter ganha auto-configuração de webhook, tolerância a versão, e atribuição explícita de erro.
 > - Agendamento reformulado em **duas camadas** (Postgres frio + promoção para BullMQ na janela de 24h), substituindo o modelo de delayed job direto na ingestão.
@@ -64,23 +67,23 @@ Sistema multi-tenant composto por processos que compartilham Postgres e Redis, m
 
 ## 2. Stack tecnológico
 
-| Camada | Tecnologia | Justificativa |
-|---|---|---|
-| Monorepo | pnpm workspaces + Turborepo | Contrato Zod compartilhado entre os 3 apps; cache de build; config mínima (Nx seria peso desnecessário) |
-| Runtime | Node.js 22 LTS + TypeScript | Base já dominada no Portal Master |
-| HTTP | Fastify | Já em uso; performance + plugins |
-| Validação | Zod (via `fastify-type-provider-zod`) | Schema único p/ validação e tipos |
-| Doc de API | `@fastify/swagger` + `@scalar/fastify-api-reference` | Mesmo padrão do Portal Master |
-| ORM | Prisma | Já em uso; também usado pelo Better Auth (adapter oficial) |
-| Banco | PostgreSQL 15 | Já operado em VPS; agora também guarda a Camada 1 (fria) do agendamento |
-| Fila/agendamento | BullMQ sobre Redis 7 | Usado só na **janela de curto prazo** (Camada 2) |
-| **Autenticação** | **Better Auth** (Google OAuth + Magic Link) | Passwordless, integra nativamente com Prisma/TypeScript; elimina gestão de senha |
-| **E-mail transacional** | **Resend** | Magic Link (Better Auth) e e-mail de confirmação da lista de espera; SDK oficial, domínio verificado via DNS na Cloudflare |
-| **CORS** | `@fastify/cors` | Necessário porque o form de waitlist em `marketing` (Vercel) chama a API em outro domínio (`api.useconfirma.com`), já que os dois apps agora vivem em plataformas de deploy diferentes |
-| Canal WhatsApp | Evolution API — **BYO-Instance do cliente** | Confirma não opera nem paga mensageria; cliente traz URL+token próprios |
-| **Frontend (painel)** | TanStack Router + Vite (SPA) | Painel atrás de login, sem SEO/SSR; serve estático pelo Nginx (zero servidor Node p/ front) |
-| **Data layer (front)** | TanStack Query | Par natural da API REST Fastify |
-| **Marketing/Docs** | **Next.js** | Landing page de conversão + documentação técnica pública — precisa de SEO/SSR/SSG |
+| Camada                  | Tecnologia                                           | Justificativa                                                                                                                                                                          |
+| ----------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Monorepo                | pnpm workspaces + Turborepo                          | Contrato Zod compartilhado entre os 3 apps; cache de build; config mínima (Nx seria peso desnecessário)                                                                                |
+| Runtime                 | Node.js 22 LTS + TypeScript                          | Base já dominada no Portal Master                                                                                                                                                      |
+| HTTP                    | Fastify                                              | Já em uso; performance + plugins                                                                                                                                                       |
+| Validação               | Zod (via `fastify-type-provider-zod`)                | Schema único p/ validação e tipos                                                                                                                                                      |
+| Doc de API              | `@fastify/swagger` + `@scalar/fastify-api-reference` | Mesmo padrão do Portal Master                                                                                                                                                          |
+| ORM                     | Prisma                                               | Já em uso; também usado pelo Better Auth (adapter oficial)                                                                                                                             |
+| Banco                   | PostgreSQL 15                                        | Já operado em VPS; agora também guarda a Camada 1 (fria) do agendamento                                                                                                                |
+| Fila/agendamento        | BullMQ sobre Redis 7                                 | Usado só na **janela de curto prazo** (Camada 2)                                                                                                                                       |
+| **Autenticação**        | **Better Auth** (Google OAuth + Magic Link)          | Passwordless, integra nativamente com Prisma/TypeScript; elimina gestão de senha                                                                                                       |
+| **E-mail transacional** | **Resend**                                           | Magic Link (Better Auth) e e-mail de confirmação da lista de espera; SDK oficial, domínio verificado via DNS na Cloudflare                                                             |
+| **CORS**                | `@fastify/cors`                                      | Necessário porque o form de waitlist em `marketing` (Vercel) chama a API em outro domínio (`api.useconfirma.com`), já que os dois apps agora vivem em plataformas de deploy diferentes |
+| Canal WhatsApp          | Evolution API — **BYO-Instance do cliente**          | Confirma não opera nem paga mensageria; cliente traz URL+token próprios                                                                                                                |
+| **Frontend (painel)**   | TanStack Router + Vite (SPA)                         | Painel atrás de login, sem SEO/SSR; serve estático pelo Nginx (zero servidor Node p/ front)                                                                                            |
+| **Data layer (front)**  | TanStack Query                                       | Par natural da API REST Fastify                                                                                                                                                        |
+| **Marketing/Docs**      | **Next.js**                                          | Landing page de conversão + documentação técnica pública — precisa de SEO/SSR/SSG                                                                                                      |
 
 | Proxy/TLS | Nginx (Let's Encrypt) | Convenção atual; agora roteia 3 hosts |
 | Logs | Pino (nativo do Fastify) | Estruturado |
@@ -127,7 +130,6 @@ confirma/
 │   │   │   └── lib/                  # hmac.ts, crypto.ts, logger.ts
 │   │   ├── prisma/schema.prisma
 │   │   ├── scripts/                  # generate-api-key.ts, seed.ts, purge-expired.ts
-│   │   ├── Dockerfile
 │   │   └── package.json
 │   ├── painel/                       # TanStack Router SPA (Vite)
 │   │   ├── src/
@@ -156,11 +158,6 @@ confirma/
 │   │   │   └── index.ts
 │   │   └── package.json
 │   └── config/                       # tsconfig-base, eslint-config compartilhados
-├── nginx/
-│   ├── api.confirma.conf
-│   ├── app.confirma.conf
-│   └── www.confirma.conf             # marketing
-├── docker-compose.yml
 ├── turbo.json
 ├── pnpm-workspace.yaml
 ├── .env.example
@@ -168,22 +165,24 @@ confirma/
 ```
 
 **`pnpm-workspace.yaml`**
+
 ```yaml
 packages:
-  - "apps/*"
-  - "packages/*"
+    - 'apps/*'
+    - 'packages/*'
 ```
 
 **`turbo.json`** (essencial)
+
 ```json
 {
-  "$schema": "https://turbo.build/schema.json",
-  "tasks": {
-    "build": { "dependsOn": ["^build"], "outputs": ["dist/**", ".next/**"] },
-    "dev": { "cache": false, "persistent": true },
-    "lint": {},
-    "test": { "dependsOn": ["^build"] }
-  }
+    "$schema": "https://turbo.build/schema.json",
+    "tasks": {
+        "build": { "dependsOn": ["^build"], "outputs": ["dist/**", ".next/**"] },
+        "dev": { "cache": false, "persistent": true },
+        "lint": {},
+        "test": { "dependsOn": ["^build"] }
+    }
 }
 ```
 
@@ -438,6 +437,7 @@ model Template {
 ```
 
 **Notas**
+
 - `patientPhone` e `providerConfig` (`baseUrlEnc`/`tokenEnc`) são criptografados em camada de aplicação (AES-256-GCM) antes de persistir — o banco nunca guarda em claro (RNF-02, RNF-08).
 - `purgeAfter` guia o job de expurgo LGPD (seção 11).
 - `idempotencyKey` único garante RF-04; `@@unique([organizationId, externalId])` é a segunda barreira.
@@ -459,43 +459,43 @@ O Confirma tem **duas superfícies de autenticação** que não devem ser confun
 
 ```typescript
 // apps/api/src/auth/better-auth.ts
-import { betterAuth } from "better-auth";
-import { prismaAdapter } from "better-auth/adapters/prisma";
-import { prisma } from "../plugins/prisma";
-import { sendMagicLinkEmail } from "./mailer";
+import { betterAuth } from 'better-auth';
+import { prismaAdapter } from 'better-auth/adapters/prisma';
+import { prisma } from '../plugins/prisma';
+import { sendMagicLinkEmail } from './mailer';
 
 export const auth = betterAuth({
-  database: prismaAdapter(prisma, { provider: "postgresql" }),
-  socialProviders: {
-    google: {
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    database: prismaAdapter(prisma, { provider: 'postgresql' }),
+    socialProviders: {
+        google: {
+            clientId: process.env.GOOGLE_CLIENT_ID!,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+        },
     },
-  },
-  plugins: [
-    // plugin de magic link do Better Auth, despachando via Resend
-    magicLink({
-      sendMagicLink: async ({ email, url }) => sendMagicLinkEmail(email, url),
-    }),
-  ],
-  session: { cookieCache: { enabled: true } },
+    plugins: [
+        // plugin de magic link do Better Auth, despachando via Resend
+        magicLink({
+            sendMagicLink: async ({ email, url }) => sendMagicLinkEmail(email, url),
+        }),
+    ],
+    session: { cookieCache: { enabled: true } },
 });
 ```
 
 ```typescript
 // apps/api/src/auth/mailer.ts
-import { Resend } from "resend";
+import { Resend } from 'resend';
 
 export const resend = new Resend(process.env.RESEND_API_KEY);
-const FROM = process.env.MAIL_FROM ?? "Confirma <no-reply@useconfirma.com>";
+const FROM = process.env.MAIL_FROM ?? 'Confirma <no-reply@useconfirma.com>';
 
 export async function sendMagicLinkEmail(email: string, url: string) {
-  await resend.emails.send({
-    from: FROM,
-    to: email,
-    subject: "Seu link de acesso ao Confirma",
-    html: `<p>Clique para entrar: <a href="${url}">${url}</a></p>`,
-  });
+    await resend.emails.send({
+        from: FROM,
+        to: email,
+        subject: 'Seu link de acesso ao Confirma',
+        html: `<p>Clique para entrar: <a href="${url}">${url}</a></p>`,
+    });
 }
 ```
 
@@ -514,17 +514,17 @@ Fluxo inalterado do design anterior:
 
 ```typescript
 // apps/api/src/lib/hmac.ts
-import { createHmac, timingSafeEqual } from "node:crypto";
+import { createHmac, timingSafeEqual } from 'node:crypto';
 
 export function sign(rawBody: Buffer | string, secret: string): string {
-  return createHmac("sha256", secret).update(rawBody).digest("hex");
+    return createHmac('sha256', secret).update(rawBody).digest('hex');
 }
 
 export function verify(rawBody: Buffer | string, secret: string, signature: string): boolean {
-  const expected = sign(rawBody, secret);
-  const a = Buffer.from(expected, "hex");
-  const b = Buffer.from(signature ?? "", "hex");
-  return a.length === b.length && timingSafeEqual(a, b);
+    const expected = sign(rawBody, secret);
+    const a = Buffer.from(expected, 'hex');
+    const b = Buffer.from(signature ?? '', 'hex');
+    return a.length === b.length && timingSafeEqual(a, b);
 }
 ```
 
@@ -532,18 +532,18 @@ export function verify(rawBody: Buffer | string, secret: string, signature: stri
 
 ### 5.2 Rotas
 
-| Método | Rota | Auth | Descrição |
-|---|---|---|---|
-| POST | `/v1/appointments` | API key + HMAC | Ingestão (RF-01) |
-| POST | `/webhooks/providers/:organizationId` | assinatura/token da instância do cliente | Respostas do paciente (RF-18) |
-| GET | `/v1/appointments/:id` | API key | Consulta de status |
-| ALL | `/api/auth/*` | — (gerido pelo Better Auth) | Login (Google/Magic Link), sessão, logout |
-| POST | `/v1/api-keys` | sessão do painel (Better Auth) | Gera/rotaciona key (RF-27) |
-| PUT | `/v1/organizations/byo-instance` | sessão do painel | Cadastra/atualiza URL+token da instância BYO (RF-14) |
-| POST | `/v1/organizations/byo-instance/test` | sessão do painel | Health-check da instância cadastrada (RF-16) |
-| GET | `/v1/metrics` | sessão do painel | Métricas do painel (RF-28) |
-| POST | `/v1/sandbox/appointments` | API key sandbox | Envio simulado (RF-30) |
-| POST | `/v1/waitlist` | pública (rate limit + honeypot) | Cadastro de lista de espera + e-mail de confirmação (RF-32..35) |
+| Método | Rota                                  | Auth                                     | Descrição                                                       |
+| ------ | ------------------------------------- | ---------------------------------------- | --------------------------------------------------------------- |
+| POST   | `/v1/appointments`                    | API key + HMAC                           | Ingestão (RF-01)                                                |
+| POST   | `/webhooks/providers/:organizationId` | assinatura/token da instância do cliente | Respostas do paciente (RF-18)                                   |
+| GET    | `/v1/appointments/:id`                | API key                                  | Consulta de status                                              |
+| ALL    | `/api/auth/*`                         | — (gerido pelo Better Auth)              | Login (Google/Magic Link), sessão, logout                       |
+| POST   | `/v1/api-keys`                        | sessão do painel (Better Auth)           | Gera/rotaciona key (RF-27)                                      |
+| PUT    | `/v1/organizations/byo-instance`      | sessão do painel                         | Cadastra/atualiza URL+token da instância BYO (RF-14)            |
+| POST   | `/v1/organizations/byo-instance/test` | sessão do painel                         | Health-check da instância cadastrada (RF-16)                    |
+| GET    | `/v1/metrics`                         | sessão do painel                         | Métricas do painel (RF-28)                                      |
+| POST   | `/v1/sandbox/appointments`            | API key sandbox                          | Envio simulado (RF-30)                                          |
+| POST   | `/v1/waitlist`                        | pública (rate limit + honeypot)          | Cadastro de lista de espera + e-mail de confirmação (RF-32..35) |
 
 ### 5.3 Validação (Zod) — via `packages/contracts`
 
@@ -551,33 +551,35 @@ Os schemas de ingestão e callback moram no pacote compartilhado e são importad
 
 ```typescript
 // packages/contracts/src/appointment.ts
-import { z } from "zod";
+import { z } from 'zod';
 
 export const createAppointmentBody = z.object({
-  externalId: z.string().min(1),
-  patient: z.object({
-    name: z.string().min(1),
-    phone: z.string().regex(/^\+[1-9]\d{7,14}$/), // E.164
-  }),
-  appointment: z.object({
-    type: z.string().min(1),
-    datetime: z.string().datetime({ offset: true }),
-    location: z.string().optional(),
-    professional: z.string().optional(),
-  }),
-  notification: z.object({
-    channels: z.array(z.enum(["whatsapp"])).default(["whatsapp"]),
-    reminderOffsets: z.array(z.string().regex(/^\d+[hm]$/)).optional(),
-  }).optional(),
-  callbackUrl: z.string().url().optional(),
+    externalId: z.string().min(1),
+    patient: z.object({
+        name: z.string().min(1),
+        phone: z.string().regex(/^\+[1-9]\d{7,14}$/), // E.164
+    }),
+    appointment: z.object({
+        type: z.string().min(1),
+        datetime: z.string().datetime({ offset: true }),
+        location: z.string().optional(),
+        professional: z.string().optional(),
+    }),
+    notification: z
+        .object({
+            channels: z.array(z.enum(['whatsapp'])).default(['whatsapp']),
+            reminderOffsets: z.array(z.string().regex(/^\d+[hm]$/)).optional(),
+        })
+        .optional(),
+    callbackUrl: z.string().url().optional(),
 });
 ```
 
 ```typescript
 // packages/contracts/src/byo-instance.ts
 export const byoInstanceConfig = z.object({
-  baseUrl: z.string().url(),
-  token: z.string().min(1),
+    baseUrl: z.string().url(),
+    token: z.string().min(1),
 });
 ```
 
@@ -618,18 +620,20 @@ model WaitlistLead {
 
 ```typescript
 // packages/contracts/src/waitlist.ts
-import { z } from "zod";
+import { z } from 'zod';
 
 export const waitlistBody = z.object({
-  name: z.string().min(1),
-  email: z.string().email(),
-  whatsapp: z.string().optional(),
-  company: z.string().optional(),
-  clientsCount: z.enum(["nenhuma", "1", "2-5", "5+"]).optional(),
-  interest: z.enum(["reduzir_faltas", "nao_construir_fila", "byo", "documentacao", "outro"]).optional(),
-  source: z.string().optional(),
-  // honeypot: campo invisível via CSS; humano nunca preenche, bot preenche.
-  website: z.string().max(0).optional(),
+    name: z.string().min(1),
+    email: z.string().email(),
+    whatsapp: z.string().optional(),
+    company: z.string().optional(),
+    clientsCount: z.enum(['nenhuma', '1', '2-5', '5+']).optional(),
+    interest: z
+        .enum(['reduzir_faltas', 'nao_construir_fila', 'byo', 'documentacao', 'outro'])
+        .optional(),
+    source: z.string().optional(),
+    // honeypot: campo invisível via CSS; humano nunca preenche, bot preenche.
+    website: z.string().max(0).optional(),
 });
 
 export type WaitlistBody = z.infer<typeof waitlistBody>;
@@ -639,40 +643,41 @@ export type WaitlistBody = z.infer<typeof waitlistBody>;
 
 ```typescript
 // apps/api/src/modules/waitlist/waitlist.routes.ts
-import { waitlistBody } from "@confirma/contracts";
-import { resend } from "../../auth/mailer";
-import { prisma } from "../../plugins/prisma";
+import { waitlistBody } from '@confirma/contracts';
+import { resend } from '../../auth/mailer';
+import { prisma } from '../../plugins/prisma';
 
 fastify.post(
-  "/v1/waitlist",
-  { config: { rateLimit: { max: 5, timeWindow: "1 minute" } } },
-  async (request, reply) => {
-    const parsed = waitlistBody.safeParse(request.body);
-    if (!parsed.success) return reply.code(422).send({ error: parsed.error.flatten() });
+    '/v1/waitlist',
+    { config: { rateLimit: { max: 5, timeWindow: '1 minute' } } },
+    async (request, reply) => {
+        const parsed = waitlistBody.safeParse(request.body);
+        if (!parsed.success) return reply.code(422).send({ error: parsed.error.flatten() });
 
-    // honeypot preenchido → descarta silenciosamente, sem alertar o bot
-    if (parsed.data.website) return reply.code(200).send({ ok: true });
+        // honeypot preenchido → descarta silenciosamente, sem alertar o bot
+        if (parsed.data.website) return reply.code(200).send({ ok: true });
 
-    const { website, ...data } = parsed.data;
-    const lead = await prisma.waitlistLead.upsert({
-      where: { email: data.email },
-      create: data,
-      update: data,
-    });
+        const { website, ...data } = parsed.data;
+        const lead = await prisma.waitlistLead.upsert({
+            where: { email: data.email },
+            create: data,
+            update: data,
+        });
 
-    await resend.emails.send({
-      from: process.env.MAIL_FROM!,
-      to: lead.email,
-      subject: "Você garantiu acesso antecipado ao Confirma",
-      html: `<p>Oi, ${lead.name}! Você garantiu acesso antecipado à documentação técnica do Confirma. Em breve mandamos o link de acesso.</p>`,
-    });
+        await resend.emails.send({
+            from: process.env.MAIL_FROM!,
+            to: lead.email,
+            subject: 'Você garantiu acesso antecipado ao Confirma',
+            html: `<p>Oi, ${lead.name}! Você garantiu acesso antecipado à documentação técnica do Confirma. Em breve mandamos o link de acesso.</p>`,
+        });
 
-    return reply.code(200).send({ ok: true });
-  },
+        return reply.code(200).send({ ok: true });
+    }
 );
 ```
 
 **Pontos de atenção específicos deste endpoint:**
+
 - **CORS** — precisa liberar explicitamente a origem `https://www.useconfirma.com` via `@fastify/cors`, já que a chamada vem do navegador em outro domínio (Vercel), não server-to-server como seria com um webhook de terceiro.
 - **Rate limit por IP** (5 req/min) é a principal defesa anti-abuso aqui — não há API key nem HMAC nessa rota, então o rate limit + honeypot substituem a camada de confiança que existiria com um provedor de formulário externo.
 - **Idempotência por e-mail** (`upsert`), não por `Idempotency-Key` — o mesmo lead pode reenviar o formulário sem gerar duplicata nem novo e-mail de boas-vindas incorreto (o e-mail é reenviado a cada upsert atualmente; se isso incomodar, adicionar um campo `notifiedAt` e só enviar quando nulo).
@@ -693,40 +698,40 @@ Agendamentos podem ser marcados com semanas ou meses de antecedência. Manter um
 
 ```typescript
 // apps/api/src/queue/crons/promote.cron.ts
-import { sendQueue } from "../queues";
-import { prisma } from "../../plugins/prisma";
+import { sendQueue } from '../queues';
+import { prisma } from '../../plugins/prisma';
 
 const PROMOTION_WINDOW_HOURS = 24;
 
 export async function promotePendingJobs() {
-  const windowEnd = new Date(Date.now() + PROMOTION_WINDOW_HOURS * 60 * 60 * 1000);
+    const windowEnd = new Date(Date.now() + PROMOTION_WINDOW_HOURS * 60 * 60 * 1000);
 
-  const dueJobs = await prisma.notificationJob.findMany({
-    where: { status: "PENDING", runAt: { lte: windowEnd } },
-  });
-
-  for (const job of dueJobs) {
-    const delayMs = Math.max(0, job.runAt.getTime() - Date.now());
-    const bullJobId = `${job.appointmentId}:${job.offset}`; // idempotência nativa do BullMQ
-
-    await sendQueue.add(
-      "reminder",
-      { appointmentId: job.appointmentId, offset: job.offset, notificationJobId: job.id },
-      {
-        delay: delayMs,
-        jobId: bullJobId,       // blinda contra duplicidade em concorrência/restart do cron
-        attempts: 5,
-        backoff: { type: "exponential", delay: 30_000 },
-        removeOnComplete: 1000,
-        removeOnFail: 5000,
-      },
-    );
-
-    await prisma.notificationJob.update({
-      where: { id: job.id },
-      data: { status: "ENQUEUED", bullJobId, promotedAt: new Date() },
+    const dueJobs = await prisma.notificationJob.findMany({
+        where: { status: 'PENDING', runAt: { lte: windowEnd } },
     });
-  }
+
+    for (const job of dueJobs) {
+        const delayMs = Math.max(0, job.runAt.getTime() - Date.now());
+        const bullJobId = `${job.appointmentId}:${job.offset}`; // idempotência nativa do BullMQ
+
+        await sendQueue.add(
+            'reminder',
+            { appointmentId: job.appointmentId, offset: job.offset, notificationJobId: job.id },
+            {
+                delay: delayMs,
+                jobId: bullJobId, // blinda contra duplicidade em concorrência/restart do cron
+                attempts: 5,
+                backoff: { type: 'exponential', delay: 30_000 },
+                removeOnComplete: 1000,
+                removeOnFail: 5000,
+            }
+        );
+
+        await prisma.notificationJob.update({
+            where: { id: job.id },
+            data: { status: 'ENQUEUED', bullJobId, promotedAt: new Date() },
+        });
+    }
 }
 ```
 
@@ -737,8 +742,8 @@ Executado a cada 1h (ex.: via `node-cron` ou job repetível do próprio BullMQ).
 ```typescript
 // Cancelamento trivial enquanto o job ainda está em PENDING (Camada 1)
 await prisma.notificationJob.updateMany({
-  where: { appointmentId, status: "PENDING" },
-  data: { status: "CANCELLED" },
+    where: { appointmentId, status: 'PENDING' },
+    data: { status: 'CANCELLED' },
 });
 // Nenhuma chamada ao Redis é necessária — o job nunca existiu lá.
 ```
@@ -749,14 +754,15 @@ Se o job já foi promovido (`ENQUEUED` ou além), o cancelamento precisa remover
 
 ```typescript
 // apps/api/src/queue/queues.ts
-import { Queue } from "bullmq";
-import { connection } from "./connection";
+import { Queue } from 'bullmq';
+import { connection } from './connection';
 
-export const sendQueue = new Queue("send", { connection });
-export const callbackQueue = new Queue("callback", { connection });
+export const sendQueue = new Queue('send', { connection });
+export const callbackQueue = new Queue('callback', { connection });
 ```
 
 **Worker de envio** (`send.worker.ts`):
+
 1. Carregar `Appointment`; se já terminal (confirmed/cancelled), no-op.
 2. Renderizar template da organização (categoria utility).
 3. `provider.sendTemplate(...)` usando as credenciais BYO da `Organization` → gravar `MessageLog` (com `errorCategory` se falhar).
@@ -764,6 +770,7 @@ export const callbackQueue = new Queue("callback", { connection });
 5. Se for o último offset, agendar expiração (`NO_RESPONSE`) via delayed job.
 
 **Worker de callback** (`callback.worker.ts`):
+
 - `POST` para `callbackUrl` com corpo assinado (`X-Confirma-Signature`). Retry com backoff; grava `CallbackLog`.
 
 **Cron de reconciliação** (`reconcile.cron.ts`, a cada 5 min): rede de segurança adicional — reenfileira `ENQUEUED` cujo `bullJobId` sumiu do Redis (ex.: perda de dados), e expira `AWAITING_RESPONSE` além do prazo. Independente do cron de promoção (seção 6.2), que cuida da transição `PENDING → ENQUEUED`.
@@ -777,23 +784,29 @@ Interface única; única implementação no MVP é a Evolution API, mas sempre r
 ```typescript
 // apps/api/src/providers/provider.interface.ts
 export interface SendTemplateParams {
-  to: string;                       // E.164
-  templateKey: string;
-  variables: Record<string, string>;
-  instanceConfig: { baseUrl: string; token: string }; // credenciais BYO já descriptografadas
+    to: string; // E.164
+    templateKey: string;
+    variables: Record<string, string>;
+    instanceConfig: { baseUrl: string; token: string }; // credenciais BYO já descriptografadas
 }
 
 export interface SendResult {
-  providerMessageId: string;
-  status: "sent" | "queued" | "failed";
-  errorCategory?: "client_instance_error" | "confirma_internal_error";
+    providerMessageId: string;
+    status: 'sent' | 'queued' | 'failed';
+    errorCategory?: 'client_instance_error' | 'confirma_internal_error';
 }
 
 export interface WhatsAppProvider {
-  sendTemplate(params: SendTemplateParams): Promise<SendResult>;
-  parseInbound(rawPayload: unknown): { from: string; text: string } | null;
-  configureWebhook(instanceConfig: { baseUrl: string; token: string }, webhookUrl: string): Promise<boolean>;
-  healthCheck(instanceConfig: { baseUrl: string; token: string }): Promise<{ ok: boolean; detail?: string }>;
+    sendTemplate(params: SendTemplateParams): Promise<SendResult>;
+    parseInbound(rawPayload: unknown): { from: string; text: string } | null;
+    configureWebhook(
+        instanceConfig: { baseUrl: string; token: string },
+        webhookUrl: string
+    ): Promise<boolean>;
+    healthCheck(instanceConfig: {
+        baseUrl: string;
+        token: string;
+    }): Promise<{ ok: boolean; detail?: string }>;
 }
 ```
 
@@ -807,57 +820,71 @@ export interface WhatsAppProvider {
 ```typescript
 // apps/api/src/providers/evolution.provider.ts (esboço)
 export const evolutionProvider: WhatsAppProvider = {
-  async sendTemplate({ to, templateKey, variables, instanceConfig }) {
-    try {
-      const res = await fetch(`${instanceConfig.baseUrl}/message/sendTemplate`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${instanceConfig.token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ to, templateKey, variables }),
-      });
-      if (res.status === 401) {
-        return { providerMessageId: "", status: "failed", errorCategory: "client_instance_error" };
-      }
-      const data = await res.json().catch(() => ({}));
-      // acesso defensivo — tolera variações de schema entre versões do cliente
-      const messageId = data?.messageId ?? data?.id ?? data?.key?.id ?? "";
-      return { providerMessageId: messageId, status: "sent" };
-    } catch (err) {
-      // falha de conexão (ECONNREFUSED, timeout) = problema da instância do cliente
-      return { providerMessageId: "", status: "failed", errorCategory: "client_instance_error" };
-    }
-  },
+    async sendTemplate({ to, templateKey, variables, instanceConfig }) {
+        try {
+            const res = await fetch(`${instanceConfig.baseUrl}/message/sendTemplate`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${instanceConfig.token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ to, templateKey, variables }),
+            });
+            if (res.status === 401) {
+                return {
+                    providerMessageId: '',
+                    status: 'failed',
+                    errorCategory: 'client_instance_error',
+                };
+            }
+            const data = await res.json().catch(() => ({}));
+            // acesso defensivo — tolera variações de schema entre versões do cliente
+            const messageId = data?.messageId ?? data?.id ?? data?.key?.id ?? '';
+            return { providerMessageId: messageId, status: 'sent' };
+        } catch (err) {
+            // falha de conexão (ECONNREFUSED, timeout) = problema da instância do cliente
+            return {
+                providerMessageId: '',
+                status: 'failed',
+                errorCategory: 'client_instance_error',
+            };
+        }
+    },
 
-  async configureWebhook(instanceConfig, webhookUrl) {
-    try {
-      const res = await fetch(`${instanceConfig.baseUrl}/webhook/set`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${instanceConfig.token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ url: webhookUrl, events: ["messages.upsert"] }),
-      });
-      return res.ok;
-    } catch {
-      return false;
-    }
-  },
+    async configureWebhook(instanceConfig, webhookUrl) {
+        try {
+            const res = await fetch(`${instanceConfig.baseUrl}/webhook/set`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${instanceConfig.token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ url: webhookUrl, events: ['messages.upsert'] }),
+            });
+            return res.ok;
+        } catch {
+            return false;
+        }
+    },
 
-  async healthCheck(instanceConfig) {
-    try {
-      const res = await fetch(`${instanceConfig.baseUrl}/instance/connectionState`, {
-        headers: { Authorization: `Bearer ${instanceConfig.token}` },
-      });
-      return { ok: res.ok, detail: res.ok ? undefined : `HTTP ${res.status}` };
-    } catch (err) {
-      return { ok: false, detail: (err as Error).message };
-    }
-  },
+    async healthCheck(instanceConfig) {
+        try {
+            const res = await fetch(`${instanceConfig.baseUrl}/instance/connectionState`, {
+                headers: { Authorization: `Bearer ${instanceConfig.token}` },
+            });
+            return { ok: res.ok, detail: res.ok ? undefined : `HTTP ${res.status}` };
+        } catch (err) {
+            return { ok: false, detail: (err as Error).message };
+        }
+    },
 
-  parseInbound(rawPayload) {
-    const p = rawPayload as any;
-    const from = p?.data?.key?.remoteJid ?? p?.from ?? null;
-    const text = p?.data?.message?.conversation ?? p?.text ?? null;
-    if (!from || !text) return null;
-    return { from, text };
-  },
+    parseInbound(rawPayload) {
+        const p = rawPayload as any;
+        const from = p?.data?.key?.remoteJid ?? p?.from ?? null;
+        const text = p?.data?.message?.conversation ?? p?.text ?? null;
+        if (!from || !text) return null;
+        return { from, text };
+    },
 };
 ```
 
@@ -869,14 +896,14 @@ export const evolutionProvider: WhatsAppProvider = {
 
 ```typescript
 // apps/api/src/domain/intent-parser.ts
-export type Intent = "confirm" | "cancel" | "reschedule" | "unknown";
+export type Intent = 'confirm' | 'cancel' | 'reschedule' | 'unknown';
 
 export function parseIntent(text: string): Intent {
-  const t = text.trim().toLowerCase();
-  if (/^1\b/.test(t) || /\b(confirmo|confirmar|sim)\b/.test(t)) return "confirm";
-  if (/^2\b/.test(t) || /\b(cancelar|desmarcar|nao|não)\b/.test(t)) return "cancel";
-  if (/^3\b/.test(t) || /\b(remarcar|reagendar)\b/.test(t)) return "reschedule";
-  return "unknown";
+    const t = text.trim().toLowerCase();
+    if (/^1\b/.test(t) || /\b(confirmo|confirmar|sim)\b/.test(t)) return 'confirm';
+    if (/^2\b/.test(t) || /\b(cancelar|desmarcar|nao|não)\b/.test(t)) return 'cancel';
+    if (/^3\b/.test(t) || /\b(remarcar|reagendar)\b/.test(t)) return 'reschedule';
+    return 'unknown';
 }
 ```
 
@@ -901,6 +928,7 @@ Toda transição para estado terminal enfileira um job na `callbackQueue` (RF-22
 Painel administrativo atrás de login. **SPA** com TanStack Router + Vite, compilado para assets estáticos e servido pelo Nginx.
 
 **Escopo de telas (MVP):**
+
 - **Login** — Google OAuth ou Magic Link, via `auth-client.ts` do Better Auth. Sem formulário de senha.
 - **Overview** — métricas: taxa de confirmação, faltas evitadas, volume de mensagens (consome `GET /v1/metrics`).
 - **Instância BYO** — formulário para cadastrar URL + token da Evolution do cliente; botão "testar conexão" (health-check); indicador se o webhook foi auto-configurado ou precisa de passo manual.
@@ -908,6 +936,7 @@ Painel administrativo atrás de login. **SPA** com TanStack Router + Vite, compi
 - **Logs de agendamento** — trilha por agendamento, com destaque visual quando a falha for `client_instance_error` vs. `confirma_internal_error` (RF-29).
 
 **Padrões:**
+
 - Roteamento file-based do TanStack Router; rotas autenticadas protegidas por `beforeLoad` consultando a sessão via `auth-client`.
 - Data layer: TanStack Query para todo acesso à API.
 - Client tipado: `lib/api-client.ts` importa os schemas de `@confirma/contracts`.
@@ -934,22 +963,22 @@ Painel administrativo atrás de login. **SPA** com TanStack Router + Vite, compi
 
 ```typescript
 // apps/api/src/lib/crypto.ts (esboço AES-256-GCM)
-import { randomBytes, createCipheriv, createDecipheriv } from "node:crypto";
-const KEY = Buffer.from(process.env.APP_ENCRYPTION_KEY!, "hex"); // 32 bytes
+import { randomBytes, createCipheriv, createDecipheriv } from 'node:crypto';
+const KEY = Buffer.from(process.env.APP_ENCRYPTION_KEY!, 'hex'); // 32 bytes
 
 export function encrypt(plain: string): string {
-  const iv = randomBytes(12);
-  const cipher = createCipheriv("aes-256-gcm", KEY, iv);
-  const enc = Buffer.concat([cipher.update(plain, "utf8"), cipher.final()]);
-  const tag = cipher.getAuthTag();
-  return [iv, tag, enc].map(b => b.toString("base64")).join(".");
+    const iv = randomBytes(12);
+    const cipher = createCipheriv('aes-256-gcm', KEY, iv);
+    const enc = Buffer.concat([cipher.update(plain, 'utf8'), cipher.final()]);
+    const tag = cipher.getAuthTag();
+    return [iv, tag, enc].map((b) => b.toString('base64')).join('.');
 }
 
 export function decrypt(payload: string): string {
-  const [iv, tag, enc] = payload.split(".").map(s => Buffer.from(s, "base64"));
-  const d = createDecipheriv("aes-256-gcm", KEY, iv);
-  d.setAuthTag(tag);
-  return Buffer.concat([d.update(enc), d.final()]).toString("utf8");
+    const [iv, tag, enc] = payload.split('.').map((s) => Buffer.from(s, 'base64'));
+    const d = createDecipheriv('aes-256-gcm', KEY, iv);
+    d.setAuthTag(tag);
+    return Buffer.concat([d.update(enc), d.final()]).toString('utf8');
 }
 ```
 
@@ -966,8 +995,8 @@ export function decrypt(payload: string): string {
 ```typescript
 // apps/api/scripts/purge-expired.ts (via cron diário)
 await prisma.appointment.updateMany({
-  where: { purgeAfter: { lt: new Date() } },
-  data: { patientName: "[purged]", patientPhone: "[purged]" },
+    where: { purgeAfter: { lt: new Date() } },
+    data: { patientName: '[purged]', patientPhone: '[purged]' },
 });
 ```
 
@@ -999,67 +1028,68 @@ await prisma.appointment.updateMany({
 # marketing NÃO entra aqui — vai para a Vercel (ver 14.2).
 # painel também não entra como serviço: é estático, o Nginx serve o build direto.
 services:
-  api:
-    build: { context: ., dockerfile: apps/api/Dockerfile }
-    command: node apps/api/dist/server.js
-    env_file: ./apps/api/.env
-    depends_on: [postgres, redis]
-    restart: always
-    ports: ["3000:3000"]
+    api:
+        build: { context: ., dockerfile: apps/api/Dockerfile }
+        command: node apps/api/dist/server.js
+        env_file: ./apps/api/.env
+        depends_on: [postgres, redis]
+        restart: always
+        ports: ['3000:3000']
 
-  worker:
-    build: { context: ., dockerfile: apps/api/Dockerfile }
-    command: node apps/api/dist/queue/workers/index.js
-    env_file: ./apps/api/.env
-    depends_on: [postgres, redis]
-    restart: always
+    worker:
+        build: { context: ., dockerfile: apps/api/Dockerfile }
+        command: node apps/api/dist/queue/workers/index.js
+        env_file: ./apps/api/.env
+        depends_on: [postgres, redis]
+        restart: always
 
-  promote-cron:
-    build: { context: ., dockerfile: apps/api/Dockerfile }
-    command: node apps/api/dist/queue/crons/promote.cron.js
-    env_file: ./apps/api/.env
-    depends_on: [postgres, redis]
-    restart: always
+    promote-cron:
+        build: { context: ., dockerfile: apps/api/Dockerfile }
+        command: node apps/api/dist/queue/crons/promote.cron.js
+        env_file: ./apps/api/.env
+        depends_on: [postgres, redis]
+        restart: always
 
-  postgres:
-    image: postgres:15
-    environment:
-      POSTGRES_USER: confirma
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: confirma
-    volumes: ["pgdata:/var/lib/postgresql/data"]
-    restart: always
+    postgres:
+        image: postgres:15
+        environment:
+            POSTGRES_USER: confirma
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            POSTGRES_DB: confirma
+        volumes: ['pgdata:/var/lib/postgresql/data']
+        restart: always
 
-  redis:
-    image: redis:7
-    command: redis-server --appendonly yes
-    volumes: ["redisdata:/data"]
-    restart: always
+    redis:
+        image: redis:7
+        command: redis-server --appendonly yes
+        volumes: ['redisdata:/data']
+        restart: always
 
 volumes:
-  pgdata:
-  redisdata:
+    pgdata:
+    redisdata:
 ```
 
 > `promote-cron` roda como processo dedicado (evita que o cron de promoção compita por recursos com a API ou pare junto se a API reiniciar). Alternativa mais simples: um job repetível do próprio BullMQ dentro do processo `worker`, se a operação preferir menos containers.
 
 ### 14.2 Divisão de deploy: Vercel (frontend público) + VPS (produto)
 
-| App | Onde roda | Como | Domínio |
-|---|---|---|---|
-| `api` | VPS (Docker Compose) | GitHub Actions → SSH | `api.useconfirma.com` |
-| `painel` | VPS (Nginx estático) | GitHub Actions → SSH (build + copia `dist/`) | `app.useconfirma.com` |
-| `marketing` | **Vercel** | Integração nativa Vercel ↔ GitHub | `www.useconfirma.com` |
+| App         | Onde roda            | Como                                         | Domínio               |
+| ----------- | -------------------- | -------------------------------------------- | --------------------- |
+| `api`       | VPS (Docker Compose) | GitHub Actions → SSH                         | `api.useconfirma.com` |
+| `painel`    | VPS (Nginx estático) | GitHub Actions → SSH (build + copia `dist/`) | `app.useconfirma.com` |
+| `marketing` | **Vercel**           | Integração nativa Vercel ↔ GitHub            | `www.useconfirma.com` |
 
 **Setup na Vercel (`marketing`):**
+
 1. **Add New Project → importa o repositório da org**.
 2. **Root Directory** = `apps/marketing` — a Vercel entende monorepo a partir daí, instala e builda só aquele workspace.
 3. Deploy automático nativo: push na `main` → produção; push em branch/PR → preview URL. Não passa pelo GitHub Actions.
 4. **Project Settings → Git → Ignored Build Step:**
-   ```bash
-   npx turbo-ignore
-   ```
-   Usa o grafo de dependências do Turborepo para pular o build da Vercel quando o commit não afeta aquele app (ex.: mudança só em `apps/api`).
+    ```bash
+    npx turbo-ignore
+    ```
+    Usa o grafo de dependências do Turborepo para pular o build da Vercel quando o commit não afeta aquele app (ex.: mudança só em `apps/api`).
 5. Variáveis de ambiente da Vercel: `NEXT_PUBLIC_API_URL=https://api.useconfirma.com` (para o `WaitlistForm.tsx` chamar `POST /v1/waitlist`).
 
 **GitHub Actions (`api` + `painel` na VPS)** é restrito por `paths`, para não redeployar a VPS por mudanças que só afetam `marketing`:
@@ -1067,37 +1097,37 @@ volumes:
 ```yaml
 # .github/workflows/deploy.yml
 on:
-  push:
-    branches: [main]
-    paths:
-      - "apps/api/**"
-      - "apps/painel/**"
-      - "packages/**"
-      - "docker-compose.yml"
-      - ".github/workflows/deploy.yml"
+    push:
+        branches: [main]
+        paths:
+            - 'apps/api/**'
+            - 'apps/painel/**'
+            - 'packages/**'
+            - 'docker-compose.yml'
+            - '.github/workflows/deploy.yml'
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: 22, cache: pnpm }
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm turbo build
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            cd /var/www/confirma
-            git pull origin main
-            pnpm install --frozen-lockfile
-            pnpm turbo build
-            pnpm --filter api exec prisma migrate deploy
-            docker compose build && docker compose up -d
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: pnpm/action-setup@v4
+            - uses: actions/setup-node@v4
+              with: { node-version: 22, cache: pnpm }
+            - run: pnpm install --frozen-lockfile
+            - run: pnpm turbo build
+            - name: Deploy via SSH
+              uses: appleboy/ssh-action@v1
+              with:
+                  host: ${{ secrets.VPS_HOST }}
+                  username: ${{ secrets.VPS_USER }}
+                  key: ${{ secrets.VPS_SSH_KEY }}
+                  script: |
+                      cd /var/www/confirma
+                      git pull origin main
+                      pnpm install --frozen-lockfile
+                      pnpm turbo build
+                      pnpm --filter api exec prisma migrate deploy
+                      docker compose build && docker compose up -d
 ```
 
 **CI (`.github/workflows/ci.yml`)** roda em todo PR, independente de qual app mudou:
@@ -1105,15 +1135,15 @@ jobs:
 ```yaml
 on: pull_request
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: 22, cache: pnpm }
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm turbo lint test build
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: pnpm/action-setup@v4
+            - uses: actions/setup-node@v4
+              with: { node-version: 22, cache: pnpm }
+            - run: pnpm install --frozen-lockfile
+            - run: pnpm turbo lint test build
 ```
 
 **Estratégia de branches:** `main` única, protegida (PR obrigatório + status check do CI + sem force-push). Branches de feature curtas (`feat/`, `fix/`, `chore/`) via PR; merge (squash) na `main` dispara deploy automático — tanto o da VPS (Actions) quanto o da Vercel (nativo), cada um filtrando por `paths` o que realmente precisa rebuildar.
@@ -1175,13 +1205,13 @@ server {
 
 ```typescript
 // apps/api/src/plugins/cors.ts
-import cors from "@fastify/cors";
+import cors from '@fastify/cors';
 
 export default fp(async (fastify) => {
-  fastify.register(cors, {
-    origin: [process.env.CORS_ORIGIN!], // https://www.useconfirma.com
-    credentials: false, // /v1/waitlist não usa cookie — não precisa
-  });
+    fastify.register(cors, {
+        origin: [process.env.CORS_ORIGIN!], // https://www.useconfirma.com
+        credentials: false, // /v1/waitlist não usa cookie — não precisa
+    });
 });
 ```
 
@@ -1221,6 +1251,7 @@ PROMOTION_WINDOW_HOURS=24
 ### 14.5 Pipeline de deploy
 
 **VPS (`api` + `painel`, via GitHub Actions — só dispara se `paths` filter bater):**
+
 1. `pnpm install` (raiz do monorepo).
 2. `pnpm turbo build` — compila `packages/contracts`, `apps/api`, `apps/painel` (Turborepo respeita a ordem de dependências).
 3. `pnpm --filter api exec prisma migrate deploy`.
@@ -1246,6 +1277,7 @@ PROMOTION_WINDOW_HOURS=24
 ## 16. Decisões técnicas
 
 ### Fechadas nesta versão
+
 - **Monorepo (3 apps):** `api`, `painel`, `marketing` — isolamento de blast radius e separação de necessidades de SEO/SSR vs. painel autenticado.
 - **Frontend do painel:** TanStack Router + Vite (SPA), estático via Nginx.
 - **Marketing/Docs:** Next.js, por precisar de SEO/SSR/SSG.
@@ -1257,6 +1289,7 @@ PROMOTION_WINDOW_HOURS=24
 - **Deploy:** `api`/`painel` na VPS via GitHub Actions (SSH); `marketing` na Vercel via integração nativa; branch única `main` protegida, deploy automático em todo merge.
 
 ### Em aberto
+
 - Janela exata de promoção (24h é o ponto de partida; pode precisar de ajuste conforme volume real de agendamentos de longo prazo).
 - Suporte BYO a WhatsApp Cloud API oficial (Meta) como opção adicional (Fase 2).
 - Estratégia de multi-organização por usuário no painel (seletor de conta ativa), caso um `User` pertença a mais de uma `Organization`.
@@ -1264,4 +1297,4 @@ PROMOTION_WINDOW_HOURS=24
 
 ---
 
-*Fim do documento.*
+_Fim do documento._
