@@ -6,6 +6,7 @@ export const waitlistBody = z.object({
   whatsapp: z.string().optional(),
   company: z.string().optional(),
   clientsCount: z.enum(["nenhuma", "1", "2-5", "5+"]).optional(),
+  system: z.string().optional(),
   interest: z
     .enum(["reduzir_faltas", "nao_construir_fila", "byo", "documentacao", "outro"])
     .optional(),

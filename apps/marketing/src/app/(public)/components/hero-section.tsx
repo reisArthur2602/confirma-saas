@@ -1,6 +1,6 @@
-import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
 import { Button } from '@confirma/ui/components/button';
+import { ArrowRight, Check } from 'lucide-react';
+import Link from 'next/link';
 import { Code } from './code';
 
 export function HeroSection() {
@@ -18,13 +18,12 @@ export function HeroSection() {
                     </h1>
 
                     <p className="mb-8 animate-[cfmFade_0.4s_ease] text-[16.5px] leading-[1.6] text-pretty text-secondary-foreground">
-                        Conecte seu sistema e seu próprio WhatsApp ao Confirma e deixe a
-                        gente cuidar de lembrar, confirmar e atualizar a agenda
-                        automaticamente.
+                        Conecte seu sistema e seu próprio WhatsApp ao Confirma e deixe a gente
+                        cuidar de lembrar, confirmar e atualizar a agenda automaticamente.
                     </p>
 
                     <Button asChild className="animate-[cfmFade_0.45s_ease] gap-2">
-                        <Link href="#form">
+                        <Link href="waitlist">
                             Entrar na lista de espera
                             <ArrowRight className="size-4" strokeWidth={2.2} />
                         </Link>
@@ -35,33 +34,11 @@ export function HeroSection() {
 
                     <div className="mt-4 flex flex-wrap items-center gap-4 text-[12px] text-muted-foreground">
                         <span className="flex items-center gap-1.5">
-                            <svg
-                                width="13"
-                                height="13"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="#178a45"
-                                strokeWidth="2.8"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            >
-                                <path d="M20 6L9 17l-5-5" />
-                            </svg>
+                            <Check className="size-3.25 text-success" strokeWidth={2.8} />
                             Sem compromisso, sem cartão
                         </span>
                         <span className="flex items-center gap-1.5">
-                            <svg
-                                width="13"
-                                height="13"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="#178a45"
-                                strokeWidth="2.8"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            >
-                                <path d="M20 6L9 17l-5-5" />
-                            </svg>
+                            <Check className="size-3.25 text-success" strokeWidth={2.8} />
                             Só 2 minutos para se inscrever
                         </span>
                     </div>
@@ -86,9 +63,7 @@ export function HeroSection() {
                         </div>
                         <div className="w-px bg-border" />
                         <div className="text-center">
-                            <div className="text-xl font-bold tracking-[-0.02em]">
-                                seu nº
-                            </div>
+                            <div className="text-xl font-bold tracking-[-0.02em]">seu nº</div>
                             <div className="text-[11px] text-muted-foreground">
                                 de WhatsApp, sempre
                             </div>
