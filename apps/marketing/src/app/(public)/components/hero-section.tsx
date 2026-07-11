@@ -22,7 +22,7 @@ export function HeroSection() {
                         cuidar de lembrar, confirmar e atualizar a agenda automaticamente.
                     </p>
 
-                    <Button asChild className="animate-[cfmFade_0.45s_ease] gap-2">
+                    <Button asChild className="w-full animate-[cfmFade_0.45s_ease] gap-2 sm:w-auto">
                         <Link href="waitlist">
                             Entrar na lista de espera
                             <ArrowRight className="size-4" strokeWidth={2.2} />

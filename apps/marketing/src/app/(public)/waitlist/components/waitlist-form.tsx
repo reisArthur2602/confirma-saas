@@ -12,18 +12,12 @@ import {
 import { Input } from '@confirma/ui/components/input';
 import { Label } from '@confirma/ui/components/label';
 import { RadioGroup, RadioGroupItem } from '@confirma/ui/components/radio-group';
-import { Check } from 'lucide-react';
+import { cn } from '@confirma/ui/lib/utils';
+import { Check, Link2, MessageCircleQuestion, Users2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 const WAITLIST_API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-const clientsCountOptions: { value: NonNullable<WaitlistBody['clientsCount']>; label: string }[] = [
-    { value: 'nenhuma', label: 'Nenhuma ainda (explorando)' },
-    { value: '1', label: '1 cliente' },
-    { value: '2-5', label: '2 a 5 clientes' },
-    { value: '5+', label: 'Mais de 5 clientes' },
-];
 
 const interestOptions: { value: NonNullable<WaitlistBody['interest']>; label: string }[] = [
     { value: 'reduzir_faltas', label: 'Reduzir faltas dos meus clientes' },
@@ -33,24 +27,29 @@ const interestOptions: { value: NonNullable<WaitlistBody['interest']>; label: st
     { value: 'outro', label: 'Outro' },
 ];
 
+const sourceOptions: {
+    value: NonNullable<WaitlistBody['source']>;
+    label: string;
+    icon: typeof Link2;
+}[] = [
+    { value: 'linkedin', label: 'LinkedIn', icon: Link2 },
+    { value: 'indicacao', label: 'Indicação', icon: Users2 },
+    { value: 'comunidade', label: 'Comunidade', icon: MessageCircleQuestion },
+    { value: 'outro', label: 'Outro', icon: MessageCircleQuestion },
+];
+
 type FormState = {
     name: string;
     email: string;
-    company: string;
-    clientsCount: WaitlistBody['clientsCount'];
-    system: string;
     interest: WaitlistBody['interest'];
-    source: string;
+    source: WaitlistBody['source'];
 };
 
 const initialState: FormState = {
     name: '',
     email: '',
-    company: '',
-    clientsCount: undefined,
-    system: '',
     interest: undefined,
-    source: '',
+    source: undefined,
 };
 
 export function WaitlistForm() {
@@ -70,17 +69,13 @@ export function WaitlistForm() {
         if (!form.name.trim()) return setError('Informe seu nome completo.');
         if (!form.email.trim() || !form.email.includes('@'))
             return setError('Informe um e-mail válido.');
-        if (!form.clientsCount) return setError('Selecione quantas clínicas você atende.');
         if (!form.interest) return setError('Selecione o que mais te interessa.');
 
         const parsed = waitlistBody.safeParse({
             name: form.name.trim(),
             email: form.email.trim(),
-            company: form.company.trim() || undefined,
-            clientsCount: form.clientsCount,
-            system: form.system.trim() || undefined,
             interest: form.interest,
-            source: form.source.trim() || undefined,
+            source: form.source,
         });
 
         if (!parsed.success) {
@@ -147,51 +142,6 @@ export function WaitlistForm() {
                     />
                 </div>
 
-                <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="company">Empresa ou software house</Label>
-                    <Input
-                        id="company"
-                        placeholder="Deixe em branco se for dev autônomo/freelancer"
-                        value={form.company}
-                        onChange={(e) => updateField('company', e.target.value)}
-                    />
-                </div>
-
-                <div className="flex flex-col gap-2">
-                    <Label>
-                        Você desenvolve para quantas clínicas/consultórios atualmente?{' '}
-                        <span className="text-destructive">*</span>
-                    </Label>
-                    <RadioGroup
-                        value={form.clientsCount}
-                        onValueChange={(value) =>
-                            updateField('clientsCount', value as FormState['clientsCount'])
-                        }
-                    >
-                        {clientsCountOptions.map((opt) => (
-                            <label
-                                key={opt.value}
-                                className="flex items-center gap-2 text-base text-foreground"
-                            >
-                                <RadioGroupItem value={opt.value} />
-                                {opt.label}
-                            </label>
-                        ))}
-                    </RadioGroup>
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="system">
-                        Qual sistema você já mantém ou pretende integrar?
-                    </Label>
-                    <Input
-                        id="system"
-                        placeholder="ex: ERP próprio, prontuário eletrônico, sistema de agenda"
-                        value={form.system}
-                        onChange={(e) => updateField('system', e.target.value)}
-                    />
-                </div>
-
                 <div className="flex flex-col gap-2">
                     <Label>
                         O que mais te interessa no Confirma?{' '}
@@ -215,14 +165,31 @@ export function WaitlistForm() {
                     </RadioGroup>
                 </div>
 
-                <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="source">Como você soube do Confirma?</Label>
-                    <Input
-                        id="source"
-                        placeholder="ex: LinkedIn, indicação, comunidade"
-                        value={form.source}
-                        onChange={(e) => updateField('source', e.target.value)}
-                    />
+                <div className="flex flex-col gap-2">
+                    <Label>Como você soube do Confirma?</Label>
+                    <div className="grid grid-cols-2 gap-2.5">
+                        {sourceOptions.map((opt) => {
+                            const Icon = opt.icon;
+                            const selected = form.source === opt.value;
+                            return (
+                                <button
+                                    key={opt.value}
+                                    type="button"
+                                    onClick={() => updateField('source', opt.value)}
+                                    aria-pressed={selected}
+                                    className={cn(
+                                        'flex flex-col items-center gap-1.5 rounded-[9px] border px-3 py-3.5 text-sm font-medium transition-colors',
+                                        selected
+                                            ? 'border-primary bg-accent text-accent-foreground'
+                                            : 'border-input text-secondary-foreground hover:bg-accent/50',
+                                    )}
+                                >
+                                    <Icon className="size-4.5" strokeWidth={1.9} />
+                                    {opt.label}
+                                </button>
+                            );
+                        })}
+                    </div>
                 </div>
 
                 {error ? (
@@ -231,7 +198,12 @@ export function WaitlistForm() {
                     </div>
                 ) : null}
 
-                <Button type="submit" size="secondary" className="mt-1" disabled={submitting}>
+                <Button
+                    type="submit"
+                    size="secondary"
+                    className="mt-1 w-full"
+                    disabled={submitting}
+                >
                     {submitting ? 'Enviando…' : 'Garantir acesso antecipado'}
                 </Button>
             </form>
