@@ -1,10 +1,1 @@
-@import 'tailwindcss';
-
-@theme inline {
-    --font-sans: var(--font-ibm-plex-sans), system-ui, sans-serif;
-    --font-mono: var(--font-ibm-plex-mono), monospace;
-}
-
-body {
-    font-family: var(--font-sans);
-}
+@import '@confirma/ui/globals.css';

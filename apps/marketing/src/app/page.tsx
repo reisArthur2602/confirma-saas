@@ -1,3 +1,5 @@
+import { Button } from '@confirma/ui/components/button';
+
 const Home = () => {
     return (
         <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
@@ -8,6 +10,7 @@ const Home = () => {
                 <p className="mt-4 max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
                     Infraestrutura de confirmação de agenda para clínicas via WhatsApp.
                 </p>
+                <Button className="mt-6">Garantir acesso antecipado</Button>
             </main>
         </div>
     );

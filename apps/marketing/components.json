@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "new-york",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": {
+    "config": "",
+    "css": "../../packages/ui/src/globals.css",
+    "baseColor": "neutral",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "iconLibrary": "lucide",
+  "aliases": {
+    "components": "@confirma/ui/components",
+    "hooks": "@confirma/ui/hooks",
+    "lib": "@confirma/ui/lib",
+    "utils": "@confirma/ui/lib/utils",
+    "ui": "@confirma/ui/components"
+  }
+}
