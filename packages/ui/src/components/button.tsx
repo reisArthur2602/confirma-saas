@@ -5,30 +5,37 @@ import { Slot } from "radix-ui"
 import { cn } from "@confirma/ui/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "inline-flex shrink-0 items-center justify-center gap-2 font-semibold whitespace-nowrap transition-colors outline-none cursor-pointer disabled:pointer-events-none disabled:cursor-default [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        // .btn-primary
+        default:
+          "rounded-[9px] bg-primary text-primary-foreground shadow-[0_1px_3px_rgba(47,107,243,0.3)] hover:bg-primary/90 disabled:bg-[#c7d6f7] disabled:text-white disabled:shadow-none",
+        // .btn-destructive-solid
         destructive:
-          "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40",
+          "rounded-lg bg-destructive text-white hover:bg-destructive/90",
+        // .btn-destructive (outline)
         outline:
-          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
+          "rounded-lg border border-[#f2c9c9] bg-background text-destructive hover:bg-destructive/5",
+        // .btn-secondary
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          "rounded-lg border border-input bg-background text-secondary-foreground hover:bg-accent/50",
+        // .btn-dark
+        dark: "rounded-lg bg-foreground text-background hover:bg-foreground/90",
+        // .btn-ghost
         ghost:
-          "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
-        link: "text-primary underline-offset-4 hover:underline",
+          "p-0 text-primary hover:underline disabled:opacity-50",
+        link: "p-0 text-primary underline-offset-4 hover:underline",
       },
       size: {
-        default: "h-9 px-4 py-2 has-[>svg]:px-3",
-        xs: "h-6 gap-1 rounded-md px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
-        sm: "h-8 gap-1.5 rounded-md px-3 has-[>svg]:px-2.5",
-        lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
-        icon: "size-9",
-        "icon-xs": "size-6 rounded-md [&_svg:not([class*='size-'])]:size-3",
-        "icon-sm": "size-8",
-        "icon-lg": "size-10",
+        // padding: 10px 18px, font-size: 13.5px
+        default: "h-10 px-[18px] py-2.5 text-base has-[>svg]:px-4",
+        // padding: 9px 17px, font-size: 12.5px
+        secondary: "h-9 px-[17px] py-2 text-sm has-[>svg]:px-3.5",
+        // .btn-sm — padding: 5px 11px, font-size: 11.5px, border-radius: 7px
+        sm: "h-auto rounded-[7px] px-[11px] py-[5px] text-xs has-[>svg]:px-2.5",
+        icon: "size-10",
       },
     },
     defaultVariants: {

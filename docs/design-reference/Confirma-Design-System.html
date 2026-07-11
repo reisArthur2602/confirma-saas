@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Confirma — Design System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Serif:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'IBM Plex Sans', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    background: #ffffff;
+    color: #17191c;
+    font-size: 14px;
+  }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: #d9dbe0; border-radius: 8px; border: 3px solid #fff; }
+  ::-webkit-scrollbar-thumb:hover { background: #c3c6cd; }
+
+  @keyframes cfmFade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @keyframes cfmDrop { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  @keyframes cfmPulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+
+  /* ===== layout do documento ===== */
+  .ds-shell { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+  .ds-nav {
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    background: #fbfbfc; border-right: 1px solid #ecedf0; padding: 20px 14px;
+  }
+  .ds-nav-logo { display: flex; align-items: center; gap: 9px; padding: 4px 8px 20px; }
+  .ds-nav-logo-mark {
+    width: 26px; height: 26px; border-radius: 7px; background: #2f6bf3;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 1px 3px rgba(47,107,243,.35); flex-shrink: 0;
+  }
+  .ds-nav-title { font-size: 15px; font-weight: 700; letter-spacing: -.02em; }
+  .ds-nav-sub { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; color: #8b9098; }
+  .ds-nav a {
+    display: block; padding: 6px 10px; border-radius: 7px; font-size: 12.5px; font-weight: 500;
+    color: #4b5158; text-decoration: none; margin-bottom: 1px;
+  }
+  .ds-nav a:hover { background: #f0f1f3; }
+  .ds-nav .ds-nav-heading {
+    font-size: 10.5px; font-weight: 600; letter-spacing: .07em; color: #a2a7af;
+    text-transform: uppercase; padding: 16px 10px 6px;
+  }
+  .ds-main { padding: 48px 56px 120px; max-width: 1180px; }
+  .ds-header { margin-bottom: 56px; }
+  .ds-header h1 { margin: 0 0 8px; font-size: 34px; font-weight: 700; letter-spacing: -.028em; }
+  .ds-header p { margin: 0; font-size: 15px; line-height: 1.6; color: #61656c; max-width: 640px; }
+
+  section.ds-section { margin-bottom: 64px; scroll-margin-top: 24px; }
+  .ds-section-eyebrow {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; color: #2f6bf3;
+    letter-spacing: .05em; text-transform: uppercase; margin-bottom: 8px;
+  }
+  .ds-section h2 { margin: 0 0 6px; font-size: 24px; font-weight: 700; letter-spacing: -.02em; }
+  .ds-section > p.ds-desc { margin: 0 0 28px; font-size: 13.5px; line-height: 1.6; color: #61656c; max-width: 620px; }
+
+  h3.ds-sub { font-size: 15px; font-weight: 700; margin: 32px 0 14px; letter-spacing: -.01em; }
+  h3.ds-sub:first-of-type { margin-top: 0; }
+
+  /* ===== swatches de cor ===== */
+  .swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 12px; }
+  .swatch {
+    border: 1px solid #ecedf0; border-radius: 12px; overflow: hidden; background: #fff;
+  }
+  .swatch-color { height: 56px; }
+  .swatch-body { padding: 10px 12px; }
+  .swatch-hex { font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600; }
+  .swatch-name { font-size: 11.5px; color: #8b9098; margin-top: 2px; }
+
+  /* ===== tipografia ===== */
+  .type-row { display: flex; align-items: baseline; gap: 20px; padding: 14px 0; border-bottom: 1px solid #f2f3f5; }
+  .type-row:last-child { border-bottom: none; }
+  .type-meta { width: 190px; flex-shrink: 0; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #8b9098; line-height: 1.6; }
+  .type-sample { flex: 1; min-width: 0; }
+
+  /* ===== tabela de tokens ===== */
+  table.tok-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  table.tok-table th {
+    text-align: left; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+    color: #a2a7af; padding: 8px 12px; background: #fbfbfc; border-bottom: 1px solid #ecedf0;
+  }
+  table.tok-table td { padding: 9px 12px; border-bottom: 1px solid #f2f3f5; vertical-align: middle; }
+  table.tok-table code { font-family: 'IBM Plex Mono', monospace; font-size: 12px; background: #f4f3ec; padding: 1px 6px; border-radius: 4px; }
+
+  /* ===== showcase de componente ===== */
+  .comp-block { border: 1px solid #ecedf0; border-radius: 12px; margin-bottom: 16px; overflow: hidden; }
+  .comp-preview {
+    padding: 24px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+    background: #fff;
+  }
+  .comp-preview.dark { background: #17191c; }
+  .comp-preview.chat { background: #e5ddd5; }
+  .comp-label {
+    padding: 8px 14px; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+    color: #a2a7af; background: #fbfbfc; border-top: 1px solid #ecedf0;
+  }
+
+  /* ===== botões (reais, do design system) ===== */
+  .btn { font-family: inherit; cursor: pointer; border-radius: 9px; font-weight: 600; }
+  .btn-primary { padding: 10px 18px; border: none; background: #2f6bf3; color: #fff; font-size: 13.5px; box-shadow: 0 1px 3px rgba(47,107,243,.3); }
+  .btn-primary:disabled { background: #c7d6f7; color: #fff; box-shadow: none; cursor: default; }
+  .btn-secondary { padding: 9px 17px; border: 1px solid #e2e4e8; background: #fff; color: #4b5158; font-size: 12.5px; border-radius: 8px; }
+  .btn-dark { padding: 9px 17px; border: none; background: #17191c; color: #fff; font-size: 12.5px; border-radius: 8px; }
+  .btn-ghost { padding: 0; border: none; background: none; color: #2f6bf3; font-size: 12.5px; }
+  .btn-destructive { padding: 9px 17px; border: 1px solid #f2c9c9; background: #fff; color: #d13c3c; font-size: 12.5px; border-radius: 8px; }
+  .btn-destructive-solid { padding: 9px 17px; border: none; background: #d13c3c; color: #fff; font-size: 12.5px; border-radius: 8px; }
+  .btn-sm { padding: 5px 11px; font-size: 11.5px; border-radius: 7px; }
+
+  /* ===== badges de status ===== */
+  .badge { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 600; }
+  .badge .dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+  .badge-confirmed { background: #e7f6ec; color: #178a45; }
+  .badge-cancelled { background: #fdecec; color: #d13c3c; }
+  .badge-reschedule { background: #f0ecfd; color: #7c3aed; }
+  .badge-no-response { background: #f1f2f4; color: #6b7280; }
+  .badge-awaiting { background: #fbf1dc; color: #a86a09; }
+  .badge-sent { background: #eaf1ff; color: #2f6bf3; }
+  .badge-failed { background: #fdecec; color: #d13c3c; }
+  .badge-client-error { background: #fde6df; color: #c2410c; }
+
+  /* ===== inputs ===== */
+  .input-base {
+    width: 100%; max-width: 280px; padding: 10px 13px; border: 1px solid #e2e4e8; border-radius: 9px;
+    font-size: 13px; font-family: inherit; color: #17191c;
+  }
+  .input-base:focus { outline: none; border-color: #2f6bf3; box-shadow: 0 0 0 3px rgba(47,107,243,.12); }
+  .input-mono { font-family: 'IBM Plex Mono', monospace; }
+
+  .input-group {
+    display: flex; align-items: center; gap: 10px; background: #fbfbfc; border: 1px solid #ecedf0;
+    border-radius: 9px; padding: 10px 13px; max-width: 340px;
+  }
+  .input-group span.val { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #17191c; flex: 1; }
+
+  .input-search {
+    display: flex; align-items: center; gap: 8px; padding: 7px 12px; border: 1px solid #e2e4e8;
+    border-radius: 8px; width: 220px;
+  }
+
+  textarea.ds-textarea {
+    width: 100%; max-width: 420px; min-height: 100px; padding: 10px 13px; border: 1px solid #e2e4e8;
+    border-radius: 9px; font-size: 12.5px; font-family: 'IBM Plex Mono', monospace; color: #17191c; resize: vertical;
+  }
+  textarea.ds-textarea:focus { outline: none; border-color: #2f6bf3; box-shadow: 0 0 0 3px rgba(47,107,243,.12); }
+
+  /* ===== cards ===== */
+  .card-base { border: 1px solid #ecedf0; border-radius: 12px; padding: 20px; width: 240px; }
+  .card-active { border: 1.5px solid #2f6bf3; background: #f7faff; border-radius: 10px; padding: 16px; width: 220px; }
+  .card-warning { border: 1px solid #f0dfb8; background: #fdf8ec; border-radius: 12px; padding: 18px 20px; width: 300px; }
+  .card-error { background: #fdecec; border: 1px solid #f2c9c9; border-radius: 10px; padding: 14px 16px; width: 300px; }
+  .card-success { display: flex; align-items: center; gap: 8px; padding: 12px 14px; border-radius: 9px; background: #e7f6ec; width: fit-content; }
+  .card-title { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+  .card-desc { font-size: 12.5px; color: #61656c; line-height: 1.55; }
+
+  /* ===== dialog mock ===== */
+  .dialog-frame {
+    position: relative; background: #17191c1a; border-radius: 14px; padding: 40px 20px; display: flex;
+    align-items: center; justify-content: center; min-height: 220px;
+  }
+  .dialog-card {
+    width: 340px; background: #fff; border-radius: 14px; box-shadow: 0 20px 48px rgba(16,24,40,.18); padding: 22px;
+  }
+
+  /* ===== tabela mock ===== */
+  .tbl { border: 1px solid #ecedf0; border-radius: 12px; overflow: hidden; }
+  .tbl-head { display: grid; grid-template-columns: 1fr 1fr 100px; padding: 11px 18px; background: #fbfbfc; border-bottom: 1px solid #ecedf0; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #a2a7af; }
+  .tbl-row { display: grid; grid-template-columns: 1fr 1fr 100px; padding: 13px 18px; border-bottom: 1px solid #f2f3f5; align-items: center; font-size: 13px; }
+  .tbl-row:last-child { border-bottom: none; }
+  .tbl-row:hover { background: #fafbfc; }
+
+  /* ===== tabs / segmented ===== */
+  .seg { display: inline-flex; gap: 2px; padding: 3px; background: #f0f1f3; border-radius: 8px; }
+  .seg button { padding: 5px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; border: none; font-family: inherit; cursor: pointer; background: transparent; color: #8b9098; }
+  .seg button.active { background: #fff; color: #17191c; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+
+  /* ===== sidebar nav mock ===== */
+  .nav-mock { width: 200px; display: flex; flex-direction: column; gap: 2px; }
+  .nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 8px; font-size: 13.5px; font-weight: 500; color: #4b5158; }
+  .nav-item.active { background: #eef3fe; color: #2f6bf3; font-weight: 600; }
+
+  /* ===== radio dots ===== */
+  .radio-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #cdd0d6; background: #fff; display: inline-block; }
+  .radio-dot.active { border-color: #2f6bf3; background: radial-gradient(circle, #2f6bf3 0 4px, #fff 5px 16px); }
+
+  /* ===== code block ===== */
+  .code-block { background: #17191c; border-radius: 12px; padding: 16px 18px; overflow-x: auto; }
+  .code-block pre { margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; line-height: 1.75; color: #d7dbe2; white-space: pre; }
+  .tok-comment { color: #8b9098; } .tok-key { color: #7ea6f7; } .tok-str { color: #9ece8f; } .tok-ok { color: #4ec77e; }
+
+  /* ===== chat bubbles ===== */
+  .chat-bot { align-self: flex-start; max-width: 260px; background: #fff; border-radius: 2px 10px 10px 10px; padding: 10px 13px; box-shadow: 0 1px 1px rgba(0,0,0,.12); }
+  .chat-user { align-self: flex-end; max-width: 200px; background: #d9fdd3; border-radius: 10px 2px 10px 10px; padding: 9px 13px; box-shadow: 0 1px 1px rgba(0,0,0,.12); margin-left: auto; }
+  .chat-text { font-size: 13px; line-height: 1.5; color: #1f2c33; }
+  .chat-time { font-size: 10px; color: #90a0a8; text-align: right; margin-top: 4px; font-family: 'IBM Plex Mono', monospace; }
+
+  /* ===== icon grid ===== */
+  .icon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 10px; }
+  .icon-cell { border: 1px solid #ecedf0; border-radius: 10px; padding: 14px 8px; display: flex; align-items: center; justify-content: center; }
+
+  /* ===== animation demo ===== */
+  .anim-demo { border: 1px solid #ecedf0; border-radius: 12px; padding: 20px; width: 160px; text-align: center; }
+  .anim-demo .box { width: 40px; height: 40px; border-radius: 10px; background: #2f6bf3; margin: 0 auto 10px; }
+  .anim-label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #8b9098; }
+
+  code.inline { font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; background: #f4f3ec; padding: 1px 6px; border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<div class="ds-shell">
+
+  <!-- ================= NAV ================= -->
+  <nav class="ds-nav">
+    <div class="ds-nav-logo">
+      <div class="ds-nav-logo-mark">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+      </div>
+      <div>
+        <div class="ds-nav-title">Confirma</div>
+        <div class="ds-nav-sub">design system</div>
+      </div>
+    </div>
+
+    <div class="ds-nav-heading">Fundamentos</div>
+    <a href="#cores">Cores</a>
+    <a href="#tipografia">Tipografia</a>
+    <a href="#espacamento">Espaçamento &amp; raios</a>
+    <a href="#animacoes">Animações</a>
+    <a href="#icones">Ícones</a>
+
+    <div class="ds-nav-heading">Componentes</div>
+    <a href="#botoes">Botões</a>
+    <a href="#badges">Badges de status</a>
+    <a href="#inputs">Inputs &amp; textarea</a>
+    <a href="#cards">Cards</a>
+    <a href="#dialogs">Dialogs</a>
+    <a href="#tabelas">Tabelas</a>
+    <a href="#tabs">Tabs &amp; segmented</a>
+    <a href="#nav-sidebar">Nav sidebar</a>
+    <a href="#toggles">Toggles &amp; radios</a>
+    <a href="#codigo">Blocos de código</a>
+    <a href="#chat">Bolhas de chat</a>
+  </nav>
+
+  <!-- ================= MAIN ================= -->
+  <main class="ds-main">
+
+    <div class="ds-header">
+      <h1>Design System</h1>
+      <p>Catálogo vivo de tokens e componentes usados nos protótipos do Confirma — dashboard, documentação, blog, landing, login e onboarding. IBM Plex Sans para texto, IBM Plex Mono para dados técnicos, sem framework CSS: tudo construído com estilo inline direto nos protótipos.</p>
+    </div>
+
+    <!-- ============================================================ -->
+    <section class="ds-section" id="cores">
+      <div class="ds-section-eyebrow">Fundamentos</div>
+      <h2>Cores</h2>
+      <p class="ds-desc">Paleta neutra + cores semânticas por estado. Cada cor de status tem uma variante de fundo clara para uso em badges e cards.</p>
+
+      <h3 class="ds-sub">Texto</h3>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch-color" style="background:#17191c;"></div><div class="swatch-body"><div class="swatch-hex">#17191c</div><div class="swatch-name">Texto primário</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#4b5158;"></div><div class="swatch-body"><div class="swatch-hex">#4b5158</div><div class="swatch-name">Texto secundário</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#61656c;"></div><div class="swatch-body"><div class="swatch-hex">#61656c</div><div class="swatch-name">Texto secundário (alt)</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#8b9098;"></div><div class="swatch-body"><div class="swatch-hex">#8b9098</div><div class="swatch-name">Texto terciário</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#a2a7af;"></div><div class="swatch-body"><div class="swatch-hex">#a2a7af</div><div class="swatch-name">Texto terciário claro</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#b6bac1;"></div><div class="swatch-body"><div class="swatch-hex">#b6bac1</div><div class="swatch-name">Texto quaternário</div></div></div>
+      </div>
+
+      <h3 class="ds-sub">Bordas &amp; fundos neutros</h3>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch-color" style="background:#ecedf0;"></div><div class="swatch-body"><div class="swatch-hex">#ecedf0</div><div class="swatch-name">Borda padrão</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#e2e4e8;"></div><div class="swatch-body"><div class="swatch-hex">#e2e4e8</div><div class="swatch-name">Borda de input</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#f2f3f5;"></div><div class="swatch-body"><div class="swatch-hex">#f2f3f5</div><div class="swatch-name">Borda sutil / divisor</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#f0f1f3;"></div><div class="swatch-body"><div class="swatch-hex">#f0f1f3</div><div class="swatch-name">Fundo segmented control</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#cdd0d6;"></div><div class="swatch-body"><div class="swatch-hex">#cdd0d6</div><div class="swatch-name">Radio inativo / setas</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#fbfbfc; border:1px solid #ecedf0;"></div><div class="swatch-body"><div class="swatch-hex">#fbfbfc</div><div class="swatch-name">Fundo de página / sidebar</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#fcfcfd; border:1px solid #ecedf0;"></div><div class="swatch-body"><div class="swatch-hex">#fcfcfd</div><div class="swatch-name">Fundo sutil (alt)</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#ffffff; border:1px solid #ecedf0;"></div><div class="swatch-body"><div class="swatch-hex">#ffffff</div><div class="swatch-name">Fundo de card / dialog</div></div></div>
+      </div>
+
+      <h3 class="ds-sub">Azul — brand / primário</h3>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch-color" style="background:#2f6bf3;"></div><div class="swatch-body"><div class="swatch-hex">#2f6bf3</div><div class="swatch-name">Azul primário</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#eef3fe;"></div><div class="swatch-body"><div class="swatch-hex">#eef3fe</div><div class="swatch-name">Fundo azul claro</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#eaf1ff;"></div><div class="swatch-body"><div class="swatch-hex">#eaf1ff</div><div class="swatch-name">Fundo azul (badge sent)</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#f7faff;"></div><div class="swatch-body"><div class="swatch-hex">#f7faff</div><div class="swatch-name">Fundo card destacado</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#dbe6fd;"></div><div class="swatch-body"><div class="swatch-hex">#dbe6fd</div><div class="swatch-name">Borda azul clara</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#c7d6f7;"></div><div class="swatch-body"><div class="swatch-hex">#c7d6f7</div><div class="swatch-name">Botão azul desabilitado</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#7ea6f7;"></div><div class="swatch-body"><div class="swatch-hex">#7ea6f7</div><div class="swatch-name">Azul claro (tema escuro)</div></div></div>
+      </div>
+
+      <h3 class="ds-sub">Verde — sucesso</h3>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch-color" style="background:#178a45;"></div><div class="swatch-body"><div class="swatch-hex">#178a45</div><div class="swatch-name">Verde sucesso</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#e7f6ec;"></div><div class="swatch-body"><div class="swatch-hex">#e7f6ec</div><div class="swatch-name">Fundo verde claro</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#d3ecdb;"></div><div class="swatch-body"><div class="swatch-hex">#d3ecdb</div><div class="swatch-name">Borda verde sutil</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#4ec77e;"></div><div class="swatch-body"><div class="swatch-hex">#4ec77e</div><div class="swatch-name">Verde claro (tema escuro)</div></div></div>
+      </div>
+
+      <h3 class="ds-sub">Vermelho — erro</h3>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch-color" style="background:#d13c3c;"></div><div class="swatch-body"><div class="swatch-hex">#d13c3c</div><div class="swatch-name">Vermelho erro</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#fdecec;"></div><div class="swatch-body"><div class="swatch-hex">#fdecec</div><div class="swatch-name">Fundo vermelho claro</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#f2c9c9;"></div><div class="swatch-body"><div class="swatch-hex">#f2c9c9</div><div class="swatch-name">Borda vermelha sutil</div></div></div>
+      </div>
+
+      <h3 class="ds-sub">Âmbar — aviso</h3>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch-color" style="background:#a86a09;"></div><div class="swatch-body"><div class="swatch-hex">#a86a09</div><div class="swatch-name">Âmbar texto</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#c2820a;"></div><div class="swatch-body"><div class="swatch-hex">#c2820a</div><div class="swatch-name">Âmbar vivo (dots/ícones)</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#7a5a12;"></div><div class="swatch-body"><div class="swatch-hex">#7a5a12</div><div class="swatch-name">Âmbar escuro (callout)</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#fdf2dc;"></div><div class="swatch-body"><div class="swatch-hex">#fdf2dc</div><div class="swatch-name">Fundo âmbar</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#fbf1dc;"></div><div class="swatch-body"><div class="swatch-hex">#fbf1dc</div><div class="swatch-name">Fundo âmbar (badge)</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#fdf8ec;"></div><div class="swatch-body"><div class="swatch-hex">#fdf8ec</div><div class="swatch-name">Fundo âmbar claro (callout)</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#f0dfb8;"></div><div class="swatch-body"><div class="swatch-hex">#f0dfb8</div><div class="swatch-name">Borda âmbar</div></div></div>
+      </div>
+
+      <h3 class="ds-sub">Roxo &amp; cinza neutro</h3>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch-color" style="background:#7c3aed;"></div><div class="swatch-body"><div class="swatch-hex">#7c3aed</div><div class="swatch-name">Roxo (reschedule)</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#f0ecfd;"></div><div class="swatch-body"><div class="swatch-hex">#f0ecfd</div><div class="swatch-name">Fundo roxo claro</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#6b7280;"></div><div class="swatch-body"><div class="swatch-hex">#6b7280</div><div class="swatch-name">Cinza neutro (no_response)</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#f1f2f4;"></div><div class="swatch-body"><div class="swatch-hex">#f1f2f4</div><div class="swatch-name">Fundo cinza claro</div></div></div>
+      </div>
+
+      <h3 class="ds-sub">Laranja — erro de instância do cliente</h3>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch-color" style="background:#c2410c;"></div><div class="swatch-body"><div class="swatch-hex">#c2410c</div><div class="swatch-name">client_instance_error</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#fde6df;"></div><div class="swatch-body"><div class="swatch-hex">#fde6df</div><div class="swatch-name">Fundo laranja claro</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#f0a35e;"></div><div class="swatch-body"><div class="swatch-hex">#f0a35e</div><div class="swatch-name">Laranja claro (tema escuro)</div></div></div>
+      </div>
+
+      <h3 class="ds-sub">Tema escuro (seções isoladas — não é dark mode do app)</h3>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch-color" style="background:#17191c;"></div><div class="swatch-body"><div class="swatch-hex">#17191c</div><div class="swatch-name">Fundo dark principal</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#1c1f24;"></div><div class="swatch-body"><div class="swatch-hex">#1c1f24</div><div class="swatch-name">Card sobre dark</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#2a2d33;"></div><div class="swatch-body"><div class="swatch-hex">#2a2d33</div><div class="swatch-name">Borda sutil dark</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#3a3e44;"></div><div class="swatch-body"><div class="swatch-hex">#3a3e44</div><div class="swatch-name">Borda de input dark</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#d7dbe2;"></div><div class="swatch-body"><div class="swatch-hex">#d7dbe2</div><div class="swatch-name">Texto sobre dark</div></div></div>
+      </div>
+
+      <h3 class="ds-sub">WhatsApp mockup</h3>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch-color" style="background:#e5ddd5;"></div><div class="swatch-body"><div class="swatch-hex">#e5ddd5</div><div class="swatch-name">Fundo do chat</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#d9fdd3;"></div><div class="swatch-body"><div class="swatch-hex">#d9fdd3</div><div class="swatch-name">Bolha do paciente</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#1f2c33;"></div><div class="swatch-body"><div class="swatch-hex">#1f2c33</div><div class="swatch-name">Texto da bolha</div></div></div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section class="ds-section" id="tipografia">
+      <div class="ds-section-eyebrow">Fundamentos</div>
+      <h2>Tipografia</h2>
+      <p class="ds-desc">IBM Plex Sans para texto de interface, IBM Plex Mono para dados técnicos/código, IBM Plex Serif reservado ao corpo de artigos longos (blog).</p>
+
+      <h3 class="ds-sub">Famílias</h3>
+      <div class="type-row">
+        <div class="type-meta">IBM Plex Sans<br>400 / 500 / 600 / 700</div>
+        <div class="type-sample" style="font-family:'IBM Plex Sans',sans-serif; font-size:20px;">Texto de interface — labels, botões, headings, corpo.</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">IBM Plex Mono<br>400 / 500 / 600</div>
+        <div class="type-sample" style="font-family:'IBM Plex Mono',monospace; font-size:16px;">X-Api-Key, IDs, código, valores técnicos.</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">IBM Plex Serif<br>400 / 500 / 600</div>
+        <div class="type-sample" style="font-family:'IBM Plex Serif',serif; font-size:18px;">Corpo de artigos longos do blog.</div>
+      </div>
+
+      <h3 class="ds-sub">Escala de tamanhos</h3>
+      <div class="type-row"><div class="type-meta">46px / 700 / -.03em</div><div class="type-sample" style="font-size:46px; font-weight:700; letter-spacing:-.03em; line-height:1.12;">Hero da landing</div></div>
+      <div class="type-row"><div class="type-meta">40px / 700 / -.028em</div><div class="type-sample" style="font-size:40px; font-weight:700; letter-spacing:-.028em; line-height:1.15;">Título de artigo</div></div>
+      <div class="type-row"><div class="type-meta">34px / 700 / -.028em</div><div class="type-sample" style="font-size:34px; font-weight:700; letter-spacing:-.028em; line-height:1.15;">CTA final</div></div>
+      <div class="type-row"><div class="type-meta">30px / 700 / -.025em</div><div class="type-sample" style="font-size:30px; font-weight:700; letter-spacing:-.025em;">H1 de docs / H2 de seção</div></div>
+      <div class="type-row"><div class="type-meta">26px / 700 / -.02em</div><div class="type-sample" style="font-size:26px; font-weight:700; letter-spacing:-.02em;">H2 de artigo</div></div>
+      <div class="type-row"><div class="type-meta">24px / 700 / -.02em</div><div class="type-sample" style="font-size:24px; font-weight:700; letter-spacing:-.02em;">H1 de onboarding</div></div>
+      <div class="type-row"><div class="type-meta">22px / 700 / -.02em</div><div class="type-sample" style="font-size:22px; font-weight:700; letter-spacing:-.02em;">H2 de seção de docs</div></div>
+      <div class="type-row"><div class="type-meta">20px / 700 / -.02em</div><div class="type-sample" style="font-size:20px; font-weight:700; letter-spacing:-.02em;">H2 de detalhe (dashboard)</div></div>
+      <div class="type-row"><div class="type-meta">17px / 400 (serif)</div><div class="type-sample" style="font-family:'IBM Plex Serif',serif; font-size:17px; line-height:1.75; color:#2c2f34;">Corpo de artigo do blog, line-height 1.75</div></div>
+      <div class="type-row"><div class="type-meta">15.5–16px / 600</div><div class="type-sample" style="font-size:15.5px; font-weight:600;">Subheadline forte</div></div>
+      <div class="type-row"><div class="type-meta">14–15px / 400–600</div><div class="type-sample" style="font-size:14.5px;">Corpo base, títulos de dialog</div></div>
+      <div class="type-row"><div class="type-meta">13–13.5px / 500–600</div><div class="type-sample" style="font-size:13.5px; font-weight:600;">Texto de botão, nav ativo</div></div>
+      <div class="type-row"><div class="type-meta">12–12.5px / 400–600</div><div class="type-sample" style="font-size:12.5px; color:#4b5158;">Labels de formulário, descrições de card</div></div>
+      <div class="type-row"><div class="type-meta">11–11.5px / 500–700</div><div class="type-sample" style="font-size:11.5px; color:#8b9098;">Badges, metadata, texto auxiliar pequeno</div></div>
+      <div class="type-row"><div class="type-meta">10.5px / 600 / .07em uppercase</div><div class="type-sample" style="font-size:10.5px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:#a2a7af;">Label de seção sidebar</div></div>
+
+      <h3 class="ds-sub">Letter-spacing em headings</h3>
+      <table class="tok-table">
+        <tr><th>Valor</th><th>Uso</th></tr>
+        <tr><td><code>-.01em</code></td><td>H1 pequenos (dialogs, "Entrar no painel")</td></tr>
+        <tr><td><code>-.02em</code></td><td>Logo, H1 de onboarding, KPIs, H2 de docs</td></tr>
+        <tr><td><code>-.025em</code></td><td>H2 de seções de landing/blog</td></tr>
+        <tr><td><code>-.028em</code></td><td>H1 de artigo, H2 de CTA</td></tr>
+        <tr><td><code>-.03em</code></td><td>H1 do hero (maior tracking negativo do sistema)</td></tr>
+        <tr><td><code>.03em – .07em</code> (positivo)</td><td>Labels uppercase — sempre combinado com <code>text-transform: uppercase</code></td></tr>
+      </table>
+    </section>
+
+    <!-- ============================================================ -->
+    <section class="ds-section" id="espacamento">
+      <div class="ds-section-eyebrow">Fundamentos</div>
+      <h2>Espaçamento &amp; raios de borda</h2>
+      <p class="ds-desc">Raios crescem com o tamanho do elemento: 6-9px em controles pequenos, 12-14px em cards e dialogs, 999px em pills.</p>
+
+      <table class="tok-table">
+        <tr><th>Raio</th><th>Uso</th></tr>
+        <tr><td><code>4-5px</code></td><td>Badges pequenos, <code>&lt;code&gt;</code> inline</td></tr>
+        <tr><td><code>6-7px</code></td><td>Badges médios, botões pequenos, segmented control interno</td></tr>
+        <tr><td><code>8-9px</code></td><td>Botões padrão, inputs, itens de nav sidebar</td></tr>
+        <tr><td><code>10px</code></td><td>Cards de destaque, callouts, dialogs pequenos</td></tr>
+        <tr><td><code>12px</code></td><td>Cards padrão — a maioria dos containers</td></tr>
+        <tr><td><code>14px</code></td><td>Cards grandes — login, dialogs, onboarding</td></tr>
+        <tr><td><code>16px</code></td><td>Círculo de ícone grande (checkmark de sucesso)</td></tr>
+        <tr><td><code>999px</code></td><td>Pills totais — badges de status, chips, tags</td></tr>
+        <tr><td><code>50%</code></td><td>Avatares, dots de status, radio buttons</td></tr>
+      </table>
+
+      <h3 class="ds-sub">Sombras</h3>
+      <p class="ds-desc" style="margin-bottom:14px;">Base neutra <code class="inline">rgba(16,24,40,α)</code> para sombras de card/dialog; glow azul <code class="inline">rgba(47,107,243,α)</code> para foco e CTAs.</p>
+      <div style="display:flex; gap:20px; flex-wrap:wrap;">
+        <div style="width:140px; height:70px; border-radius:12px; background:#fff; border:1px solid #ecedf0; box-shadow:0 1px 2px rgba(16,24,40,.04); display:flex; align-items:center; justify-content:center; font-size:11px; color:#8b9098; font-family:'IBM Plex Mono',monospace;">.04 · card</div>
+        <div style="width:140px; height:70px; border-radius:14px; background:#fff; box-shadow:0 20px 48px rgba(16,24,40,.18); display:flex; align-items:center; justify-content:center; font-size:11px; color:#8b9098; font-family:'IBM Plex Mono',monospace;">.18 · dialog</div>
+        <div style="width:140px; height:70px; border-radius:9px; background:#2f6bf3; box-shadow:0 2px 8px rgba(47,107,243,.35); display:flex; align-items:center; justify-content:center; font-size:11px; color:#fff; font-family:'IBM Plex Mono',monospace;">.35 · CTA</div>
+        <div style="width:140px; height:70px; border-radius:9px; background:#fff; border:1px solid #2f6bf3; box-shadow:0 0 0 3px rgba(47,107,243,.12); display:flex; align-items:center; justify-content:center; font-size:11px; color:#2f6bf3; font-family:'IBM Plex Mono',monospace;">.12 · focus ring</div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section class="ds-section" id="animacoes">
+      <div class="ds-section-eyebrow">Fundamentos</div>
+      <h2>Animações</h2>
+      <p class="ds-desc">Três keyframes cobrem todo o sistema — sem exceção. Passe o mouse pelos exemplos.</p>
+
+      <div style="display:flex; gap:16px; flex-wrap:wrap;">
+        <div class="anim-demo">
+          <div class="box" style="animation: cfmFade 1.2s ease infinite;"></div>
+          <div class="anim-label">cfmFade</div>
+          <div style="font-size:11px; color:#8b9098; margin-top:4px;">Entrada de telas, dropdowns, mensagens</div>
+        </div>
+        <div class="anim-demo">
+          <div class="box" style="animation: cfmDrop 1.2s ease infinite;"></div>
+          <div class="anim-label">cfmDrop</div>
+          <div style="font-size:11px; color:#8b9098; margin-top:4px;">Abertura de dialogs, resultados</div>
+        </div>
+        <div class="anim-demo">
+          <div class="box" style="animation: cfmPulse 1.8s ease-in-out infinite;"></div>
+          <div class="anim-label">cfmPulse</div>
+          <div style="font-size:11px; color:#8b9098; margin-top:4px;">Dots "ao vivo" — status, ambiente, teste em andamento</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section class="ds-section" id="icones">
+      <div class="ds-section-eyebrow">Fundamentos</div>
+      <h2>Ícones</h2>
+      <p class="ds-desc">SVG inline, <code class="inline">fill="none"</code>, <code class="inline">stroke</code> contextual. stroke-width 1.8–2.6 (maioria 1.9–2.4), tamanhos 13–34px, <code class="inline">viewBox="0 0 24 24"</code>, cantos arredondados. Estilo Lucide/Feather.</p>
+      <div class="icon-grid">
+        <div class="icon-cell"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4b5158" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+        <div class="icon-cell"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4b5158" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+        <div class="icon-cell"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4b5158" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></div>
+        <div class="icon-cell"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4b5158" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 16H3zM12 10v4M12 17h.01"/></svg></div>
+        <div class="icon-cell"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4b5158" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg></div>
+        <div class="icon-cell"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4b5158" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12a4 4 0 0 1 4-4h2M18 12a4 4 0 0 1-4 4h-2M9 15l-3-3 3-3M15 9l3 3-3 3"/></svg></div>
+        <div class="icon-cell"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4b5158" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/></svg></div>
+        <div class="icon-cell"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4b5158" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="3.5"/><path d="M10 13l8-8M15.5 5.5l2 2M13 8l2 2"/></svg></div>
+        <div class="icon-cell"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4b5158" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg></div>
+        <div class="icon-cell"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4b5158" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section class="ds-section" id="botoes">
+      <div class="ds-section-eyebrow">Componentes</div>
+      <h2>Botões</h2>
+      <p class="ds-desc">Primário azul para ação principal (uma por tela), secundário/dark para ações auxiliares, ghost para links inline, vermelho reservado a ações destrutivas.</p>
+
+      <div class="comp-block">
+        <div class="comp-preview">
+          <button class="btn btn-primary">Salvar credenciais</button>
+          <button class="btn btn-primary" disabled>Gerar chave</button>
+          <button class="btn btn-secondary">Cancelar</button>
+          <button class="btn btn-dark">Rotacionar chave</button>
+          <button class="btn btn-ghost">Ver todos →</button>
+          <button class="btn btn-destructive">Revogar</button>
+          <button class="btn btn-destructive-solid">Confirmar exclusão</button>
+          <button class="btn btn-secondary btn-sm">Copiar</button>
+        </div>
+        <div class="comp-label">primário · desabilitado · secundário · dark · ghost · destrutivo (outline) · destrutivo (sólido) · pequeno</div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section class="ds-section" id="badges">
+      <div class="ds-section-eyebrow">Componentes</div>
+      <h2>Badges de status</h2>
+      <p class="ds-desc">Um badge por estado do ciclo de confirmação, sempre com dot da mesma cor do texto.</p>
+
+      <div class="comp-block">
+        <div class="comp-preview">
+          <span class="badge badge-confirmed"><span class="dot"></span>Confirmado</span>
+          <span class="badge badge-cancelled"><span class="dot"></span>Cancelado</span>
+          <span class="badge badge-reschedule"><span class="dot"></span>Remarcar</span>
+          <span class="badge badge-no-response"><span class="dot"></span>Sem resposta</span>
+          <span class="badge badge-awaiting"><span class="dot"></span>Aguardando</span>
+          <span class="badge badge-sent"><span class="dot"></span>Enviado</span>
+          <span class="badge badge-failed"><span class="dot"></span>Falha interna</span>
+          <span class="badge badge-client-error"><span class="dot"></span>Falha (BYO)</span>
+        </div>
+        <div class="comp-label">confirmed · cancelled · reschedule_requested · no_response · awaiting_response · sent · delivery_failed · client_instance_error</div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section class="ds-section" id="inputs">
+      <div class="ds-section-eyebrow">Componentes</div>
+      <h2>Inputs &amp; textarea</h2>
+      <p class="ds-desc">Foco sempre com anel azul de 3px (<code class="inline">box-shadow: 0 0 0 3px rgba(47,107,243,.12)</code>) + borda azul. Clique nos campos para ver o estado.</p>
+
+      <div class="comp-block">
+        <div class="comp-preview" style="flex-direction:column; align-items:flex-start; gap:16px;">
+          <input class="input-base" placeholder="Nome da organização" />
+          <input class="input-base input-mono" placeholder="pk_test_… ou sk_test_…" />
+          <div class="input-group">
+            <span class="val">sk_test_••••••••••••••••••••••••</span>
+            <button class="btn btn-secondary btn-sm">Revelar</button>
+          </div>
+          <div class="input-search">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#a2a7af" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+            <span style="font-size:12.5px; color:#b6bac1;">Buscar por externalId…</span>
+          </div>
+          <textarea class="ds-textarea" placeholder="Olá, {{patient.name}}. Lembrete do seu exame..."></textarea>
+        </div>
+        <div class="comp-label">input padrão · input mono · input com botão embutido (secret) · input com ícone (busca) · textarea (corpo de template)</div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section class="ds-section" id="cards">
+      <div class="ds-section-eyebrow">Componentes</div>
+      <h2>Cards</h2>
+      <p class="ds-desc">Borda cinza por padrão; borda azul + fundo sutil quando selecionado; cores semânticas para alertas.</p>
+
+      <div class="comp-block">
+        <div class="comp-preview">
+          <div class="card-base">
+            <div class="card-title">Fila e retry de envio</div>
+            <div class="card-desc">Card padrão — borda cinza, fundo branco, usado na maioria dos containers.</div>
+          </div>
+          <div class="card-active">
+            <div class="card-title">Evolution API</div>
+            <div class="card-desc">Card selecionado/ativo — borda azul 1.5px + fundo <code class="inline">#f7faff</code>.</div>
+          </div>
+          <div class="card-warning">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a86a09" stroke-width="2" stroke-linecap="round"><path d="M12 3l9 16H3zM12 10v4M12 17h.01"/></svg>
+              <span style="font-size:13px; font-weight:600; color:#7a5a12;">Configuração manual</span>
+            </div>
+            <div class="card-desc" style="color:#7a5a12;">Card de aviso — âmbar, usado quando ação manual é necessária.</div>
+          </div>
+          <div class="card-error">
+            <div style="display:flex; gap:8px; align-items:flex-start;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#d13c3c" stroke-width="2" stroke-linecap="round" style="flex-shrink:0; margin-top:1px;"><path d="M12 3l9 16H3zM12 10v4M12 17h.01"/></svg>
+              <div><div style="font-size:12.5px; font-weight:600; color:#d13c3c;">Falha interna do sistema</div></div>
+            </div>
+          </div>
+          <div class="card-success">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#178a45" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+            <span style="font-size:12.5px; color:#178a45; font-weight:500;">Link enviado com sucesso</span>
+          </div>
+        </div>
+        <div class="comp-label">padrão · ativo/selecionado · aviso (âmbar) · erro (vermelho) · sucesso (verde)</div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section class="ds-section" id="dialogs">
+      <div class="ds-section-eyebrow">Componentes</div>
+      <h2>Dialogs</h2>
+      <p class="ds-desc">Overlay <code class="inline">rgba(23,25,28,.4)</code> + card centralizado, animado com <code class="inline">cfmDrop</code>. Largura varia 380–520px conforme o conteúdo.</p>
+
+      <div class="comp-block">
+        <div class="comp-preview" style="padding:0;">
+          <div class="dialog-frame" style="width:100%;">
+            <div class="dialog-card">
+              <div style="font-size:14.5px; font-weight:700; letter-spacing:-.01em; margin-bottom:4px;">Revogar chave secreta?</div>
+              <p style="margin:0 0 20px; font-size:12.5px; color:#61656c; line-height:1.6;">A chave HMAC atual deixará de validar requisições. Essa ação não pode ser desfeita.</p>
+              <div style="display:flex; gap:8px; justify-content:flex-end;">
+                <button class="btn btn-secondary">Cancelar</button>
+                <button class="btn btn-destructive-solid">Revogar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="comp-label">dialog de confirmação — mesmo padrão para "nova API key", "criar organização", "editar template"</div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section class="ds-section" id="tabelas">
+      <div class="ds-section-eyebrow">Componentes</div>
+      <h2>Tabelas</h2>
+      <p class="ds-desc">Header cinza uppercase, linhas com hover sutil <code class="inline">#fafbfc</code>, separadores finos entre linhas.</p>
+
+      <div class="comp-block">
+        <div class="comp-preview" style="padding:0;">
+          <div class="tbl" style="width:100%;">
+            <div class="tbl-head"><span>Paciente</span><span>Exame</span><span>Status</span></div>
+            <div class="tbl-row"><span>Maria Silva</span><span>Ressonância</span><span class="badge badge-confirmed"><span class="dot"></span>Confirmado</span></div>
+            <div class="tbl-row"><span>João Pereira</span><span>Tomografia</span><span class="badge badge-awaiting"><span class="dot"></span>Aguardando</span></div>
+            <div class="tbl-row"><span>Ana Costa</span><span>Ultrassom</span><span class="badge badge-cancelled"><span class="dot"></span>Cancelado</span></div>
+          </div>
+        </div>
+        <div class="comp-label">tabela de agendamentos — grid com colunas fixas, badge de status na última coluna</div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section class="ds-section" id="tabs">
+      <div class="ds-section-eyebrow">Componentes</div>
+      <h2>Tabs &amp; segmented control</h2>
+      <p class="ds-desc">Fundo cinza <code class="inline">#f0f1f3</code>, aba ativa em branco com sombra sutil.</p>
+
+      <div class="comp-block">
+        <div class="comp-preview">
+          <div class="seg">
+            <button class="active">Sandbox</button>
+            <button>Produção</button>
+          </div>
+          <div class="seg">
+            <button class="active">cURL</button>
+            <button>Node</button>
+          </div>
+        </div>
+        <div class="comp-label">toggle de ambiente (sidebar) · tabs de linguagem de código (Quickstart)</div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section class="ds-section" id="nav-sidebar">
+      <div class="ds-section-eyebrow">Componentes</div>
+      <h2>Nav sidebar</h2>
+      <p class="ds-desc">Item ativo: fundo <code class="inline">#eef3fe</code>, texto/ícone azul, peso 600. Inativo: transparente, texto <code class="inline">#4b5158</code>, ícone <code class="inline">#9aa0a8</code>.</p>
+
+      <div class="comp-block">
+        <div class="comp-preview">
+          <div class="nav-mock">
+            <div class="nav-item active">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#2f6bf3" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+              Visão geral
+            </div>
+            <div class="nav-item">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#9aa0a8" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/></svg>
+              Agendamentos
+            </div>
+            <div class="nav-item">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#9aa0a8" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="3.5"/><path d="M10 13l8-8M15.5 5.5l2 2M13 8l2 2"/></svg>
+              API Keys
+            </div>
+          </div>
+        </div>
+        <div class="comp-label">item ativo · itens inativos</div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section class="ds-section" id="toggles">
+      <div class="ds-section-eyebrow">Componentes</div>
+      <h2>Toggles &amp; radios</h2>
+      <p class="ds-desc">Radio dot usado no seletor de provider BYO (Evolution / Z-API / Meta).</p>
+
+      <div class="comp-block">
+        <div class="comp-preview">
+          <span class="radio-dot active"></span>
+          <span class="radio-dot"></span>
+          <span class="radio-dot"></span>
+        </div>
+        <div class="comp-label">selecionado · não selecionado</div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section class="ds-section" id="codigo">
+      <div class="ds-section-eyebrow">Componentes</div>
+      <h2>Blocos de código</h2>
+      <p class="ds-desc">Fundo <code class="inline">#17191c</code>, syntax highlight simples via cores fixas por token.</p>
+
+      <div class="comp-block">
+        <div class="comp-preview dark" style="display:block;">
+          <div class="code-block">
+<pre><span class="tok-comment">// um POST. o resto é com a gente.</span>
+{
+  <span class="tok-key">"externalId"</span>: <span class="tok-str">"agd_9931"</span>,
+  <span class="tok-key">"callbackUrl"</span>: <span class="tok-str">"https://seu-erp.com/hooks"</span>
+}
+
+<span class="tok-comment">// paciente respondeu "1" →</span>
+<span class="tok-ok">✓ appointment.confirmed</span>  <span class="tok-comment">HTTP 200</span></pre>
+          </div>
+        </div>
+        <div class="comp-label">comentário #8b9098 · chave #7ea6f7 · string #9ece8f · sucesso #4ec77e</div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section class="ds-section" id="chat">
+      <div class="ds-section-eyebrow">Componentes</div>
+      <h2>Bolhas de chat (mockup WhatsApp)</h2>
+      <p class="ds-desc">Usado no preview de templates — reproduz o visual do WhatsApp Web para dar contexto real da mensagem.</p>
+
+      <div class="comp-block">
+        <div class="comp-preview chat" style="flex-direction:column; align-items:stretch; gap:8px; padding:20px;">
+          <div class="chat-bot">
+            <div class="chat-text">Olá, Maria Silva. Lembrete do seu exame de Ressonância de Crânio em 10/07 às 14:30.</div>
+            <div class="chat-time">14:32</div>
+          </div>
+          <div class="chat-user">
+            <div class="chat-text">1</div>
+            <div class="chat-time" style="color:#6ba98a;">14:35 ✓✓</div>
+          </div>
+        </div>
+        <div class="comp-label">mensagem do bot (branco) · resposta do paciente (verde #d9fdd3)</div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+</body>
+</html>
