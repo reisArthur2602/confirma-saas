@@ -27,22 +27,30 @@ export type AggregateOrganization = {
 export type OrganizationMinAggregateOutputType = {
   id: string | null
   name: string | null
+  slug: string | null
+  callbackUrl: string | null
+  providerType: $Enums.ProviderType | null
   createdAt: Date | null
-  updatedAt: Date | null
 }
 
 export type OrganizationMaxAggregateOutputType = {
   id: string | null
   name: string | null
+  slug: string | null
+  callbackUrl: string | null
+  providerType: $Enums.ProviderType | null
   createdAt: Date | null
-  updatedAt: Date | null
 }
 
 export type OrganizationCountAggregateOutputType = {
   id: number
   name: number
+  slug: number
+  callbackUrl: number
+  defaultOffsets: number
+  providerType: number
+  providerConfig: number
   createdAt: number
-  updatedAt: number
   _all: number
 }
 
@@ -50,22 +58,30 @@ export type OrganizationCountAggregateOutputType = {
 export type OrganizationMinAggregateInputType = {
   id?: true
   name?: true
+  slug?: true
+  callbackUrl?: true
+  providerType?: true
   createdAt?: true
-  updatedAt?: true
 }
 
 export type OrganizationMaxAggregateInputType = {
   id?: true
   name?: true
+  slug?: true
+  callbackUrl?: true
+  providerType?: true
   createdAt?: true
-  updatedAt?: true
 }
 
 export type OrganizationCountAggregateInputType = {
   id?: true
   name?: true
+  slug?: true
+  callbackUrl?: true
+  defaultOffsets?: true
+  providerType?: true
+  providerConfig?: true
   createdAt?: true
-  updatedAt?: true
   _all?: true
 }
 
@@ -144,8 +160,12 @@ export type OrganizationGroupByArgs<ExtArgs extends runtime.Types.Extensions.Int
 export type OrganizationGroupByOutputType = {
   id: string
   name: string
+  slug: string
+  callbackUrl: string | null
+  defaultOffsets: runtime.JsonValue
+  providerType: $Enums.ProviderType
+  providerConfig: runtime.JsonValue | null
   createdAt: Date
-  updatedAt: Date
   _count: OrganizationCountAggregateOutputType | null
   _min: OrganizationMinAggregateOutputType | null
   _max: OrganizationMaxAggregateOutputType | null
@@ -172,32 +192,60 @@ export type OrganizationWhereInput = {
   NOT?: Prisma.OrganizationWhereInput | Prisma.OrganizationWhereInput[]
   id?: Prisma.StringFilter<"Organization"> | string
   name?: Prisma.StringFilter<"Organization"> | string
+  slug?: Prisma.StringFilter<"Organization"> | string
+  callbackUrl?: Prisma.StringNullableFilter<"Organization"> | string | null
+  defaultOffsets?: Prisma.JsonFilter<"Organization">
+  providerType?: Prisma.EnumProviderTypeFilter<"Organization"> | $Enums.ProviderType
+  providerConfig?: Prisma.JsonNullableFilter<"Organization">
   createdAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
+  memberships?: Prisma.MembershipListRelationFilter
+  apiKeys?: Prisma.ApiKeyListRelationFilter
+  appointments?: Prisma.AppointmentListRelationFilter
+  templates?: Prisma.TemplateListRelationFilter
 }
 
 export type OrganizationOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  slug?: Prisma.SortOrder
+  callbackUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  defaultOffsets?: Prisma.SortOrder
+  providerType?: Prisma.SortOrder
+  providerConfig?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  updatedAt?: Prisma.SortOrder
+  memberships?: Prisma.MembershipOrderByRelationAggregateInput
+  apiKeys?: Prisma.ApiKeyOrderByRelationAggregateInput
+  appointments?: Prisma.AppointmentOrderByRelationAggregateInput
+  templates?: Prisma.TemplateOrderByRelationAggregateInput
 }
 
 export type OrganizationWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  slug?: string
   AND?: Prisma.OrganizationWhereInput | Prisma.OrganizationWhereInput[]
   OR?: Prisma.OrganizationWhereInput[]
   NOT?: Prisma.OrganizationWhereInput | Prisma.OrganizationWhereInput[]
   name?: Prisma.StringFilter<"Organization"> | string
+  callbackUrl?: Prisma.StringNullableFilter<"Organization"> | string | null
+  defaultOffsets?: Prisma.JsonFilter<"Organization">
+  providerType?: Prisma.EnumProviderTypeFilter<"Organization"> | $Enums.ProviderType
+  providerConfig?: Prisma.JsonNullableFilter<"Organization">
   createdAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
-}, "id">
+  memberships?: Prisma.MembershipListRelationFilter
+  apiKeys?: Prisma.ApiKeyListRelationFilter
+  appointments?: Prisma.AppointmentListRelationFilter
+  templates?: Prisma.TemplateListRelationFilter
+}, "id" | "slug">
 
 export type OrganizationOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  slug?: Prisma.SortOrder
+  callbackUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  defaultOffsets?: Prisma.SortOrder
+  providerType?: Prisma.SortOrder
+  providerConfig?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  updatedAt?: Prisma.SortOrder
   _count?: Prisma.OrganizationCountOrderByAggregateInput
   _max?: Prisma.OrganizationMaxOrderByAggregateInput
   _min?: Prisma.OrganizationMinOrderByAggregateInput
@@ -209,128 +257,624 @@ export type OrganizationScalarWhereWithAggregatesInput = {
   NOT?: Prisma.OrganizationScalarWhereWithAggregatesInput | Prisma.OrganizationScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Organization"> | string
   name?: Prisma.StringWithAggregatesFilter<"Organization"> | string
+  slug?: Prisma.StringWithAggregatesFilter<"Organization"> | string
+  callbackUrl?: Prisma.StringNullableWithAggregatesFilter<"Organization"> | string | null
+  defaultOffsets?: Prisma.JsonWithAggregatesFilter<"Organization">
+  providerType?: Prisma.EnumProviderTypeWithAggregatesFilter<"Organization"> | $Enums.ProviderType
+  providerConfig?: Prisma.JsonNullableWithAggregatesFilter<"Organization">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Organization"> | Date | string
-  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Organization"> | Date | string
 }
 
 export type OrganizationCreateInput = {
   id?: string
   name: string
+  slug: string
+  callbackUrl?: string | null
+  defaultOffsets?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerType?: $Enums.ProviderType
+  providerConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
-  updatedAt?: Date | string
+  memberships?: Prisma.MembershipCreateNestedManyWithoutOrganizationInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutOrganizationInput
+  appointments?: Prisma.AppointmentCreateNestedManyWithoutOrganizationInput
+  templates?: Prisma.TemplateCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateInput = {
   id?: string
   name: string
+  slug: string
+  callbackUrl?: string | null
+  defaultOffsets?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerType?: $Enums.ProviderType
+  providerConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
-  updatedAt?: Date | string
+  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutOrganizationInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutOrganizationInput
+  appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutOrganizationInput
+  templates?: Prisma.TemplateUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  callbackUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultOffsets?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerType?: Prisma.EnumProviderTypeFieldUpdateOperationsInput | $Enums.ProviderType
+  providerConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.MembershipUpdateManyWithoutOrganizationNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutOrganizationNestedInput
+  appointments?: Prisma.AppointmentUpdateManyWithoutOrganizationNestedInput
+  templates?: Prisma.TemplateUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  callbackUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultOffsets?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerType?: Prisma.EnumProviderTypeFieldUpdateOperationsInput | $Enums.ProviderType
+  providerConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutOrganizationNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutOrganizationNestedInput
+  appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutOrganizationNestedInput
+  templates?: Prisma.TemplateUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationCreateManyInput = {
   id?: string
   name: string
+  slug: string
+  callbackUrl?: string | null
+  defaultOffsets?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerType?: $Enums.ProviderType
+  providerConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
-  updatedAt?: Date | string
 }
 
 export type OrganizationUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  callbackUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultOffsets?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerType?: Prisma.EnumProviderTypeFieldUpdateOperationsInput | $Enums.ProviderType
+  providerConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrganizationUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  callbackUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultOffsets?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerType?: Prisma.EnumProviderTypeFieldUpdateOperationsInput | $Enums.ProviderType
+  providerConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrganizationCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  slug?: Prisma.SortOrder
+  callbackUrl?: Prisma.SortOrder
+  defaultOffsets?: Prisma.SortOrder
+  providerType?: Prisma.SortOrder
+  providerConfig?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  updatedAt?: Prisma.SortOrder
 }
 
 export type OrganizationMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  slug?: Prisma.SortOrder
+  callbackUrl?: Prisma.SortOrder
+  providerType?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  updatedAt?: Prisma.SortOrder
 }
 
 export type OrganizationMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  slug?: Prisma.SortOrder
+  callbackUrl?: Prisma.SortOrder
+  providerType?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  updatedAt?: Prisma.SortOrder
 }
 
-export type StringFieldUpdateOperationsInput = {
-  set?: string
+export type OrganizationScalarRelationFilter = {
+  is?: Prisma.OrganizationWhereInput
+  isNot?: Prisma.OrganizationWhereInput
 }
 
-export type DateTimeFieldUpdateOperationsInput = {
-  set?: Date | string
+export type EnumProviderTypeFieldUpdateOperationsInput = {
+  set?: $Enums.ProviderType
 }
 
+export type OrganizationCreateNestedOneWithoutMembershipsInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutMembershipsInput, Prisma.OrganizationUncheckedCreateWithoutMembershipsInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutMembershipsInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+}
+
+export type OrganizationUpdateOneRequiredWithoutMembershipsNestedInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutMembershipsInput, Prisma.OrganizationUncheckedCreateWithoutMembershipsInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutMembershipsInput
+  upsert?: Prisma.OrganizationUpsertWithoutMembershipsInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OrganizationUpdateToOneWithWhereWithoutMembershipsInput, Prisma.OrganizationUpdateWithoutMembershipsInput>, Prisma.OrganizationUncheckedUpdateWithoutMembershipsInput>
+}
+
+export type OrganizationCreateNestedOneWithoutApiKeysInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutApiKeysInput, Prisma.OrganizationUncheckedCreateWithoutApiKeysInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutApiKeysInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+}
+
+export type OrganizationUpdateOneRequiredWithoutApiKeysNestedInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutApiKeysInput, Prisma.OrganizationUncheckedCreateWithoutApiKeysInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutApiKeysInput
+  upsert?: Prisma.OrganizationUpsertWithoutApiKeysInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OrganizationUpdateToOneWithWhereWithoutApiKeysInput, Prisma.OrganizationUpdateWithoutApiKeysInput>, Prisma.OrganizationUncheckedUpdateWithoutApiKeysInput>
+}
+
+export type OrganizationCreateNestedOneWithoutAppointmentsInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutAppointmentsInput, Prisma.OrganizationUncheckedCreateWithoutAppointmentsInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutAppointmentsInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+}
+
+export type OrganizationUpdateOneRequiredWithoutAppointmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutAppointmentsInput, Prisma.OrganizationUncheckedCreateWithoutAppointmentsInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutAppointmentsInput
+  upsert?: Prisma.OrganizationUpsertWithoutAppointmentsInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OrganizationUpdateToOneWithWhereWithoutAppointmentsInput, Prisma.OrganizationUpdateWithoutAppointmentsInput>, Prisma.OrganizationUncheckedUpdateWithoutAppointmentsInput>
+}
+
+export type OrganizationCreateNestedOneWithoutTemplatesInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutTemplatesInput, Prisma.OrganizationUncheckedCreateWithoutTemplatesInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutTemplatesInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+}
+
+export type OrganizationUpdateOneRequiredWithoutTemplatesNestedInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutTemplatesInput, Prisma.OrganizationUncheckedCreateWithoutTemplatesInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutTemplatesInput
+  upsert?: Prisma.OrganizationUpsertWithoutTemplatesInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OrganizationUpdateToOneWithWhereWithoutTemplatesInput, Prisma.OrganizationUpdateWithoutTemplatesInput>, Prisma.OrganizationUncheckedUpdateWithoutTemplatesInput>
+}
+
+export type OrganizationCreateWithoutMembershipsInput = {
+  id?: string
+  name: string
+  slug: string
+  callbackUrl?: string | null
+  defaultOffsets?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerType?: $Enums.ProviderType
+  providerConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutOrganizationInput
+  appointments?: Prisma.AppointmentCreateNestedManyWithoutOrganizationInput
+  templates?: Prisma.TemplateCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationUncheckedCreateWithoutMembershipsInput = {
+  id?: string
+  name: string
+  slug: string
+  callbackUrl?: string | null
+  defaultOffsets?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerType?: $Enums.ProviderType
+  providerConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutOrganizationInput
+  appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutOrganizationInput
+  templates?: Prisma.TemplateUncheckedCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationCreateOrConnectWithoutMembershipsInput = {
+  where: Prisma.OrganizationWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutMembershipsInput, Prisma.OrganizationUncheckedCreateWithoutMembershipsInput>
+}
+
+export type OrganizationUpsertWithoutMembershipsInput = {
+  update: Prisma.XOR<Prisma.OrganizationUpdateWithoutMembershipsInput, Prisma.OrganizationUncheckedUpdateWithoutMembershipsInput>
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutMembershipsInput, Prisma.OrganizationUncheckedCreateWithoutMembershipsInput>
+  where?: Prisma.OrganizationWhereInput
+}
+
+export type OrganizationUpdateToOneWithWhereWithoutMembershipsInput = {
+  where?: Prisma.OrganizationWhereInput
+  data: Prisma.XOR<Prisma.OrganizationUpdateWithoutMembershipsInput, Prisma.OrganizationUncheckedUpdateWithoutMembershipsInput>
+}
+
+export type OrganizationUpdateWithoutMembershipsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  callbackUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultOffsets?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerType?: Prisma.EnumProviderTypeFieldUpdateOperationsInput | $Enums.ProviderType
+  providerConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutOrganizationNestedInput
+  appointments?: Prisma.AppointmentUpdateManyWithoutOrganizationNestedInput
+  templates?: Prisma.TemplateUpdateManyWithoutOrganizationNestedInput
+}
+
+export type OrganizationUncheckedUpdateWithoutMembershipsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  callbackUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultOffsets?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerType?: Prisma.EnumProviderTypeFieldUpdateOperationsInput | $Enums.ProviderType
+  providerConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutOrganizationNestedInput
+  appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutOrganizationNestedInput
+  templates?: Prisma.TemplateUncheckedUpdateManyWithoutOrganizationNestedInput
+}
+
+export type OrganizationCreateWithoutApiKeysInput = {
+  id?: string
+  name: string
+  slug: string
+  callbackUrl?: string | null
+  defaultOffsets?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerType?: $Enums.ProviderType
+  providerConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  memberships?: Prisma.MembershipCreateNestedManyWithoutOrganizationInput
+  appointments?: Prisma.AppointmentCreateNestedManyWithoutOrganizationInput
+  templates?: Prisma.TemplateCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationUncheckedCreateWithoutApiKeysInput = {
+  id?: string
+  name: string
+  slug: string
+  callbackUrl?: string | null
+  defaultOffsets?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerType?: $Enums.ProviderType
+  providerConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutOrganizationInput
+  appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutOrganizationInput
+  templates?: Prisma.TemplateUncheckedCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationCreateOrConnectWithoutApiKeysInput = {
+  where: Prisma.OrganizationWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutApiKeysInput, Prisma.OrganizationUncheckedCreateWithoutApiKeysInput>
+}
+
+export type OrganizationUpsertWithoutApiKeysInput = {
+  update: Prisma.XOR<Prisma.OrganizationUpdateWithoutApiKeysInput, Prisma.OrganizationUncheckedUpdateWithoutApiKeysInput>
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutApiKeysInput, Prisma.OrganizationUncheckedCreateWithoutApiKeysInput>
+  where?: Prisma.OrganizationWhereInput
+}
+
+export type OrganizationUpdateToOneWithWhereWithoutApiKeysInput = {
+  where?: Prisma.OrganizationWhereInput
+  data: Prisma.XOR<Prisma.OrganizationUpdateWithoutApiKeysInput, Prisma.OrganizationUncheckedUpdateWithoutApiKeysInput>
+}
+
+export type OrganizationUpdateWithoutApiKeysInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  callbackUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultOffsets?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerType?: Prisma.EnumProviderTypeFieldUpdateOperationsInput | $Enums.ProviderType
+  providerConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.MembershipUpdateManyWithoutOrganizationNestedInput
+  appointments?: Prisma.AppointmentUpdateManyWithoutOrganizationNestedInput
+  templates?: Prisma.TemplateUpdateManyWithoutOrganizationNestedInput
+}
+
+export type OrganizationUncheckedUpdateWithoutApiKeysInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  callbackUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultOffsets?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerType?: Prisma.EnumProviderTypeFieldUpdateOperationsInput | $Enums.ProviderType
+  providerConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutOrganizationNestedInput
+  appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutOrganizationNestedInput
+  templates?: Prisma.TemplateUncheckedUpdateManyWithoutOrganizationNestedInput
+}
+
+export type OrganizationCreateWithoutAppointmentsInput = {
+  id?: string
+  name: string
+  slug: string
+  callbackUrl?: string | null
+  defaultOffsets?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerType?: $Enums.ProviderType
+  providerConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  memberships?: Prisma.MembershipCreateNestedManyWithoutOrganizationInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutOrganizationInput
+  templates?: Prisma.TemplateCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationUncheckedCreateWithoutAppointmentsInput = {
+  id?: string
+  name: string
+  slug: string
+  callbackUrl?: string | null
+  defaultOffsets?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerType?: $Enums.ProviderType
+  providerConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutOrganizationInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutOrganizationInput
+  templates?: Prisma.TemplateUncheckedCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationCreateOrConnectWithoutAppointmentsInput = {
+  where: Prisma.OrganizationWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutAppointmentsInput, Prisma.OrganizationUncheckedCreateWithoutAppointmentsInput>
+}
+
+export type OrganizationUpsertWithoutAppointmentsInput = {
+  update: Prisma.XOR<Prisma.OrganizationUpdateWithoutAppointmentsInput, Prisma.OrganizationUncheckedUpdateWithoutAppointmentsInput>
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutAppointmentsInput, Prisma.OrganizationUncheckedCreateWithoutAppointmentsInput>
+  where?: Prisma.OrganizationWhereInput
+}
+
+export type OrganizationUpdateToOneWithWhereWithoutAppointmentsInput = {
+  where?: Prisma.OrganizationWhereInput
+  data: Prisma.XOR<Prisma.OrganizationUpdateWithoutAppointmentsInput, Prisma.OrganizationUncheckedUpdateWithoutAppointmentsInput>
+}
+
+export type OrganizationUpdateWithoutAppointmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  callbackUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultOffsets?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerType?: Prisma.EnumProviderTypeFieldUpdateOperationsInput | $Enums.ProviderType
+  providerConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.MembershipUpdateManyWithoutOrganizationNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutOrganizationNestedInput
+  templates?: Prisma.TemplateUpdateManyWithoutOrganizationNestedInput
+}
+
+export type OrganizationUncheckedUpdateWithoutAppointmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  callbackUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultOffsets?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerType?: Prisma.EnumProviderTypeFieldUpdateOperationsInput | $Enums.ProviderType
+  providerConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutOrganizationNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutOrganizationNestedInput
+  templates?: Prisma.TemplateUncheckedUpdateManyWithoutOrganizationNestedInput
+}
+
+export type OrganizationCreateWithoutTemplatesInput = {
+  id?: string
+  name: string
+  slug: string
+  callbackUrl?: string | null
+  defaultOffsets?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerType?: $Enums.ProviderType
+  providerConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  memberships?: Prisma.MembershipCreateNestedManyWithoutOrganizationInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutOrganizationInput
+  appointments?: Prisma.AppointmentCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationUncheckedCreateWithoutTemplatesInput = {
+  id?: string
+  name: string
+  slug: string
+  callbackUrl?: string | null
+  defaultOffsets?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerType?: $Enums.ProviderType
+  providerConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutOrganizationInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutOrganizationInput
+  appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationCreateOrConnectWithoutTemplatesInput = {
+  where: Prisma.OrganizationWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutTemplatesInput, Prisma.OrganizationUncheckedCreateWithoutTemplatesInput>
+}
+
+export type OrganizationUpsertWithoutTemplatesInput = {
+  update: Prisma.XOR<Prisma.OrganizationUpdateWithoutTemplatesInput, Prisma.OrganizationUncheckedUpdateWithoutTemplatesInput>
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutTemplatesInput, Prisma.OrganizationUncheckedCreateWithoutTemplatesInput>
+  where?: Prisma.OrganizationWhereInput
+}
+
+export type OrganizationUpdateToOneWithWhereWithoutTemplatesInput = {
+  where?: Prisma.OrganizationWhereInput
+  data: Prisma.XOR<Prisma.OrganizationUpdateWithoutTemplatesInput, Prisma.OrganizationUncheckedUpdateWithoutTemplatesInput>
+}
+
+export type OrganizationUpdateWithoutTemplatesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  callbackUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultOffsets?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerType?: Prisma.EnumProviderTypeFieldUpdateOperationsInput | $Enums.ProviderType
+  providerConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.MembershipUpdateManyWithoutOrganizationNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutOrganizationNestedInput
+  appointments?: Prisma.AppointmentUpdateManyWithoutOrganizationNestedInput
+}
+
+export type OrganizationUncheckedUpdateWithoutTemplatesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  callbackUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultOffsets?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  providerType?: Prisma.EnumProviderTypeFieldUpdateOperationsInput | $Enums.ProviderType
+  providerConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutOrganizationNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutOrganizationNestedInput
+  appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutOrganizationNestedInput
+}
+
+
+/**
+ * Count Type OrganizationCountOutputType
+ */
+
+export type OrganizationCountOutputType = {
+  memberships: number
+  apiKeys: number
+  appointments: number
+  templates: number
+}
+
+export type OrganizationCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  memberships?: boolean | OrganizationCountOutputTypeCountMembershipsArgs
+  apiKeys?: boolean | OrganizationCountOutputTypeCountApiKeysArgs
+  appointments?: boolean | OrganizationCountOutputTypeCountAppointmentsArgs
+  templates?: boolean | OrganizationCountOutputTypeCountTemplatesArgs
+}
+
+/**
+ * OrganizationCountOutputType without action
+ */
+export type OrganizationCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the OrganizationCountOutputType
+   */
+  select?: Prisma.OrganizationCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * OrganizationCountOutputType without action
+ */
+export type OrganizationCountOutputTypeCountMembershipsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MembershipWhereInput
+}
+
+/**
+ * OrganizationCountOutputType without action
+ */
+export type OrganizationCountOutputTypeCountApiKeysArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ApiKeyWhereInput
+}
+
+/**
+ * OrganizationCountOutputType without action
+ */
+export type OrganizationCountOutputTypeCountAppointmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AppointmentWhereInput
+}
+
+/**
+ * OrganizationCountOutputType without action
+ */
+export type OrganizationCountOutputTypeCountTemplatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TemplateWhereInput
+}
 
 
 export type OrganizationSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  slug?: boolean
+  callbackUrl?: boolean
+  defaultOffsets?: boolean
+  providerType?: boolean
+  providerConfig?: boolean
   createdAt?: boolean
-  updatedAt?: boolean
+  memberships?: boolean | Prisma.Organization$membershipsArgs<ExtArgs>
+  apiKeys?: boolean | Prisma.Organization$apiKeysArgs<ExtArgs>
+  appointments?: boolean | Prisma.Organization$appointmentsArgs<ExtArgs>
+  templates?: boolean | Prisma.Organization$templatesArgs<ExtArgs>
+  _count?: boolean | Prisma.OrganizationCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["organization"]>
 
 export type OrganizationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  slug?: boolean
+  callbackUrl?: boolean
+  defaultOffsets?: boolean
+  providerType?: boolean
+  providerConfig?: boolean
   createdAt?: boolean
-  updatedAt?: boolean
 }, ExtArgs["result"]["organization"]>
 
 export type OrganizationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  slug?: boolean
+  callbackUrl?: boolean
+  defaultOffsets?: boolean
+  providerType?: boolean
+  providerConfig?: boolean
   createdAt?: boolean
-  updatedAt?: boolean
 }, ExtArgs["result"]["organization"]>
 
 export type OrganizationSelectScalar = {
   id?: boolean
   name?: boolean
+  slug?: boolean
+  callbackUrl?: boolean
+  defaultOffsets?: boolean
+  providerType?: boolean
+  providerConfig?: boolean
   createdAt?: boolean
-  updatedAt?: boolean
 }
 
-export type OrganizationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "createdAt" | "updatedAt", ExtArgs["result"]["organization"]>
+export type OrganizationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "callbackUrl" | "defaultOffsets" | "providerType" | "providerConfig" | "createdAt", ExtArgs["result"]["organization"]>
+export type OrganizationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  memberships?: boolean | Prisma.Organization$membershipsArgs<ExtArgs>
+  apiKeys?: boolean | Prisma.Organization$apiKeysArgs<ExtArgs>
+  appointments?: boolean | Prisma.Organization$appointmentsArgs<ExtArgs>
+  templates?: boolean | Prisma.Organization$templatesArgs<ExtArgs>
+  _count?: boolean | Prisma.OrganizationCountOutputTypeDefaultArgs<ExtArgs>
+}
+export type OrganizationIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type OrganizationIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
 
 export type $OrganizationPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Organization"
-  objects: {}
+  objects: {
+    memberships: Prisma.$MembershipPayload<ExtArgs>[]
+    apiKeys: Prisma.$ApiKeyPayload<ExtArgs>[]
+    appointments: Prisma.$AppointmentPayload<ExtArgs>[]
+    templates: Prisma.$TemplatePayload<ExtArgs>[]
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
+    slug: string
+    callbackUrl: string | null
+    defaultOffsets: runtime.JsonValue
+    providerType: $Enums.ProviderType
+    providerConfig: runtime.JsonValue | null
     createdAt: Date
-    updatedAt: Date
   }, ExtArgs["result"]["organization"]>
   composites: {}
 }
@@ -725,6 +1269,10 @@ readonly fields: OrganizationFieldRefs;
  */
 export interface Prisma__OrganizationClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  memberships<T extends Prisma.Organization$membershipsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$membershipsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  apiKeys<T extends Prisma.Organization$apiKeysArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$apiKeysArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ApiKeyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  appointments<T extends Prisma.Organization$appointmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$appointmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AppointmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  templates<T extends Prisma.Organization$templatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$templatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TemplatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -756,8 +1304,12 @@ export interface Prisma__OrganizationClient<T, Null = never, ExtArgs extends run
 export interface OrganizationFieldRefs {
   readonly id: Prisma.FieldRef<"Organization", 'String'>
   readonly name: Prisma.FieldRef<"Organization", 'String'>
+  readonly slug: Prisma.FieldRef<"Organization", 'String'>
+  readonly callbackUrl: Prisma.FieldRef<"Organization", 'String'>
+  readonly defaultOffsets: Prisma.FieldRef<"Organization", 'Json'>
+  readonly providerType: Prisma.FieldRef<"Organization", 'ProviderType'>
+  readonly providerConfig: Prisma.FieldRef<"Organization", 'Json'>
   readonly createdAt: Prisma.FieldRef<"Organization", 'DateTime'>
-  readonly updatedAt: Prisma.FieldRef<"Organization", 'DateTime'>
 }
     
 
@@ -774,6 +1326,10 @@ export type OrganizationFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.
    * Omit specific fields from the Organization
    */
   omit?: Prisma.OrganizationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OrganizationInclude<ExtArgs> | null
   /**
    * Filter, which Organization to fetch.
    */
@@ -793,6 +1349,10 @@ export type OrganizationFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Exte
    */
   omit?: Prisma.OrganizationOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OrganizationInclude<ExtArgs> | null
+  /**
    * Filter, which Organization to fetch.
    */
   where: Prisma.OrganizationWhereUniqueInput
@@ -810,6 +1370,10 @@ export type OrganizationFindFirstArgs<ExtArgs extends runtime.Types.Extensions.I
    * Omit specific fields from the Organization
    */
   omit?: Prisma.OrganizationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OrganizationInclude<ExtArgs> | null
   /**
    * Filter, which Organization to fetch.
    */
@@ -859,6 +1423,10 @@ export type OrganizationFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Exten
    */
   omit?: Prisma.OrganizationOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OrganizationInclude<ExtArgs> | null
+  /**
    * Filter, which Organization to fetch.
    */
   where?: Prisma.OrganizationWhereInput
@@ -906,6 +1474,10 @@ export type OrganizationFindManyArgs<ExtArgs extends runtime.Types.Extensions.In
    * Omit specific fields from the Organization
    */
   omit?: Prisma.OrganizationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OrganizationInclude<ExtArgs> | null
   /**
    * Filter, which Organizations to fetch.
    */
@@ -955,6 +1527,10 @@ export type OrganizationCreateArgs<ExtArgs extends runtime.Types.Extensions.Inte
    */
   omit?: Prisma.OrganizationOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OrganizationInclude<ExtArgs> | null
+  /**
    * The data needed to create a Organization.
    */
   data: Prisma.XOR<Prisma.OrganizationCreateInput, Prisma.OrganizationUncheckedCreateInput>
@@ -1002,6 +1578,10 @@ export type OrganizationUpdateArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Omit specific fields from the Organization
    */
   omit?: Prisma.OrganizationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OrganizationInclude<ExtArgs> | null
   /**
    * The data needed to update a Organization.
    */
@@ -1069,6 +1649,10 @@ export type OrganizationUpsertArgs<ExtArgs extends runtime.Types.Extensions.Inte
    */
   omit?: Prisma.OrganizationOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OrganizationInclude<ExtArgs> | null
+  /**
    * The filter to search for the Organization to update in case it exists.
    */
   where: Prisma.OrganizationWhereUniqueInput
@@ -1095,6 +1679,10 @@ export type OrganizationDeleteArgs<ExtArgs extends runtime.Types.Extensions.Inte
    */
   omit?: Prisma.OrganizationOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OrganizationInclude<ExtArgs> | null
+  /**
    * Filter which Organization to delete.
    */
   where: Prisma.OrganizationWhereUniqueInput
@@ -1115,6 +1703,102 @@ export type OrganizationDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.
 }
 
 /**
+ * Organization.memberships
+ */
+export type Organization$membershipsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Membership
+   */
+  select?: Prisma.MembershipSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Membership
+   */
+  omit?: Prisma.MembershipOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MembershipInclude<ExtArgs> | null
+  where?: Prisma.MembershipWhereInput
+  orderBy?: Prisma.MembershipOrderByWithRelationInput | Prisma.MembershipOrderByWithRelationInput[]
+  cursor?: Prisma.MembershipWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MembershipScalarFieldEnum | Prisma.MembershipScalarFieldEnum[]
+}
+
+/**
+ * Organization.apiKeys
+ */
+export type Organization$apiKeysArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ApiKey
+   */
+  select?: Prisma.ApiKeySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ApiKey
+   */
+  omit?: Prisma.ApiKeyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ApiKeyInclude<ExtArgs> | null
+  where?: Prisma.ApiKeyWhereInput
+  orderBy?: Prisma.ApiKeyOrderByWithRelationInput | Prisma.ApiKeyOrderByWithRelationInput[]
+  cursor?: Prisma.ApiKeyWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ApiKeyScalarFieldEnum | Prisma.ApiKeyScalarFieldEnum[]
+}
+
+/**
+ * Organization.appointments
+ */
+export type Organization$appointmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Appointment
+   */
+  select?: Prisma.AppointmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Appointment
+   */
+  omit?: Prisma.AppointmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AppointmentInclude<ExtArgs> | null
+  where?: Prisma.AppointmentWhereInput
+  orderBy?: Prisma.AppointmentOrderByWithRelationInput | Prisma.AppointmentOrderByWithRelationInput[]
+  cursor?: Prisma.AppointmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AppointmentScalarFieldEnum | Prisma.AppointmentScalarFieldEnum[]
+}
+
+/**
+ * Organization.templates
+ */
+export type Organization$templatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Template
+   */
+  select?: Prisma.TemplateSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Template
+   */
+  omit?: Prisma.TemplateOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TemplateInclude<ExtArgs> | null
+  where?: Prisma.TemplateWhereInput
+  orderBy?: Prisma.TemplateOrderByWithRelationInput | Prisma.TemplateOrderByWithRelationInput[]
+  cursor?: Prisma.TemplateWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TemplateScalarFieldEnum | Prisma.TemplateScalarFieldEnum[]
+}
+
+/**
  * Organization without action
  */
 export type OrganizationDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1126,4 +1810,8 @@ export type OrganizationDefaultArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Omit specific fields from the Organization
    */
   omit?: Prisma.OrganizationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OrganizationInclude<ExtArgs> | null
 }

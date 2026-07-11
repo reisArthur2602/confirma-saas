@@ -18,7 +18,72 @@ export { Prisma }
 export * as $Enums from './enums.js'
 export * from './enums.js';
 /**
+ * Model User
+ * 
+ */
+export type User = Prisma.UserModel
+/**
+ * Model Session
+ * 
+ */
+export type Session = Prisma.SessionModel
+/**
+ * Model Account
+ * 
+ */
+export type Account = Prisma.AccountModel
+/**
+ * Model Verification
+ * 
+ */
+export type Verification = Prisma.VerificationModel
+/**
  * Model Organization
  * 
  */
 export type Organization = Prisma.OrganizationModel
+/**
+ * Model Membership
+ * 
+ */
+export type Membership = Prisma.MembershipModel
+/**
+ * Model ApiKey
+ * 
+ */
+export type ApiKey = Prisma.ApiKeyModel
+/**
+ * Model Appointment
+ * 
+ */
+export type Appointment = Prisma.AppointmentModel
+/**
+ * Model NotificationJob
+ * 
+ */
+export type NotificationJob = Prisma.NotificationJobModel
+/**
+ * Model MessageLog
+ * 
+ */
+export type MessageLog = Prisma.MessageLogModel
+/**
+ * Model InboundEvent
+ * 
+ */
+export type InboundEvent = Prisma.InboundEventModel
+/**
+ * Model CallbackLog
+ * 
+ */
+export type CallbackLog = Prisma.CallbackLogModel
+/**
+ * Model Template
+ * 
+ */
+export type Template = Prisma.TemplateModel
+/**
+ * Model WaitlistLead
+ * 
+ */
+export type WaitlistLead = Prisma.WaitlistLeadModel

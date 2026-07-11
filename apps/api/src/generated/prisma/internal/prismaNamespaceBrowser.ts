@@ -51,7 +51,20 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
-  Organization: 'Organization'
+  User: 'User',
+  Session: 'Session',
+  Account: 'Account',
+  Verification: 'Verification',
+  Organization: 'Organization',
+  Membership: 'Membership',
+  ApiKey: 'ApiKey',
+  Appointment: 'Appointment',
+  NotificationJob: 'NotificationJob',
+  MessageLog: 'MessageLog',
+  InboundEvent: 'InboundEvent',
+  CallbackLog: 'CallbackLog',
+  Template: 'Template',
+  WaitlistLead: 'WaitlistLead'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -70,14 +83,192 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
-export const OrganizationScalarFieldEnum = {
+export const UserScalarFieldEnum = {
   id: 'id',
+  email: 'email',
+  emailVerified: 'emailVerified',
   name: 'name',
+  image: 'image',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
+export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const SessionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  token: 'token',
+  expiresAt: 'expiresAt',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  createdAt: 'createdAt'
+} as const
+
+export type SessionScalarFieldEnum = (typeof SessionScalarFieldEnum)[keyof typeof SessionScalarFieldEnum]
+
+
+export const AccountScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  providerId: 'providerId',
+  accountId: 'accountId',
+  accessToken: 'accessToken',
+  refreshToken: 'refreshToken',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt'
+} as const
+
+export type AccountScalarFieldEnum = (typeof AccountScalarFieldEnum)[keyof typeof AccountScalarFieldEnum]
+
+
+export const VerificationScalarFieldEnum = {
+  id: 'id',
+  identifier: 'identifier',
+  value: 'value',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt'
+} as const
+
+export type VerificationScalarFieldEnum = (typeof VerificationScalarFieldEnum)[keyof typeof VerificationScalarFieldEnum]
+
+
+export const OrganizationScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  callbackUrl: 'callbackUrl',
+  defaultOffsets: 'defaultOffsets',
+  providerType: 'providerType',
+  providerConfig: 'providerConfig',
+  createdAt: 'createdAt'
+} as const
+
 export type OrganizationScalarFieldEnum = (typeof OrganizationScalarFieldEnum)[keyof typeof OrganizationScalarFieldEnum]
+
+
+export const MembershipScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  organizationId: 'organizationId',
+  role: 'role',
+  createdAt: 'createdAt'
+} as const
+
+export type MembershipScalarFieldEnum = (typeof MembershipScalarFieldEnum)[keyof typeof MembershipScalarFieldEnum]
+
+
+export const ApiKeyScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  publicId: 'publicId',
+  secretEnc: 'secretEnc',
+  revokedAt: 'revokedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type ApiKeyScalarFieldEnum = (typeof ApiKeyScalarFieldEnum)[keyof typeof ApiKeyScalarFieldEnum]
+
+
+export const AppointmentScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  externalId: 'externalId',
+  idempotencyKey: 'idempotencyKey',
+  status: 'status',
+  patientName: 'patientName',
+  patientPhone: 'patientPhone',
+  examType: 'examType',
+  examAt: 'examAt',
+  location: 'location',
+  professional: 'professional',
+  offsets: 'offsets',
+  callbackUrl: 'callbackUrl',
+  purgeAfter: 'purgeAfter',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AppointmentScalarFieldEnum = (typeof AppointmentScalarFieldEnum)[keyof typeof AppointmentScalarFieldEnum]
+
+
+export const NotificationJobScalarFieldEnum = {
+  id: 'id',
+  appointmentId: 'appointmentId',
+  offset: 'offset',
+  runAt: 'runAt',
+  status: 'status',
+  bullJobId: 'bullJobId',
+  promotedAt: 'promotedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type NotificationJobScalarFieldEnum = (typeof NotificationJobScalarFieldEnum)[keyof typeof NotificationJobScalarFieldEnum]
+
+
+export const MessageLogScalarFieldEnum = {
+  id: 'id',
+  appointmentId: 'appointmentId',
+  provider: 'provider',
+  providerMessageId: 'providerMessageId',
+  status: 'status',
+  errorCategory: 'errorCategory',
+  attempt: 'attempt',
+  error: 'error',
+  createdAt: 'createdAt'
+} as const
+
+export type MessageLogScalarFieldEnum = (typeof MessageLogScalarFieldEnum)[keyof typeof MessageLogScalarFieldEnum]
+
+
+export const InboundEventScalarFieldEnum = {
+  id: 'id',
+  appointmentId: 'appointmentId',
+  provider: 'provider',
+  rawPayload: 'rawPayload',
+  parsedIntent: 'parsedIntent',
+  createdAt: 'createdAt'
+} as const
+
+export type InboundEventScalarFieldEnum = (typeof InboundEventScalarFieldEnum)[keyof typeof InboundEventScalarFieldEnum]
+
+
+export const CallbackLogScalarFieldEnum = {
+  id: 'id',
+  appointmentId: 'appointmentId',
+  event: 'event',
+  status: 'status',
+  httpStatus: 'httpStatus',
+  attempt: 'attempt',
+  createdAt: 'createdAt'
+} as const
+
+export type CallbackLogScalarFieldEnum = (typeof CallbackLogScalarFieldEnum)[keyof typeof CallbackLogScalarFieldEnum]
+
+
+export const TemplateScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  key: 'key',
+  provider: 'provider',
+  category: 'category',
+  body: 'body'
+} as const
+
+export type TemplateScalarFieldEnum = (typeof TemplateScalarFieldEnum)[keyof typeof TemplateScalarFieldEnum]
+
+
+export const WaitlistLeadScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  email: 'email',
+  interest: 'interest',
+  source: 'source',
+  createdAt: 'createdAt'
+} as const
+
+export type WaitlistLeadScalarFieldEnum = (typeof WaitlistLeadScalarFieldEnum)[keyof typeof WaitlistLeadScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -88,10 +279,42 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
 export const QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
 } as const
 
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 

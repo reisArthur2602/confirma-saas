@@ -31,13 +31,13 @@ Monorepo **pnpm workspaces + Turborepo**, composto por 3 apps e 2 packages compa
 
 **Agendamento em duas camadas:** todo lembrete nasce como `NotificationJob` em `PENDING` no Postgres (camada fria); um cron de promoção materializa no BullMQ (`ENQUEUED`) só quando entra na janela de curto prazo (ex.: 24h antes do disparo). Isso evita acumular jobs de longuíssimo prazo no Redis e torna cancelamentos triviais antes da promoção.
 
-**Deploy:** `api` e `painel` rodam em VPS via Docker Compose + GitHub Actions (SSH); `marketing` é publicado na Vercel com deploy nativo por push, isolando o blast radius do produto autenticado das páginas públicas.
+**Deploy:** `api` e `painel` rodam em VPS via PM2 + GitHub Actions (SSH), com Postgres e Redis instalados nativamente (sem Docker); `marketing` é publicado na Vercel com deploy nativo por push, isolando o blast radius do produto autenticado das páginas públicas.
 
 ---
 
 ## Desenvolvimento
 
-Pré-requisitos: Node.js 22, pnpm, PostgreSQL e Redis (local ou via Docker).
+Pré-requisitos: Node.js 22, pnpm, PostgreSQL e Redis instalados localmente.
 
 ```sh
 pnpm install

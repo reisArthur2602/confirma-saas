@@ -9,7 +9,64 @@
 * 🟢 You can import this file directly.
 */
 
+export const ProviderType = {
+  EVOLUTION: 'EVOLUTION'
+} as const
+
+export type ProviderType = (typeof ProviderType)[keyof typeof ProviderType]
 
 
-// This file is empty because there are no enums in the schema.
-export {}
+export const AppointmentStatus = {
+  RECEIVED: 'RECEIVED',
+  PENDING: 'PENDING',
+  ENQUEUED: 'ENQUEUED',
+  SENT: 'SENT',
+  AWAITING_RESPONSE: 'AWAITING_RESPONSE',
+  CONFIRMED: 'CONFIRMED',
+  CANCELLED: 'CANCELLED',
+  RESCHEDULE_REQUESTED: 'RESCHEDULE_REQUESTED',
+  NO_RESPONSE: 'NO_RESPONSE',
+  DELIVERY_FAILED: 'DELIVERY_FAILED'
+} as const
+
+export type AppointmentStatus = (typeof AppointmentStatus)[keyof typeof AppointmentStatus]
+
+
+export const NotificationJobStatus = {
+  PENDING: 'PENDING',
+  ENQUEUED: 'ENQUEUED',
+  DISPATCHED: 'DISPATCHED',
+  FAILED: 'FAILED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type NotificationJobStatus = (typeof NotificationJobStatus)[keyof typeof NotificationJobStatus]
+
+
+export const ErrorCategory = {
+  CLIENT_INSTANCE_ERROR: 'CLIENT_INSTANCE_ERROR',
+  CONFIRMA_INTERNAL_ERROR: 'CONFIRMA_INTERNAL_ERROR'
+} as const
+
+export type ErrorCategory = (typeof ErrorCategory)[keyof typeof ErrorCategory]
+
+
+export const WaitlistInterest = {
+  reduzir_faltas: 'reduzir_faltas',
+  nao_construir_fila: 'nao_construir_fila',
+  byo: 'byo',
+  documentacao: 'documentacao',
+  outro: 'outro'
+} as const
+
+export type WaitlistInterest = (typeof WaitlistInterest)[keyof typeof WaitlistInterest]
+
+
+export const WaitlistSource = {
+  linkedin: 'linkedin',
+  indicacao: 'indicacao',
+  comunidade: 'comunidade',
+  outro: 'outro'
+} as const
+
+export type WaitlistSource = (typeof WaitlistSource)[keyof typeof WaitlistSource]

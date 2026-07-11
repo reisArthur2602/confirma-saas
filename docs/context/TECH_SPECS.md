@@ -3,9 +3,13 @@
 > **Documento:** Especificação Técnica
 > **Projeto:** Confirma _(nome provisório)_
 > **Autor:** Arthur
-> **Status:** Draft v0.5
+> **Status:** Draft v0.6
 > **Referência:** ver `PRD.md`
 > **Última atualização:** 2026-07-11
+>
+> **Changelog v0.6:**
+>
+> - Deploy da VPS migrado de Docker Compose para PM2 (gerenciamento de processos) + Postgres/Redis instalados nativamente via apt, em vez de containers — remove a dependência de Docker do stack de produção.
 >
 > **Changelog v0.5:**
 >
@@ -284,6 +288,7 @@ model Verification {
 model Organization {
   id             String        @id @default(cuid())
   name           String
+  slug           String        @unique
   callbackUrl    String?
   defaultOffsets Json          @default("[\"24h\",\"3h\"]")
 
@@ -1021,62 +1026,72 @@ await prisma.appointment.updateMany({
 
 ## 14. Infraestrutura e deploy
 
-### 14.1 docker-compose.yml
+### 14.1 Processos (PM2)
 
-```yaml
-# Build a partir da raiz do monorepo (precisa das deps de workspace).
-# marketing NÃO entra aqui — vai para a Vercel (ver 14.2).
-# painel também não entra como serviço: é estático, o Nginx serve o build direto.
-services:
-    api:
-        build: { context: ., dockerfile: apps/api/Dockerfile }
-        command: node apps/api/dist/server.js
-        env_file: ./apps/api/.env
-        depends_on: [postgres, redis]
-        restart: always
-        ports: ['3000:3000']
+Sem Docker: os três processos Node do `api` rodam direto na VPS, gerenciados pelo **PM2** via `ecosystem.config.js` na raiz do monorepo. Postgres e Redis **não** são containers — são serviços nativos instalados via `apt` (ver 14.1.1).
 
-    worker:
-        build: { context: ., dockerfile: apps/api/Dockerfile }
-        command: node apps/api/dist/queue/workers/index.js
-        env_file: ./apps/api/.env
-        depends_on: [postgres, redis]
-        restart: always
-
-    promote-cron:
-        build: { context: ., dockerfile: apps/api/Dockerfile }
-        command: node apps/api/dist/queue/crons/promote.cron.js
-        env_file: ./apps/api/.env
-        depends_on: [postgres, redis]
-        restart: always
-
-    postgres:
-        image: postgres:15
-        environment:
-            POSTGRES_USER: confirma
-            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-            POSTGRES_DB: confirma
-        volumes: ['pgdata:/var/lib/postgresql/data']
-        restart: always
-
-    redis:
-        image: redis:7
-        command: redis-server --appendonly yes
-        volumes: ['redisdata:/data']
-        restart: always
-
-volumes:
-    pgdata:
-    redisdata:
+```js
+// ecosystem.config.js
+// Build a partir da raiz do monorepo (precisa das deps de workspace).
+// marketing NÃO entra aqui — vai para a Vercel (ver 14.2).
+// painel também não entra como processo: é estático, o Nginx serve o build direto.
+module.exports = {
+    apps: [
+        {
+            name: 'api',
+            script: 'apps/api/dist/server.js',
+            cwd: '/var/www/confirma',
+            env_file: '/var/www/confirma/apps/api/.env',
+            autorestart: true,
+            max_restarts: 10,
+            instances: 1,
+        },
+        {
+            name: 'worker',
+            script: 'apps/api/dist/queue/workers/index.js',
+            cwd: '/var/www/confirma',
+            env_file: '/var/www/confirma/apps/api/.env',
+            autorestart: true,
+            max_restarts: 10,
+            instances: 1,
+        },
+        {
+            name: 'promote-cron',
+            script: 'apps/api/dist/queue/crons/promote.cron.js',
+            cwd: '/var/www/confirma',
+            env_file: '/var/www/confirma/apps/api/.env',
+            autorestart: true,
+            max_restarts: 10,
+            instances: 1,
+        },
+    ],
+};
 ```
 
-> `promote-cron` roda como processo dedicado (evita que o cron de promoção compita por recursos com a API ou pare junto se a API reiniciar). Alternativa mais simples: um job repetível do próprio BullMQ dentro do processo `worker`, se a operação preferir menos containers.
+> `env_file` carrega as variáveis do `apps/api/.env` para cada processo (suportado nativamente pelo PM2 desde a v5; em versões mais antigas, usar `dotenv/config` no entrypoint do processo faz o mesmo). `promote-cron` roda como processo dedicado (evita que o cron de promoção compita por recursos com a API ou pare junto se a API reiniciar). Alternativa mais simples: um job repetível do próprio BullMQ dentro do processo `worker`, se a operação preferir menos processos.
+
+#### 14.1.1 Postgres e Redis (serviços nativos)
+
+Instalados direto no SO via apt, sem containers:
+
+```bash
+sudo apt update
+sudo apt install -y postgresql redis-server
+sudo systemctl enable --now postgresql redis-server
+```
+
+Criação do banco/usuário (uma vez, no setup inicial da VPS):
+
+```bash
+sudo -u postgres psql -c "CREATE USER confirma WITH PASSWORD '<senha>';"
+sudo -u postgres psql -c "CREATE DATABASE confirma OWNER confirma;"
+```
 
 ### 14.2 Divisão de deploy: Vercel (frontend público) + VPS (produto)
 
 | App         | Onde roda            | Como                                         | Domínio               |
 | ----------- | -------------------- | -------------------------------------------- | --------------------- |
-| `api`       | VPS (Docker Compose) | GitHub Actions → SSH                         | `api.useconfirma.com` |
+| `api`       | VPS (PM2)             | GitHub Actions → SSH                         | `api.useconfirma.com` |
 | `painel`    | VPS (Nginx estático) | GitHub Actions → SSH (build + copia `dist/`) | `app.useconfirma.com` |
 | `marketing` | **Vercel**           | Integração nativa Vercel ↔ GitHub            | `www.useconfirma.com` |
 
@@ -1103,7 +1118,7 @@ on:
             - 'apps/api/**'
             - 'apps/painel/**'
             - 'packages/**'
-            - 'docker-compose.yml'
+            - 'ecosystem.config.js'
             - '.github/workflows/deploy.yml'
 jobs:
     deploy:
@@ -1127,7 +1142,7 @@ jobs:
                       pnpm install --frozen-lockfile
                       pnpm turbo build
                       pnpm --filter api exec prisma migrate deploy
-                      docker compose build && docker compose up -d
+                      pm2 reload ecosystem.config.js --env production
 ```
 
 **CI (`.github/workflows/ci.yml`)** roda em todo PR, independente de qual app mudou:
@@ -1220,8 +1235,8 @@ export default fp(async (fastify) => {
 ```dotenv
 NODE_ENV=production
 PORT=3000
-DATABASE_URL=postgresql://confirma:senha@postgres:5432/confirma
-REDIS_URL=redis://redis:6379
+DATABASE_URL=postgresql://confirma:senha@localhost:5432/confirma
+REDIS_URL=redis://localhost:6379
 APP_ENCRYPTION_KEY=<32 bytes em hex>        # openssl rand -hex 32
 POSTGRES_PASSWORD=<senha>
 
@@ -1255,9 +1270,11 @@ PROMOTION_WINDOW_HOURS=24
 1. `pnpm install` (raiz do monorepo).
 2. `pnpm turbo build` — compila `packages/contracts`, `apps/api`, `apps/painel` (Turborepo respeita a ordem de dependências).
 3. `pnpm --filter api exec prisma migrate deploy`.
-4. `docker compose build && docker compose up -d` (api + worker + promote-cron; Postgres/Redis).
-5. Painel: `apps/painel/dist` já buildado é copiado/servido pelo Nginx (nenhum container).
+4. `pm2 reload ecosystem.config.js --env production` (recarrega `api` + `worker` + `promote-cron` sem downtime).
+5. Painel: `apps/painel/dist` já buildado é copiado/servido pelo Nginx (nenhum processo adicional).
 6. Nginx recarregado; certbot renova TLS de `api.` e `app.`.
+
+> Postgres e Redis são serviços nativos pré-instalados na VPS (via apt, ver 14.1.1) e não fazem parte do pipeline de deploy — só são tocados indiretamente pela migration do passo 3 (`prisma migrate deploy`).
 
 **Vercel (`marketing`):** automático — a própria integração Vercel↔GitHub builda e publica a cada push na `main`, sem passar pelo Actions. `turbo-ignore` decide se o build é necessário para aquele commit.
 

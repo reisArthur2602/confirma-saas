@@ -7,12 +7,283 @@ datasource db {
   provider = "postgresql"
 }
 
-// Tenant do produto (software house ou clínica).
-model Organization {
+enum ProviderType {
+  EVOLUTION
+}
+
+enum AppointmentStatus {
+  RECEIVED
+  PENDING // NotificationJob em Postgres, fora do Redis (Camada 1)
+  ENQUEUED // promovido ao BullMQ (Camada 2)
+  SENT
+  AWAITING_RESPONSE
+  CONFIRMED
+  CANCELLED
+  RESCHEDULE_REQUESTED
+  NO_RESPONSE
+  DELIVERY_FAILED
+}
+
+enum NotificationJobStatus {
+  PENDING
+  ENQUEUED
+  DISPATCHED
+  FAILED
+  CANCELLED
+}
+
+enum ErrorCategory {
+  CLIENT_INSTANCE_ERROR
+  CONFIRMA_INTERNAL_ERROR
+}
+
+enum WaitlistInterest {
+  reduzir_faltas
+  nao_construir_fila
+  byo
+  documentacao
+  outro
+}
+
+enum WaitlistSource {
+  linkedin
+  indicacao
+  comunidade
+  outro
+}
+
+// ──────────────────────────────────────────────────────────────
+// Entidades nativas do Better Auth (login do painel)
+// ──────────────────────────────────────────────────────────────
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  emailVerified Boolean  @default(false)
+  name          String?
+  image         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  sessions    Session[]
+  accounts    Account[]
+  memberships Membership[]
+
+  @@map("users")
+}
+
+model Session {
   id        String   @id @default(cuid())
-  name      String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@map("sessions")
+}
+
+// Identidade de login vinculada (Google OAuth, Magic Link). Nome exigido pelo Better Auth.
+model Account {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  providerId   String // "google" | "magic-link"
+  accountId    String // id da conta no provider externo
+  accessToken  String?
+  refreshToken String?
+  expiresAt    DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@unique([providerId, accountId])
+  @@map("auth_accounts")
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String // e-mail do Magic Link
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+
+  @@map("verifications")
+}
+
+// ──────────────────────────────────────────────────────────────
+// Tenant do produto (renomeado de "Account" para "Organization"
+// para não colidir com a entidade Account do Better Auth)
+// ──────────────────────────────────────────────────────────────
+
+model Organization {
+  id             String   @id @default(cuid())
+  name           String
+  slug           String   @unique
+  callbackUrl    String?
+  defaultOffsets Json     @default("[\"24h\",\"3h\"]")
+
+  // BYO-Instance: credenciais da instância Evolution do próprio cliente,
+  // criptografadas em app-layer (AES-256-GCM) antes de persistir.
+  providerType   ProviderType @default(EVOLUTION)
+  providerConfig Json? // { baseUrlEnc, tokenEnc, webhookConfigured, lastHealthCheckAt, lastHealthCheckOk }
+
+  createdAt DateTime @default(now())
+
+  memberships  Membership[]
+  apiKeys      ApiKey[]
+  appointments Appointment[]
+  templates    Template[]
+
+  @@map("organizations")
+}
+
+// Liga User (login) a Organization (tenant) — permite múltiplos usuários por conta
+model Membership {
+  id             String       @id @default(cuid())
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  role           String       @default("owner") // owner | member
+  createdAt      DateTime     @default(now())
+
+  @@unique([userId, organizationId])
+  @@map("memberships")
+}
+
+model ApiKey {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  publicId       String       @unique // X-Api-Key (ex.: ak_live_xxx) — usado no lookup
+  secretEnc      String // secret HMAC, criptografado (AES-GCM)
+  revokedAt      DateTime?
+  createdAt      DateTime     @default(now())
+
+  @@index([organizationId])
+  @@map("api_keys")
+}
+
+model Appointment {
+  id             String            @id @default(cuid())
+  organizationId String
+  organization   Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  externalId     String // id no sistema de origem
+  idempotencyKey String            @unique
+  status         AppointmentStatus @default(RECEIVED)
+
+  // dados minimizados do paciente
+  patientName  String
+  patientPhone String // criptografado em repouso
+  examType     String
+  examAt       DateTime
+  location     String?
+  professional String?
+
+  offsets     Json // ["24h","3h"]
+  callbackUrl String? // efetiva (req > org)
+
+  purgeAfter DateTime // TTL LGPD
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("organizations")
+  jobs      NotificationJob[]
+  messages  MessageLog[]
+  inbound   InboundEvent[]
+  callbacks CallbackLog[]
+
+  @@unique([organizationId, externalId])
+  @@index([organizationId, status])
+  @@index([examAt])
+  @@map("appointments")
+}
+
+model NotificationJob {
+  id            String                @id @default(cuid())
+  appointmentId String
+  appointment   Appointment           @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  offset        String // "24h"
+  runAt         DateTime
+  status        NotificationJobStatus @default(PENDING) // Camada 1: PENDING; Camada 2: ENQUEUED
+  bullJobId     String? // id no BullMQ, preenchido só na promoção
+  promotedAt    DateTime? // quando o cron materializou no Redis
+  createdAt     DateTime              @default(now())
+
+  @@index([appointmentId])
+  @@index([status, runAt]) // usado pelo cron de promoção
+  @@map("notification_jobs")
+}
+
+model MessageLog {
+  id                String         @id @default(cuid())
+  appointmentId     String
+  appointment       Appointment    @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  provider          ProviderType
+  providerMessageId String?
+  status            String // sent|delivered|failed
+  errorCategory     ErrorCategory? // atribuição clara: cliente vs. Confirma
+  attempt           Int            @default(1)
+  error             String?
+  createdAt         DateTime       @default(now())
+
+  @@index([appointmentId])
+  @@map("message_logs")
+}
+
+model InboundEvent {
+  id            String       @id @default(cuid())
+  appointmentId String?
+  appointment   Appointment? @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  provider      ProviderType
+  rawPayload    Json
+  parsedIntent  String? // confirm|cancel|reschedule|unknown
+  createdAt     DateTime     @default(now())
+
+  @@map("inbound_events")
+}
+
+model CallbackLog {
+  id            String      @id @default(cuid())
+  appointmentId String
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  event         String
+  status        String // success|failed|pending
+  httpStatus    Int?
+  attempt       Int         @default(1)
+  createdAt     DateTime    @default(now())
+
+  @@index([appointmentId])
+  @@map("callback_logs")
+}
+
+model Template {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  key            String // "reminder_default"
+  provider       ProviderType
+  category       String       @default("utility") // sempre utility
+  body           String // com placeholders {{patientName}} etc.
+
+  @@unique([organizationId, key, provider])
+  @@map("templates")
+}
+
+// ──────────────────────────────────────────────────────────────
+// Lista de espera (pré-lançamento) — independente do modelo
+// multi-tenant, existe antes de qualquer Organization ser criada.
+// Campos alinhados a packages/contracts/src/waitlist.ts.
+// ──────────────────────────────────────────────────────────────
+
+model WaitlistLead {
+  id        String            @id @default(cuid())
+  name      String
+  email     String            @unique
+  interest  WaitlistInterest?
+  source    WaitlistSource?
+  createdAt DateTime          @default(now())
+
+  @@map("waitlist_leads")
 }

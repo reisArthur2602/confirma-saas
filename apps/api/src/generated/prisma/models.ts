@@ -8,5 +8,18 @@
  *
  * 🟢 You can import this file directly.
  */
+export type * from './models/User.js'
+export type * from './models/Session.js'
+export type * from './models/Account.js'
+export type * from './models/Verification.js'
 export type * from './models/Organization.js'
+export type * from './models/Membership.js'
+export type * from './models/ApiKey.js'
+export type * from './models/Appointment.js'
+export type * from './models/NotificationJob.js'
+export type * from './models/MessageLog.js'
+export type * from './models/InboundEvent.js'
+export type * from './models/CallbackLog.js'
+export type * from './models/Template.js'
+export type * from './models/WaitlistLead.js'
 export type * from './commonInputTypes.js'
