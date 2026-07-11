@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: 'IBM Plex Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  @keyframes cfmFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+</style>
+</helmet>
+
+<div style="background: #ffffff; color: #17191c; font-size: 16px;">
+
+  <!-- ===== NAV ===== -->
+  <header style="position: sticky; top: 0; z-index: 50; background: rgba(255,255,255,.92); backdrop-filter: blur(8px); border-bottom: 1px solid #ecedf0;">
+    <div style="max-width: 1120px; margin: 0 auto; padding: 14px 28px; display: flex; align-items: center; justify-content: space-between;">
+      <a href="Confirma Landing.dc.html" style="display: flex; align-items: center; gap: 9px; text-decoration: none; color: inherit;">
+        <div style="width: 26px; height: 26px; border-radius: 7px; background: #2f6bf3; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(47,107,243,.35);">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <span style="font-size: 16.5px; font-weight: 700; letter-spacing: -.02em;">Confirma</span>
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; color: #8b9098; background: #f0f1f3; padding: 2px 7px; border-radius: 5px;">blog</span>
+      </a>
+      <a href="#lista-de-espera" style="font-size: 13.5px; font-weight: 600; color: #fff; text-decoration: none; padding: 9px 16px; background: #2f6bf3; border-radius: 9px; box-shadow: 0 1px 3px rgba(47,107,243,.3);">Entrar na lista de espera</a>
+    </div>
+  </header>
+
+  <!-- ===== ARTICLE ===== -->
+  <article style="max-width: 720px; margin: 0 auto; padding: 64px 28px 40px;">
+
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; font-weight: 600; color: #2f6bf3; background: #eef3fe; padding: 4px 11px; border-radius: 999px;">Gestão de consultório</span>
+      <span style="font-size: 12.5px; color: #a2a7af;">5 de julho de 2026 · 6 min de leitura</span>
+    </div>
+
+    <h1 style="margin: 0 0 18px; font-size: 40px; line-height: 1.15; font-weight: 700; letter-spacing: -.028em; text-wrap: balance;">O custo invisível da cadeira vazia: como as faltas de pacientes estão prejudicando o seu consultório</h1>
+    <p style="margin: 0 0 34px; font-size: 19px; line-height: 1.55; color: #61656c; font-family: 'IBM Plex Serif', serif;">Você já parou para calcular quanto custa uma hora do seu dia parado no consultório? E como resolver isso no automático.</p>
+
+    <img src="uploads/Gemini_Generated_Image_ml7f2tml7f2tml7f.png" alt="Cadeira de exames vazia em um consultório moderno e iluminado" style="width: 100%; border-radius: 14px; display: block; margin-bottom: 10px;" />
+    <div style="font-size: 12.5px; color: #a2a7af; text-align: center; margin-bottom: 38px;">A cena mais cara do dia: a sala pronta, e ninguém para atender.</div>
+
+    <div style="font-family: 'IBM Plex Serif', serif; font-size: 17px; line-height: 1.75; color: #2c2f34;">
+      <p style="margin: 0 0 22px;">A cena é dolorosamente comum: a sala está preparada, você está a postos, mas o relógio passa 15, 20 minutos e o paciente não aparece. O famoso <em>no-show</em> (ou absenteísmo) é um dos maiores ralos de faturamento para profissionais autônomos e pequenos consultórios hoje.</p>
+      <p style="margin: 0 0 22px;">De acordo com dados de mercado, a taxa média de faltas em consultas eletivas no Brasil gira em torno de <strong>20% a 30%</strong>. Se o seu consultório fatura R$ 30.000 por mês, isso significa que você pode estar deixando até <strong>R$ 9.000 na mesa</strong> por pura falta de comunicação e esquecimento dos pacientes.</p>
+      <p style="margin: 0 0 22px;">Para quem trabalha por conta própria ou gerencia uma estrutura enxuta, cada falta não é apenas uma distração — é um impacto direto no bolso.</p>
+    </div>
+
+    <!-- callout: cálculo -->
+    <div style="border: 1px solid #dbe6fd; background: #f5f8ff; border-radius: 12px; padding: 20px 24px; margin: 10px 0 34px;">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; color: #2f6bf3; letter-spacing: .05em; text-transform: uppercase; margin-bottom: 10px;">A conta rápida</div>
+      <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap; font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: #17191c;">
+        <span>R$ 30.000/mês</span><span style="color: #a2a7af;">×</span><span>30% de faltas</span><span style="color: #a2a7af;">=</span><span style="font-weight: 700; color: #d13c3c; font-size: 17px;">até R$ 9.000 perdidos</span>
+      </div>
+    </div>
+
+    <h2 style="margin: 0 0 16px; font-size: 26px; font-weight: 700; letter-spacing: -.02em; line-height: 1.25;">O problema não é o esquecimento do paciente. É o método de confirmação.</h2>
+    <div style="font-family: 'IBM Plex Serif', serif; font-size: 17px; line-height: 1.75; color: #2c2f34;">
+      <p style="margin: 0 0 22px;">Muitos profissionais acreditam que a solução é fazer com que a secretária passe o dia ligando para as pessoas ou colando mensagens manualmente no WhatsApp Web. Mas sejamos francos: no dia a dia de um consultório menor, isso não funciona por três motivos.</p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 12px; margin: 4px 0 30px;">
+      <div style="display: flex; gap: 14px; border: 1px solid #ecedf0; border-radius: 12px; padding: 16px 18px;">
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 700; color: #2f6bf3; flex-shrink: 0;">01</span>
+        <div>
+          <div style="font-size: 15px; font-weight: 600; margin-bottom: 4px;">As pessoas não atendem ligações</div>
+          <div style="font-size: 14px; line-height: 1.6; color: #61656c;">Números desconhecidos são sumariamente ignorados ou bloqueados pelo celular dos pacientes.</div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 14px; border: 1px solid #ecedf0; border-radius: 12px; padding: 16px 18px;">
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 700; color: #2f6bf3; flex-shrink: 0;">02</span>
+        <div>
+          <div style="font-size: 15px; font-weight: 600; margin-bottom: 4px;">O processo manual é humano e falho</div>
+          <div style="font-size: 14px; line-height: 1.6; color: #61656c;">Em dias corridos, a recepção fica sobrecarregada com o atendimento presencial e a organização interna. A mensagem de confirmação acaba saindo tarde demais para encaixar outra pessoa da lista de espera.</div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 14px; border: 1px solid #ecedf0; border-radius: 12px; padding: 16px 18px;">
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 700; color: #2f6bf3; flex-shrink: 0;">03</span>
+        <div>
+          <div style="font-size: 15px; font-weight: 600; margin-bottom: 4px;">Falta de flexibilidade e plantão</div>
+          <div style="font-size: 14px; line-height: 1.6; color: #61656c;">Se o paciente responde que "não vai" às 21h da noite anterior, ninguém da sua equipe está olhando o WhatsApp para remanejar a agenda do dia seguinte a tempo.</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="font-family: 'IBM Plex Serif', serif; font-size: 17px; line-height: 1.75; color: #2c2f34;">
+      <p style="margin: 0 0 34px;">O mercado mudou. A confirmação de consultas precisa ser <strong>imediata, inteligente e, acima de tudo, automatizada</strong>.</p>
+    </div>
+
+    <img src="uploads/watermarked_img_8299030169230315295.jpg" alt="Smartphone mostrando notificação de consulta confirmada ao lado de um estetoscópio" style="width: 100%; border-radius: 14px; display: block; margin-bottom: 10px;" />
+    <div style="font-size: 12.5px; color: #a2a7af; text-align: center; margin-bottom: 38px;">Confirmado em um clique — enquanto a recepção cuida de quem já chegou.</div>
+
+    <h2 style="margin: 0 0 16px; font-size: 26px; font-weight: 700; letter-spacing: -.02em; line-height: 1.25;">Conheça o Confirma: a evolução da gestão de presença</h2>
+    <div style="font-family: 'IBM Plex Serif', serif; font-size: 17px; line-height: 1.75; color: #2c2f34;">
+      <p style="margin: 0 0 22px;">Estamos finalizando os últimos ajustes do <strong>Confirma</strong>, um ecossistema inteligente de mensageria desenhado sob medida para a realidade de médicos, dentistas, psicólogos e terapeutas autônomos que precisam otimizar cada minuto da sua grade de horários.</p>
+      <p style="margin: 0 0 22px;">Diferente de sistemas complexos e engessados feitos para grandes hospitais, o Confirma foi projetado para ser direto ao ponto. Ele monitora seus agendamentos e orquestra réguas de mensagens cirúrgicas — como lembretes automáticos enviados <strong>24 horas e 3 horas antes</strong> do procedimento — dando ao paciente a opção de confirmar ou pedir o reagendamento em apenas um clique.</p>
+      <p style="margin: 0 0 22px;">Além disso, o Confirma oferece total liberdade de infraestrutura. Você escolhe o motor de WhatsApp que faz mais sentido para o seu bolso e para a sua operação:</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 4px 0 30px;">
+      <div style="border: 1px solid #ecedf0; border-radius: 12px; padding: 16px;">
+        <div style="font-size: 13.5px; font-weight: 700; margin-bottom: 5px;">WhatsApp Cloud API</div>
+        <div style="font-size: 12.5px; line-height: 1.55; color: #61656c;">A rota oficial da Meta para máxima estabilidade.</div>
+      </div>
+      <div style="border: 1px solid #ecedf0; border-radius: 12px; padding: 16px;">
+        <div style="font-size: 13.5px; font-weight: 700; margin-bottom: 5px;">Evolution API</div>
+        <div style="font-size: 12.5px; line-height: 1.55; color: #61656c;">Alternativa flexível baseada em instâncias customizadas.</div>
+      </div>
+      <div style="border: 1px solid #ecedf0; border-radius: 12px; padding: 16px;">
+        <div style="font-size: 13.5px; font-weight: 700; margin-bottom: 5px;">Z-API Gateway</div>
+        <div style="font-size: 12.5px; line-height: 1.55; color: #61656c;">Conexão prática e gerenciada na nuvem via QR Code.</div>
+      </div>
+    </div>
+
+    <div style="font-family: 'IBM Plex Serif', serif; font-size: 17px; line-height: 1.75; color: #2c2f34;">
+      <p style="margin: 0 0 34px;">Ao automatizar esse fluxo, sua recepção ganha tempo livre para acolher quem chega e organizar o consultório com calma, enquanto o sistema trabalha em segundo plano garantindo que o seu tempo precioso seja <strong>100% aproveitado e monetizado</strong>.</p>
+    </div>
+
+    <h2 style="margin: 0 0 16px; font-size: 26px; font-weight: 700; letter-spacing: -.02em; line-height: 1.25;">Participe do lançamento exclusivo (vagas limitadas)</h2>
+    <div style="font-family: 'IBM Plex Serif', serif; font-size: 17px; line-height: 1.75; color: #2c2f34;">
+      <p style="margin: 0 0 22px;">O Confirma está rodando em fase de testes fechados com clínicas e consultórios parceiros. Os resultados práticos são impressionantes: registramos uma <strong>redução de até 75% no índice de faltas</strong> já nas primeiras semanas de uso.</p>
+      <p style="margin: 0 0 22px;">Nas próximas semanas, abriremos as portas para o público geral. Se você quer parar de perder dinheiro com cadeiras vazias, entrar na nossa lista de acesso antecipado garante vantagens brutas:</p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 10px; margin: 4px 0 20px;">
+      <div style="display: flex; gap: 10px; align-items: flex-start; font-size: 15px; line-height: 1.6; color: #2c2f34;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#178a45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 3px;"><path d="M20 6L9 17l-5-5"/></svg>
+        <span><strong>Prioridade máxima</strong> na liberação da sua conta.</span>
+      </div>
+      <div style="display: flex; gap: 10px; align-items: flex-start; font-size: 15px; line-height: 1.6; color: #2c2f34;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#178a45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 3px;"><path d="M20 6L9 17l-5-5"/></svg>
+        <span><strong>Condições de preço vitalícias</strong> — taxas e assinaturas diferenciadas que nunca mais serão oferecidas.</span>
+      </div>
+      <div style="display: flex; gap: 10px; align-items: flex-start; font-size: 15px; line-height: 1.6; color: #2c2f34;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#178a45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 3px;"><path d="M20 6L9 17l-5-5"/></svg>
+        <span><strong>Onboarding guiado</strong> para integrar a ferramenta perfeitamente à sua rotina de agendamentos.</span>
+      </div>
+    </div>
+
+    <div style="font-family: 'IBM Plex Serif', serif; font-size: 17px; line-height: 1.75; color: #2c2f34;">
+      <p style="margin: 0;">Não deixe mais o faturamento do seu consultório evaporar por falta de um aviso automático.</p>
+    </div>
+  </article>
+
+  <!-- ===== WAITLIST CTA ===== -->
+  <section id="lista-de-espera" style="background: #17191c; scroll-margin-top: 70px;">
+    <div style="max-width: 640px; margin: 0 auto; padding: 72px 28px 80px; text-align: center;">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600; color: #7ea6f7; letter-spacing: .05em; text-transform: uppercase; margin-bottom: 14px;">Acesso antecipado</div>
+      <h2 style="margin: 0 0 12px; font-size: 30px; font-weight: 700; letter-spacing: -.025em; line-height: 1.2; color: #fff; text-wrap: balance;">Quero me inscrever na lista de espera</h2>
+      <p style="margin: 0 0 28px; font-size: 15px; line-height: 1.6; color: #a2a7af;">Vagas limitadas para a primeira turma. Sem spam — só o aviso de liberação e as condições de lançamento.</p>
+
+      <sc-if value="{{ notJoined }}" hint-placeholder-val="{{ true }}">
+        <div style="display: flex; gap: 10px; max-width: 460px; margin: 0 auto;">
+          <input type="email" placeholder="seu-email@consultorio.com.br" value="{{ email }}" onChange="{{ onEmailChange }}" style="flex: 1; padding: 13px 16px; border: 1px solid #3a3e44; border-radius: 10px; font-size: 14px; font-family: inherit; color: #fff; background: #1c1f24;" style-focus="outline:none;border-color:#2f6bf3;box-shadow:0 0 0 3px rgba(47,107,243,.25);" />
+          <button onClick="{{ joinWaitlist }}" style="{{ joinBtnStyle }}">Entrar na lista</button>
+        </div>
+        <div style="font-size: 12px; color: #61656c; margin-top: 14px;">Redução de até <strong style="color: #a2a7af;">75% nas faltas</strong> nos testes fechados.</div>
+      </sc-if>
+      <sc-if value="{{ joined }}">
+        <div style="display: inline-flex; align-items: center; gap: 10px; padding: 14px 22px; border-radius: 12px; background: #12351f; border: 1px solid #1d5e35; animation: cfmFade .2s ease;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4ec77e" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+          <span style="font-size: 14px; font-weight: 600; color: #4ec77e;">Você está na lista! Avisaremos em {{ email }} assim que a sua vaga for liberada.</span>
+        </div>
+      </sc-if>
+
+      <div style="display: flex; align-items: center; justify-content: center; gap: 9px; margin-top: 60px; padding-top: 28px; border-top: 1px solid #2a2d33;">
+        <div style="width: 20px; height: 20px; border-radius: 6px; background: #2f6bf3; display: flex; align-items: center; justify-content: center;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <span style="font-size: 13px; font-weight: 600; color: #8b9098;">Confirma © 2026 · <a href="Confirma Landing.dc.html" style="color: #8b9098;">confirma.dev</a></span>
+      </div>
+    </div>
+  </section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { email: '', joined: false };
+
+  renderVals() {
+    const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.state.email.trim());
+    return {
+      email: this.state.email,
+      onEmailChange: (e) => this.setState({ email: e.target.value }),
+      joinWaitlist: () => { if (valid) this.setState({ joined: true }); },
+      joined: this.state.joined,
+      notJoined: !this.state.joined,
+      joinBtnStyle: {
+        padding: '13px 22px', border: 'none', borderRadius: '10px',
+        background: valid ? '#2f6bf3' : '#2a2d33',
+        color: valid ? '#fff' : '#61656c',
+        fontSize: '14px', fontWeight: 600, fontFamily: 'inherit',
+        cursor: valid ? 'pointer' : 'default', whiteSpace: 'nowrap',
+        boxShadow: valid ? '0 1px 6px rgba(47,107,243,.4)' : 'none'
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

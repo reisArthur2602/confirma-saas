@@ -1,0 +1,1648 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: 'IBM Plex Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: #d9dbe0; border-radius: 8px; border: 3px solid #fff; }
+  ::-webkit-scrollbar-thumb:hover { background: #c3c6cd; }
+  @keyframes cfmFade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  @keyframes cfmPulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+  @keyframes cfmDrop { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+</style>
+</helmet>
+
+<!-- ================= ONBOARDING (primeira org) ================= -->
+<sc-if value="{{ showOnboarding }}" hint-placeholder-val="{{ false }}">
+  <div style="min-height: 100vh; width: 100%; display: flex; align-items: center; justify-content: center; background: #fbfbfc; color: #17191c; font-size: 14px; padding: 24px;">
+    <div style="width: 100%; max-width: 440px; animation: cfmFade .2s ease;">
+      <div style="display: flex; align-items: center; justify-content: center; gap: 9px; margin-bottom: 28px;">
+        <div style="width: 28px; height: 28px; border-radius: 8px; background: #2f6bf3; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(47,107,243,.35);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <span style="font-size: 18px; font-weight: 700; letter-spacing: -.02em;">Confirma</span>
+      </div>
+
+      <div style="background: #fff; border: 1px solid #ecedf0; border-radius: 14px; padding: 32px 28px; box-shadow: 0 1px 2px rgba(16,24,40,.04);">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; color: #2f6bf3; background: #eef3fe; padding: 2px 8px; border-radius: 999px;">passo 1 de 1</span>
+        </div>
+        <h1 style="margin: 10px 0 4px; font-size: 19px; font-weight: 700; letter-spacing: -.01em;">Vamos criar sua organização</h1>
+        <p style="margin: 0 0 22px; font-size: 12.5px; color: #8b9098; line-height: 1.55;">Toda conta no Confirma vive dentro de uma organização — a sua clínica, hospital ou rede. Você poderá convidar sua equipe e criar outras depois.</p>
+
+        <label style="display: block; font-size: 12px; font-weight: 600; color: #4b5158; margin-bottom: 6px;">Nome da organização</label>
+        <input type="text" placeholder="ex.: Clínica Odonto X" value="{{ onbName }}" onChange="{{ onOnbNameChange }}" style="width: 100%; padding: 10px 13px; border: 1px solid #e2e4e8; border-radius: 9px; font-size: 13.5px; font-family: inherit; color: #17191c; margin-bottom: 14px;" style-focus="outline:none;border-color:#2f6bf3;box-shadow:0 0 0 3px rgba(47,107,243,.12);" />
+
+        <label style="display: block; font-size: 12px; font-weight: 600; color: #4b5158; margin-bottom: 6px;">Tipo de operação</label>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 22px;">
+          <sc-for list="{{ onbKinds }}" as="k" hint-placeholder-count="4">
+            <button onClick="{{ k.onSelect }}" style="{{ k.style }}">{{ k.label }}</button>
+          </sc-for>
+        </div>
+
+        <button onClick="{{ createOrg }}" style="{{ createOrgBtnStyle }}">Criar organização e continuar</button>
+      </div>
+
+      <p style="text-align: center; font-size: 11.5px; color: #b6bac1; margin-top: 22px; line-height: 1.6;">Você poderá trocar de organização a qualquer momento pela barra lateral.</p>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ showApp }}" hint-placeholder-val="{{ true }}">
+<div style="display: grid; grid-template-columns: 236px 1fr; height: 100vh; width: 100%; background: #ffffff; color: #17191c; font-size: 14px; overflow: hidden;">
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside style="display: flex; flex-direction: column; background: #fbfbfc; border-right: 1px solid #ecedf0; padding: 16px 12px; overflow-y: auto;">
+    <div style="display: flex; align-items: center; gap: 9px; padding: 4px 8px; margin-bottom: 16px;">
+      <div style="width: 26px; height: 26px; border-radius: 7px; background: #2f6bf3; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(47,107,243,.35); flex-shrink: 0;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+      </div>
+      <span style="font-size: 16px; font-weight: 700; letter-spacing: -.02em;">Confirma</span>
+    </div>
+
+    <!-- ===== Org switcher ===== -->
+    <div style="position: relative; margin-bottom: 20px;">
+      <button onClick="{{ toggleOrgMenu }}" style="width: 100%; display: flex; align-items: center; gap: 9px; padding: 8px 9px; border: 1px solid #ecedf0; border-radius: 9px; background: #fff; cursor: pointer; font-family: inherit; text-align: left;" style-hover="background:#fafbfc;">
+        <div style="width: 24px; height: 24px; border-radius: 6px; background: {{ activeOrg.color }}; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0;">{{ activeOrg.initials }}</div>
+        <div style="min-width: 0; flex: 1;">
+          <div style="font-size: 12.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ activeOrg.name }}</div>
+          <div style="font-size: 10.5px; color: #a2a7af; font-family: 'IBM Plex Mono', monospace;">{{ activeOrg.plan }}</div>
+        </div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a2a7af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M8 9l4-4 4 4M8 15l4 4 4-4"/></svg>
+      </button>
+
+      <sc-if value="{{ orgMenuOpen }}">
+        <div style="position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 20; background: #fff; border: 1px solid #ecedf0; border-radius: 10px; box-shadow: 0 8px 24px rgba(16,24,40,.1); padding: 6px; animation: cfmFade .15s ease;">
+          <div style="font-size: 10.5px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: #a2a7af; padding: 6px 9px 4px;">Suas organizações</div>
+          <sc-for list="{{ orgList }}" as="org" hint-placeholder-count="3">
+            <button onClick="{{ org.onSelect }}" style="width: 100%; display: flex; align-items: center; gap: 9px; padding: 8px 9px; border: none; border-radius: 8px; background: {{ org.rowBg }}; cursor: pointer; font-family: inherit; text-align: left;" style-hover="background:#f5f6f8;">
+              <div style="width: 24px; height: 24px; border-radius: 6px; background: {{ org.color }}; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0;">{{ org.initials }}</div>
+              <div style="min-width: 0; flex: 1;">
+                <div style="font-size: 12.5px; font-weight: 600; color: #17191c; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ org.name }}</div>
+                <div style="font-size: 10.5px; color: #a2a7af;">{{ org.role }}</div>
+              </div>
+              <sc-if value="{{ org.isActive }}">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2f6bf3" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M20 6L9 17l-5-5"/></svg>
+              </sc-if>
+            </button>
+          </sc-for>
+          <div style="height: 1px; background: #f0f1f3; margin: 6px 2px;"></div>
+          <button onClick="{{ openCreateOrgDialog }}" style="width: 100%; display: flex; align-items: center; gap: 9px; padding: 8px 9px; border: none; border-radius: 8px; background: transparent; cursor: pointer; font-family: inherit; text-align: left; color: #4b5158;" style-hover="background:#f5f6f8;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8b9098" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; padding: 4px;"><path d="M12 5v14M5 12h14"/></svg>
+            <span style="font-size: 12.5px; font-weight: 500;">Criar organização</span>
+          </button>
+        </div>
+      </sc-if>
+    </div>
+
+    <div style="font-size: 10.5px; font-weight: 600; letter-spacing: .07em; color: #a2a7af; text-transform: uppercase; padding: 0 8px 8px;">Painel</div>
+    <nav style="display: flex; flex-direction: column; gap: 2px; margin-bottom: 20px;">
+      <button onClick="{{ goOverview }}" style="{{ navOverview }}">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="{{ icOverview }}" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Visão geral
+      </button>
+      <button onClick="{{ goAppointments }}" style="{{ navAppointments }}">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="{{ icAppointments }}" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/></svg>
+        Agendamentos
+      </button>
+      <button onClick="{{ goSandbox }}" style="{{ navSandbox }}">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="{{ icSandbox }}" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9l3 3-3 3M13 15h4"/></svg>
+        Sandbox
+      </button>
+      <button onClick="{{ goTemplates }}" style="{{ navTemplates }}">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="{{ icTemplates }}" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 15.5a2 2 0 0 1-2 2H8l-4 3.5V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z"/></svg>
+        Templates
+      </button>
+    </nav>
+
+    <div style="font-size: 10.5px; font-weight: 600; letter-spacing: .07em; color: #a2a7af; text-transform: uppercase; padding: 0 8px 8px;">Desenvolvedor</div>
+    <nav style="display: flex; flex-direction: column; gap: 2px;">
+      <button onClick="{{ goConnection }}" style="{{ navConnection }}">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="{{ icConnection }}" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12a4 4 0 0 1 4-4h2M18 12a4 4 0 0 1-4 4h-2M9 15l-3-3 3-3M15 9l3 3-3 3"/></svg>
+        Conexão
+      </button>
+      <button onClick="{{ goKeys }}" style="{{ navKeys }}">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="{{ icKeys }}" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="3.5"/><path d="M10 13l8-8M15.5 5.5l2 2M13 8l2 2"/></svg>
+        API Keys
+      </button>
+      <button onClick="{{ goSettings }}" style="{{ navSettings }}">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="{{ icSettings }}" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h10M18 8h2M4 16h2M10 16h10"/><circle cx="15" cy="8" r="2.4"/><circle cx="7" cy="16" r="2.4"/></svg>
+        Configurações
+      </button>
+    </nav>
+
+    <div style="margin-top: auto; padding-top: 16px; position: relative;">
+      <button onClick="{{ toggleUserMenu }}" style="width: 100%; display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 9px; border: 1px solid #ecedf0; background: #fff; cursor: pointer; font-family: inherit; text-align: left;" style-hover="background:#fafbfc;">
+        <div style="width: 30px; height: 30px; border-radius: 50%; background: #17191c; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0;">AF</div>
+        <div style="min-width: 0; flex: 1;">
+          <div style="font-size: 12.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Arthur F.</div>
+          <div style="font-size: 11px; color: #8b9098; font-family: 'IBM Plex Mono', monospace;">acct_7fk2</div>
+        </div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a2a7af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M8 9l4-4 4 4M8 15l4 4 4-4"/></svg>
+      </button>
+
+      <sc-if value="{{ userMenuOpen }}">
+        <div style="position: absolute; bottom: calc(100% + 6px); left: 0; right: 0; z-index: 20; background: #fff; border: 1px solid #ecedf0; border-radius: 10px; box-shadow: 0 8px 24px rgba(16,24,40,.1); padding: 6px; animation: cfmFade .15s ease;">
+          <button style="width: 100%; display: flex; align-items: center; gap: 9px; padding: 8px 9px; border: none; border-radius: 8px; background: transparent; cursor: pointer; font-family: inherit; text-align: left; color: #4b5158;" style-hover="background:#f5f6f8;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b9098" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/></svg>
+            <span style="font-size: 12.5px; font-weight: 500;">Meu perfil</span>
+          </button>
+          <button onClick="{{ goSettings }}" style="width: 100%; display: flex; align-items: center; gap: 9px; padding: 8px 9px; border: none; border-radius: 8px; background: transparent; cursor: pointer; font-family: inherit; text-align: left; color: #4b5158;" style-hover="background:#f5f6f8;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b9098" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h10M18 8h2M4 16h2M10 16h10"/><circle cx="15" cy="8" r="2.4"/><circle cx="7" cy="16" r="2.4"/></svg>
+            <span style="font-size: 12.5px; font-weight: 500;">Configurações</span>
+          </button>
+          <div style="height: 1px; background: #f0f1f3; margin: 6px 2px;"></div>
+          <button style="width: 100%; display: flex; align-items: center; gap: 9px; padding: 8px 9px; border: none; border-radius: 8px; background: transparent; cursor: pointer; font-family: inherit; text-align: left; color: #d13c3c;" style-hover="background:#fdecec;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d13c3c" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
+            <span style="font-size: 12.5px; font-weight: 500;">Sair</span>
+          </button>
+        </div>
+      </sc-if>
+    </div>
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <main style="display: flex; flex-direction: column; min-width: 0; overflow: hidden;">
+    <!-- topbar -->
+    <header style="display: flex; align-items: center; justify-content: space-between; padding: 16px 30px; border-bottom: 1px solid #ecedf0; flex-shrink: 0;">
+      <div>
+        <h1 style="margin: 0; font-size: 17px; font-weight: 600; letter-spacing: -.01em;">{{ currentTitle }}</h1>
+        <p style="margin: 3px 0 0; font-size: 12.5px; color: #8b9098;">{{ currentSubtitle }}</p>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 999px; background: {{ envBadgeBg }}; border: 1px solid {{ envBadgeBorder }};">
+          <span style="width: 6px; height: 6px; border-radius: 50%; background: {{ envBadgeDot }}; animation: cfmPulse 1.8s ease-in-out infinite;"></span>
+          <span style="font-size: 11.5px; font-weight: 600; color: {{ envBadgeText }}; font-family: 'IBM Plex Mono', monospace;">{{ envLabel }}</span>
+        </div>
+        <a href="Confirma Docs.dc.html" style="display: flex; align-items: center; gap: 6px; padding: 7px 13px; border-radius: 8px; border: 1px solid #e2e4e8; font-size: 12.5px; font-weight: 500; color: #4b5158; text-decoration: none;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v12H4zM4 9h16"/></svg>
+          Documentação
+        </a>
+      </div>
+    </header>
+
+    <div style="flex: 1; overflow-y: auto; padding: 28px 30px 60px; background: #ffffff;">
+
+      <!-- ============ OVERVIEW ============ -->
+      <sc-if value="{{ showOverview }}" hint-placeholder-val="{{ true }}">
+        <section data-screen-label="Visão geral" style="animation: cfmFade .18s ease; max-width: 1180px;">
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;">
+            <div style="border: 1px solid #ecedf0; border-radius: 12px; padding: 16px 18px;">
+              <div style="font-size: 12.5px; color: #8b9098; font-weight: 500;">Taxa de confirmação</div>
+              <div style="display: flex; align-items: baseline; gap: 8px; margin-top: 10px;"><span style="font-size: 30px; font-weight: 700; letter-spacing: -.02em;">64,2%</span><span style="font-size: 12px; font-weight: 600; color: #178a45;">▲ 5,1</span></div>
+              <div style="font-size: 11.5px; color: #a2a7af; margin-top: 4px;">meta &gt; 60%</div>
+            </div>
+            <div style="border: 1px solid #ecedf0; border-radius: 12px; padding: 16px 18px;">
+              <div style="font-size: 12.5px; color: #8b9098; font-weight: 500;">Faltas evitadas</div>
+              <div style="display: flex; align-items: baseline; gap: 8px; margin-top: 10px;"><span style="font-size: 30px; font-weight: 700; letter-spacing: -.02em;">318</span><span style="font-size: 12px; font-weight: 600; color: #178a45;">▲ 12%</span></div>
+              <div style="font-size: 11.5px; color: #a2a7af; margin-top: 4px;">≈ R$ 47,7 mil recuperados</div>
+            </div>
+            <div style="border: 1px solid #ecedf0; border-radius: 12px; padding: 16px 18px;">
+              <div style="font-size: 12.5px; color: #8b9098; font-weight: 500;">Agendamentos no mês</div>
+              <div style="display: flex; align-items: baseline; gap: 5px; margin-top: 10px;"><span style="font-size: 30px; font-weight: 700; letter-spacing: -.02em;">1.240</span><span style="font-size: 14px; color: #a2a7af; font-weight: 500;">/ 5.000</span></div>
+              <div style="height: 5px; background: #f0f1f3; border-radius: 3px; overflow: hidden; margin-top: 9px;"><div style="height: 100%; width: 24.8%; background: #2f6bf3; border-radius: 3px;"></div></div>
+              <div style="font-size: 11.5px; color: #a2a7af; margin-top: 5px;">Plano Scale · orquestrados, não SMS · renova em 12 dias</div>
+            </div>
+            <div style="border: 1px solid #ecedf0; border-radius: 12px; padding: 16px 18px;">
+              <div style="font-size: 12.5px; color: #8b9098; font-weight: 500;">Callbacks entregues</div>
+              <div style="display: flex; align-items: baseline; gap: 8px; margin-top: 10px;"><span style="font-size: 30px; font-weight: 700; letter-spacing: -.02em;">99,7%</span></div>
+              <div style="font-size: 11.5px; color: #a2a7af; margin-top: 4px;">meta &gt; 99%</div>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1.55fr 1fr; gap: 14px; margin-top: 14px;">
+            <div style="border: 1px solid #ecedf0; border-radius: 12px; padding: 18px 20px;">
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div style="font-size: 13.5px; font-weight: 600;">Confirmações por dia</div>
+                <div style="display: flex; gap: 14px; font-size: 11.5px; color: #8b9098;">
+                  <span style="display: flex; align-items: center; gap: 5px;"><span style="width: 9px; height: 9px; border-radius: 2px; background: #2f6bf3;"></span>Confirmado</span>
+                  <span style="display: flex; align-items: center; gap: 5px;"><span style="width: 9px; height: 9px; border-radius: 2px; background: #e5e8ec;"></span>Sem resposta</span>
+                </div>
+              </div>
+              <div style="display: flex; align-items: flex-end; gap: 7px; height: 168px; margin-top: 22px;">
+                <sc-for list="{{ chartBars }}" as="bar" hint-placeholder-count="14">
+                  <div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; height: 100%;">
+                    <div style="height: {{ bar.gray }}px; background: #e5e8ec; border-radius: 3px 3px 0 0;"></div>
+                    <div style="height: {{ bar.blue }}px; background: #2f6bf3; border-radius: 0 0 3px 3px;"></div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 10.5px; color: #b6bac1; font-family: 'IBM Plex Mono', monospace;"><span>22 jun</span><span>28 jun</span><span>04 jul</span></div>
+            </div>
+
+            <div style="border: 1px solid #ecedf0; border-radius: 12px; padding: 18px 20px;">
+              <div style="font-size: 13.5px; font-weight: 600; margin-bottom: 16px;">Funil do ciclo</div>
+              <sc-for list="{{ funnel }}" as="step" hint-placeholder-count="5">
+                <div style="margin-bottom: 13px;">
+                  <div style="display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 5px;"><span style="color: #4b5158; font-weight: 500;">{{ step.label }}</span><span style="font-family: 'IBM Plex Mono', monospace; color: #8b9098;">{{ step.value }}</span></div>
+                  <div style="height: 7px; background: #f0f1f3; border-radius: 4px; overflow: hidden;"><div style="height: 100%; width: {{ step.pct }}; background: {{ step.color }}; border-radius: 4px;"></div></div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="border: 1px solid #ecedf0; border-radius: 12px; margin-top: 14px; overflow: hidden;">
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; border-bottom: 1px solid #ecedf0;">
+              <div style="font-size: 13.5px; font-weight: 600;">Atividade recente</div>
+              <button onClick="{{ goAppointments }}" style="background: none; border: none; color: #2f6bf3; font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: inherit;">Ver todos →</button>
+            </div>
+            <sc-for list="{{ recent }}" as="ev" hint-placeholder-count="4">
+              <div style="display: flex; align-items: center; gap: 14px; padding: 12px 20px; border-bottom: 1px solid #f2f3f5;">
+                <span style="width: 7px; height: 7px; border-radius: 50%; background: {{ ev.dot }}; flex-shrink: 0;"></span>
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #8b9098; width: 82px; flex-shrink: 0;">{{ ev.id }}</span>
+                <span style="font-size: 13px; flex: 1; min-width: 0;">{{ ev.text }}</span>
+                <span style="font-size: 11.5px; color: #b6bac1; font-family: 'IBM Plex Mono', monospace;">{{ ev.time }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+      </sc-if>
+
+      <!-- ============ APPOINTMENTS ============ -->
+      <sc-if value="{{ showAppointments }}">
+        <section data-screen-label="Agendamentos" style="animation: cfmFade .18s ease;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+            <div style="display: flex; gap: 7px; flex-wrap: wrap;">
+              <button onClick="{{ filterAll }}" style="{{ chipAll }}">Todos</button>
+              <button onClick="{{ filterConfirmed }}" style="{{ chipConfirmed }}">Confirmados</button>
+              <button onClick="{{ filterAwaiting }}" style="{{ chipAwaiting }}">Aguardando</button>
+              <button onClick="{{ filterCancelled }}" style="{{ chipCancelled }}">Cancelados</button>
+              <button onClick="{{ filterNoResp }}" style="{{ chipNoResp }}">Sem resposta</button>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; padding: 7px 12px; border: 1px solid #e2e4e8; border-radius: 8px; width: 240px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#a2a7af" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+              <span style="font-size: 12.5px; color: #b6bac1;">Buscar por externalId ou paciente…</span>
+            </div>
+          </div>
+
+          <div style="border: 1px solid #ecedf0; border-radius: 12px; overflow: hidden;">
+            <div style="display: grid; grid-template-columns: 108px 1.3fr 1.5fr 118px 96px 130px 84px; gap: 12px; padding: 11px 18px; background: #fbfbfc; border-bottom: 1px solid #ecedf0; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #a2a7af;">
+              <span>External ID</span><span>Paciente</span><span>Exame</span><span>Data / hora</span><span>Lembrete</span><span>Status</span><span style="text-align: right;">Atualizado</span>
+            </div>
+            <sc-for list="{{ appointments }}" as="ap" hint-placeholder-count="8">
+              <div onClick="{{ ap.onOpen }}" style="display: grid; grid-template-columns: 108px 1.3fr 1.5fr 118px 96px 130px 84px; gap: 12px; padding: 13px 18px; border-bottom: 1px solid #f2f3f5; align-items: center; cursor: pointer;" style-hover="background:#fafbfc;">
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #2f6bf3;">{{ ap.externalId }}</span>
+                <span style="font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ ap.name }}</span>
+                <span style="font-size: 12.5px; color: #61656c; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ ap.exam }}</span>
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #4b5158;">{{ ap.datetime }}</span>
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #8b9098;">{{ ap.offset }}</span>
+                <span><span style="display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; font-size: 11.5px; font-weight: 600; background: {{ ap.badgeBg }}; color: {{ ap.badgeColor }};"><span style="width: 5px; height: 5px; border-radius: 50%; background: {{ ap.badgeColor }};"></span>{{ ap.statusLabel }}</span></span>
+                <span style="font-size: 11.5px; color: #b6bac1; text-align: right; font-family: 'IBM Plex Mono', monospace;">{{ ap.updated }}</span>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="border: 1px solid #ecedf0; border-radius: 12px; margin-top: 16px; padding: 18px 20px;">
+            <div style="font-size: 13px; font-weight: 600; margin-bottom: 4px;">Máquina de estados</div>
+            <div style="font-size: 12px; color: #8b9098; margin-bottom: 4px;">Duas camadas: Postgres frio guarda o agendamento até a janela de disparo; o BullMQ/Redis assume na fila quente. Estados terminais disparam o callback assinado ao sistema de origem.</div>
+            <div style="font-size: 11px; color: #b6bac1; margin-bottom: 16px;">received → pending (frio) → enqueued (fila quente) → sent → awaiting_response → terminal</div>
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <sc-for list="{{ stateFlow }}" as="st" hint-placeholder-count="5">
+                <span style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 500; background: {{ st.bg }}; color: {{ st.color }};">{{ st.name }}</span>
+                <span style="color: #cdd0d6; font-size: 15px;">→</span>
+              </sc-for>
+              <span style="display: inline-flex; flex-direction: column; gap: 5px; margin-left: 2px;">
+                <span style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600; background: #e7f6ec; color: #178a45;">confirmed</span>
+              </span>
+              <span style="display: inline-flex; flex-direction: column; gap: 5px;">
+                <span style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600; background: #fdecec; color: #d13c3c;">cancelled</span>
+              </span>
+              <span style="display: inline-flex; flex-direction: column; gap: 5px;">
+                <span style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600; background: #f0ecfd; color: #7c3aed;">reschedule_requested</span>
+              </span>
+              <span style="display: inline-flex; flex-direction: column; gap: 5px;">
+                <span style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600; background: #f1f2f4; color: #6b7280;">no_response</span>
+              </span>
+            </div>
+          </div>
+        </section>
+      </sc-if>
+
+      <!-- ============ SANDBOX ============ -->
+      <sc-if value="{{ showSandbox }}">
+        <section data-screen-label="Sandbox" style="animation: cfmFade .18s ease; max-width: 1100px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <!-- request -->
+            <div>
+              <div style="display: flex; align-items: center; gap: 9px; margin-bottom: 12px;">
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 700; color: #178a45; background: #e7f6ec; padding: 3px 8px; border-radius: 6px;">POST</span>
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #17191c;">/v1/appointments</span>
+              </div>
+              <div style="border: 1px solid #ecedf0; border-radius: 12px; overflow: hidden;">
+                <div style="padding: 12px 16px; border-bottom: 1px solid #f2f3f5; background: #fbfbfc;">
+                  <div style="font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #a2a7af; margin-bottom: 8px;">Suas credenciais</div>
+                  <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <input type="text" placeholder="X-Api-Key (pk_test_…)" value="{{ sbApiKey }}" onChange="{{ onSbApiKeyChange }}" style="width: 100%; padding: 8px 10px; border: 1px solid #e2e4e8; border-radius: 7px; font-size: 12px; font-family: 'IBM Plex Mono', monospace; color: #17191c;" style-focus="outline:none;border-color:#2f6bf3;box-shadow:0 0 0 3px rgba(47,107,243,.12);" />
+                    <div style="font-size: 10.5px; color: {{ sbKeyHintColor }};">{{ sbKeyHint }}</div>
+                  </div>
+                </div>
+                <div style="padding: 14px 16px; background: #fcfcfd;">
+                  <div style="font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #a2a7af; margin-bottom: 10px;">Body do agendamento</div>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                    <div>
+                      <label style="display: block; font-size: 10.5px; color: #8b9098; margin-bottom: 3px;">Nome do paciente</label>
+                      <input type="text" value="{{ sbPatientName }}" onChange="{{ onSbPatientNameChange }}" style="width: 100%; padding: 7px 9px; border: 1px solid #e2e4e8; border-radius: 6px; font-size: 12px; font-family: 'IBM Plex Mono', monospace; color: #17191c;" style-focus="outline:none;border-color:#2f6bf3;box-shadow:0 0 0 3px rgba(47,107,243,.12);" />
+                    </div>
+                    <div>
+                      <label style="display: block; font-size: 10.5px; color: #8b9098; margin-bottom: 3px;">Telefone</label>
+                      <input type="text" value="{{ sbPatientPhone }}" onChange="{{ onSbPatientPhoneChange }}" style="width: 100%; padding: 7px 9px; border: 1px solid #e2e4e8; border-radius: 6px; font-size: 12px; font-family: 'IBM Plex Mono', monospace; color: #17191c;" style-focus="outline:none;border-color:#2f6bf3;box-shadow:0 0 0 3px rgba(47,107,243,.12);" />
+                    </div>
+                    <div>
+                      <label style="display: block; font-size: 10.5px; color: #8b9098; margin-bottom: 3px;">Tipo de exame / consulta</label>
+                      <input type="text" value="{{ sbExamType }}" onChange="{{ onSbExamTypeChange }}" style="width: 100%; padding: 7px 9px; border: 1px solid #e2e4e8; border-radius: 6px; font-size: 12px; font-family: 'IBM Plex Mono', monospace; color: #17191c;" style-focus="outline:none;border-color:#2f6bf3;box-shadow:0 0 0 3px rgba(47,107,243,.12);" />
+                    </div>
+                    <div>
+                      <label style="display: block; font-size: 10.5px; color: #8b9098; margin-bottom: 3px;">Data / hora</label>
+                      <input type="text" value="{{ sbDatetime }}" onChange="{{ onSbDatetimeChange }}" style="width: 100%; padding: 7px 9px; border: 1px solid #e2e4e8; border-radius: 6px; font-size: 12px; font-family: 'IBM Plex Mono', monospace; color: #17191c;" style-focus="outline:none;border-color:#2f6bf3;box-shadow:0 0 0 3px rgba(47,107,243,.12);" />
+                    </div>
+                  </div>
+                  <pre style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; line-height: 1.7; color: #3a3e44; white-space: pre-wrap; background: #f5f6f8; border-radius: 7px; padding: 10px 12px;">{{ sbRequestPreview }}</pre>
+                </div>
+              </div>
+              <div style="display: flex; gap: 10px; margin-top: 14px;">
+                <button onClick="{{ sendSandbox }}" style="{{ sendBtnStyle }}">{{ sendBtnLabel }}</button>
+                <button onClick="{{ resetSandbox }}" style="padding: 10px 16px; border: 1px solid #e2e4e8; border-radius: 9px; background: #fff; color: #61656c; font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit;">Reset</button>
+              </div>
+              <div style="font-size: 11.5px; color: #a2a7af; margin-top: 10px; display: flex; align-items: center; gap: 6px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#a2a7af" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+                Envio simulado — nenhuma mensagem real é cobrada no Sandbox.
+              </div>
+            </div>
+
+            <!-- response / callback -->
+            <div>
+              <div style="font-size: 13px; font-weight: 600; margin-bottom: 12px; color: #4b5158;">Resposta &amp; loop de callback</div>
+
+              <sc-if value="{{ sandboxIdle }}" hint-placeholder-val="{{ true }}">
+                <div style="border: 1px dashed #dcdfe4; border-radius: 12px; padding: 44px 20px; text-align: center; color: #b6bac1;">
+                  <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#cdd0d6" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 10px;"><path d="M7 9l3 3-3 3M13 15h4"/><rect x="3" y="4" width="18" height="16" rx="2"/></svg>
+                  <div style="font-size: 12.5px;">Preencha suas credenciais e o agendamento,<br>e envie para ver a resposta.</div>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ sandboxError }}">
+                <div style="border: 1px solid #f2c9c9; background: #fdecec; border-radius: 12px; padding: 16px 18px; animation: cfmDrop .22s ease;">
+                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                    <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 700; color: #d13c3c;">401 Unauthorized</span>
+                  </div>
+                  <div style="font-size: 12.5px; color: #a13030; line-height: 1.55;">Informe uma X-Api-Key de sandbox válida (começando com <span style="font-family: 'IBM Plex Mono', monospace;">pk_test_</span>) para autenticar a requisição.</div>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ sandboxSent }}">
+                <div style="animation: cfmDrop .22s ease;">
+                  <div style="border: 1px solid #ecedf0; border-radius: 12px; overflow: hidden; margin-bottom: 14px;">
+                    <div style="display: flex; align-items: center; gap: 9px; padding: 11px 16px; background: #e7f6ec; border-bottom: 1px solid #d3ecdb;">
+                      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 700; color: #178a45;">202 Accepted</span>
+                      <span style="font-size: 12px; color: #4b5158;">agendamento enfileirado</span>
+                    </div>
+                    <pre style="margin: 0; padding: 14px 16px; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; line-height: 1.7; color: #3a3e44; white-space: pre-wrap;">{{ sbResponseBody }}</pre>
+                  </div>
+
+                  <div style="border: 1px solid #ecedf0; border-radius: 12px; padding: 15px 16px;">
+                    <div style="font-size: 12px; font-weight: 600; margin-bottom: 3px;">Simular resposta do paciente</div>
+                    <div style="font-size: 11.5px; color: #8b9098; margin-bottom: 12px;">Interpretação por opção numérica (1 / 2 / 3).</div>
+                    <div style="display: flex; gap: 8px;">
+                      <button onClick="{{ reply1 }}" style="{{ reply1Style }}">1 · Confirmar</button>
+                      <button onClick="{{ reply2 }}" style="{{ reply2Style }}">2 · Cancelar</button>
+                      <button onClick="{{ reply3 }}" style="{{ reply3Style }}">3 · Remarcar</button>
+                    </div>
+                  </div>
+
+                  <sc-if value="{{ hasReply }}">
+                    <div style="margin-top: 14px; animation: cfmDrop .22s ease;">
+                      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 11.5px; color: #8b9098;">
+                        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 700; color: #2f6bf3; background: #eef3fe; padding: 2px 7px; border-radius: 5px;">POST</span>
+                        <span style="font-family: 'IBM Plex Mono', monospace;">→ callbackUrl</span>
+                        <span style="margin-left: auto; color: #178a45; font-weight: 600;">200 OK</span>
+                      </div>
+                      <div style="border: 1px solid #ecedf0; border-radius: 12px; overflow: hidden;">
+                        <div style="padding: 9px 16px; background: #fbfbfc; border-bottom: 1px solid #f2f3f5; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #8b9098;">X-Confirma-Signature: {{ cbSig }}</div>
+                        <pre style="margin: 0; padding: 14px 16px; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; line-height: 1.7; color: #3a3e44; white-space: pre-wrap;">{{ callbackBody }}</pre>
+                      </div>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-if>
+            </div>
+          </div>
+        </section>
+      </sc-if>
+
+      <!-- ============ TEMPLATES ============ -->
+      <sc-if value="{{ showTemplates }}">
+        <section data-screen-label="Templates" style="animation: cfmFade .18s ease; max-width: 1100px;">
+          <div style="display: grid; grid-template-columns: 260px 1fr; gap: 16px;">
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <sc-for list="{{ templateList }}" as="tp" hint-placeholder-count="3">
+                <button onClick="{{ tp.onSelect }}" style="{{ tp.cardStyle }}">
+                  <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <span style="font-size: 13px; font-weight: 600; color: #17191c;">{{ tp.name }}</span>
+                    <span style="display: flex; align-items: center; gap: 6px;">
+                      <span style="font-size: 10px; font-weight: 600; letter-spacing: .03em; text-transform: uppercase; color: #178a45; background: #e7f6ec; padding: 2px 7px; border-radius: 5px;">utility</span>
+                      <span onClick="{{ tp.onEdit }}" style="color: #8b9098; cursor: pointer; display: flex;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg></span>
+                    </span>
+                  </div>
+                  <div style="font-size: 11.5px; color: #8b9098; margin-top: 5px; text-align: left;">{{ tp.trigger }}</div>
+                </button>
+              </sc-for>
+            </div>
+
+            <div>
+              <div style="border: 1px solid #ecedf0; border-radius: 12px; overflow: hidden; margin-bottom: 14px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 13px 18px; border-bottom: 1px solid #ecedf0; background: #fbfbfc;">
+                  <span style="font-size: 13px; font-weight: 600;">{{ activeName }}</span>
+                  <span style="font-size: 11.5px; color: #8b9098; font-family: 'IBM Plex Mono', monospace;">pt_BR</span>
+                </div>
+                <div style="padding: 16px 18px;">
+                  <div style="font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #a2a7af; margin-bottom: 9px;">Corpo do template</div>
+                  <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; line-height: 1.85; color: #3a3e44; white-space: pre-wrap; background: #fcfcfd; border: 1px solid #f0f1f3; border-radius: 8px; padding: 14px;">{{ activeBody }}</div>
+                  <div style="font-size: 11.5px; color: #a2a7af; margin-top: 10px; display: flex; align-items: center; gap: 6px;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c2820a" stroke-width="2" stroke-linecap="round"><path d="M12 3l9 16H3zM12 10v4M12 17h.01"/></svg>
+                    Mantenha 100% transacional — texto promocional reclassifica para marketing na Meta.
+                  </div>
+                </div>
+              </div>
+
+              <div style="font-size: 12px; font-weight: 600; color: #4b5158; margin-bottom: 10px;">Pré-visualização no WhatsApp</div>
+              <div style="background: #e5ddd5; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 8px;">
+                <div style="align-self: flex-start; max-width: 82%; background: #ffffff; border-radius: 2px 10px 10px 10px; padding: 10px 13px; box-shadow: 0 1px 1px rgba(0,0,0,.12);">
+                  <div style="font-size: 13px; line-height: 1.5; color: #1f2c33; white-space: pre-wrap;">{{ previewText }}</div>
+                  <div style="font-size: 10px; color: #90a0a8; text-align: right; margin-top: 4px; font-family: 'IBM Plex Mono', monospace;">14:32</div>
+                </div>
+                <sc-if value="{{ showReplyBubble }}">
+                  <div style="align-self: flex-end; max-width: 60%; background: #d9fdd3; border-radius: 10px 2px 10px 10px; padding: 9px 13px; box-shadow: 0 1px 1px rgba(0,0,0,.12);">
+                    <div style="font-size: 13px; color: #1f2c33;">{{ replyText }}</div>
+                    <div style="font-size: 10px; color: #6ba98a; text-align: right; margin-top: 3px; font-family: 'IBM Plex Mono', monospace;">14:35 ✓✓</div>
+                  </div>
+                </sc-if>
+              </div>
+            </div>
+          </div>
+        </section>
+      </sc-if>
+
+      <!-- ============ API KEYS ============ -->
+      <sc-if value="{{ showKeys }}">
+        <section data-screen-label="API Keys" style="animation: cfmFade .18s ease; max-width: 980px;">
+          <div style="border: 1px solid #ecedf0; border-radius: 12px; padding: 20px; margin-bottom: 16px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+              <span style="font-size: 13.5px; font-weight: 600;">Chave secreta (HMAC)</span>
+              <span style="font-size: 11px; font-weight: 600; color: {{ envBadgeText }}; background: {{ envBadgeBg }}; padding: 3px 9px; border-radius: 6px; font-family: 'IBM Plex Mono', monospace;">{{ envLabel }}</span>
+            </div>
+            <p style="margin: 0 0 14px; font-size: 12px; color: #8b9098;">Usada para assinar o payload (<span style="font-family: 'IBM Plex Mono', monospace;">X-Signature</span>) e validar callbacks. Nunca a exponha no cliente.</p>
+            <div style="display: flex; align-items: center; gap: 10px; background: #fbfbfc; border: 1px solid #ecedf0; border-radius: 9px; padding: 11px 14px;">
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #17191c; flex: 1; letter-spacing: .01em;">{{ secretDisplay }}</span>
+              <button onClick="{{ toggleSecret }}" style="padding: 6px 12px; border: 1px solid #e2e4e8; border-radius: 7px; background: #fff; font-size: 12px; font-weight: 500; color: #4b5158; cursor: pointer; font-family: inherit;">{{ revealLabel }}</button>
+              <button style="padding: 6px 12px; border: 1px solid #e2e4e8; border-radius: 7px; background: #fff; font-size: 12px; font-weight: 500; color: #4b5158; cursor: pointer; font-family: inherit;">Copiar</button>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 14px;">
+              <button style="padding: 8px 15px; border: none; border-radius: 8px; background: #17191c; color: #fff; font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: inherit;">Rotacionar chave</button>
+              <button style="padding: 8px 15px; border: 1px solid #f2c9c9; border-radius: 8px; background: #fff; color: #d13c3c; font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: inherit;">Revogar</button>
+            </div>
+          </div>
+
+          <div style="border: 1px solid #ecedf0; border-radius: 12px; overflow: hidden;">
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid #ecedf0;">
+              <span style="font-size: 13.5px; font-weight: 600;">Chaves publicáveis</span>
+              <button onClick="{{ openNewKeyDialog }}" style="display: flex; align-items: center; gap: 6px; padding: 7px 13px; border: none; border-radius: 8px; background: #2f6bf3; color: #fff; font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: inherit;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Nova chave
+              </button>
+            </div>
+            <div style="display: grid; grid-template-columns: 1.2fr 1.4fr 120px 110px 70px; gap: 12px; padding: 11px 20px; background: #fbfbfc; border-bottom: 1px solid #ecedf0; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #a2a7af;">
+              <span>Nome</span><span>Token</span><span>Criada</span><span>Último uso</span><span></span>
+            </div>
+            <sc-for list="{{ keysList }}" as="k" hint-placeholder-count="3">
+              <div style="display: grid; grid-template-columns: 1.2fr 1.4fr 120px 110px 70px; gap: 12px; padding: 13px 20px; border-bottom: 1px solid #f2f3f5; align-items: center;">
+                <span style="font-size: 13px; font-weight: 500;">{{ k.name }}</span>
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #4b5158;">{{ k.token }}</span>
+                <span style="font-size: 12px; color: #8b9098; font-family: 'IBM Plex Mono', monospace;">{{ k.created }}</span>
+                <span style="font-size: 12px; color: #8b9098; font-family: 'IBM Plex Mono', monospace;">{{ k.lastUsed }}</span>
+                <span style="text-align: right;"><button onClick="{{ k.onRevoke }}" style="background: none; border: none; color: #d13c3c; font-size: 12px; font-weight: 500; cursor: pointer; font-family: inherit;">Revogar</button></span>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+      </sc-if>
+
+      <!-- ============ SETTINGS ============ -->
+      <sc-if value="{{ showSettings }}">
+        <section data-screen-label="Configurações" style="animation: cfmFade .18s ease; max-width: 820px;">
+          <div style="border: 1px solid #ecedf0; border-radius: 12px; padding: 20px; margin-bottom: 16px;">
+            <div style="font-size: 13.5px; font-weight: 600; margin-bottom: 3px;">Offsets de lembrete</div>
+            <div style="font-size: 12px; color: #8b9098; margin-bottom: 14px;">Quando disparar cada lembrete antes do exame. Aplicado por conta, sobrescrevível por requisição.</div>
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <sc-for list="{{ offsetList }}" as="o" hint-placeholder-count="2">
+                <span style="display: inline-flex; align-items: center; gap: 7px; padding: 6px 12px; border-radius: 8px; background: #eef3fe; color: #2f6bf3; font-size: 12.5px; font-weight: 600; font-family: 'IBM Plex Mono', monospace;">{{ o.label }} <span onClick="{{ o.onRemove }}" style="color: #9bb8f5; cursor: pointer;">✕</span></span>
+              </sc-for>
+              <button onClick="{{ openOffsetDialog }}" style="padding: 6px 12px; border: 1px dashed #cdd0d6; border-radius: 8px; background: #fff; color: #8b9098; font-size: 12.5px; font-weight: 500; cursor: pointer; font-family: inherit;">+ Adicionar offset</button>
+            </div>
+          </div>
+
+          <div style="border: 1px solid #ecedf0; border-radius: 12px; padding: 20px; margin-bottom: 16px;">
+            <div style="font-size: 13.5px; font-weight: 600; margin-bottom: 14px;">Perfil da organização</div>
+            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 18px;">
+              <div style="width: 52px; height: 52px; border-radius: 12px; background: {{ activeOrg.color }}; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; flex-shrink: 0;">{{ activeOrg.initials }}</div>
+              <div>
+                <div style="font-size: 15px; font-weight: 700;">{{ activeOrg.name }}</div>
+                <div style="font-size: 12px; color: #8b9098; font-family: 'IBM Plex Mono', monospace; margin-top: 2px;">org_{{ activeOrg.id }} · {{ activeOrg.plan }}</div>
+              </div>
+            </div>
+            <label style="display: block; font-size: 12px; font-weight: 600; color: #4b5158; margin-bottom: 6px;">Nome da organização</label>
+            <input type="text" value="{{ orgNameDraft }}" onChange="{{ onOrgNameDraftChange }}" style="width: 100%; padding: 10px 13px; border: 1px solid #e2e4e8; border-radius: 9px; font-size: 13.5px; font-family: inherit; color: #17191c; margin-bottom: 14px;" style-focus="outline:none;border-color:#2f6bf3;box-shadow:0 0 0 3px rgba(47,107,243,.12);" />
+            <button onClick="{{ saveOrgName }}" style="{{ saveOrgBtnStyle }}">{{ saveOrgBtnLabel }}</button>
+          </div>
+
+          <div style="border: 1px solid #ecedf0; border-radius: 12px; overflow: hidden; margin-bottom: 16px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px; padding: 20px 20px 0;">
+              <div style="font-size: 13.5px; font-weight: 600;">Plano e faturamento</div>
+              <sc-if value="{{ hasPlan }}">
+                <span style="font-size: 11px; font-weight: 600; color: #2f6bf3; background: #eef3fe; padding: 3px 9px; border-radius: 6px; font-family: 'IBM Plex Mono', monospace;">{{ activeOrg.plan }}</span>
+              </sc-if>
+            </div>
+            <p style="margin: 0 0 14px; padding: 0 20px; font-size: 12px; color: #8b9098;">Cobrança por agendamentos orquestrados no mês, não por mensagem enviada.</p>
+
+            <sc-if value="{{ hasPlan }}" hint-placeholder-val="{{ true }}">
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; margin: 0 20px 20px; background: #fbfbfc; border: 1px solid #ecedf0; border-radius: 9px;">
+                <div>
+                  <div style="font-size: 13px; font-weight: 500;">Uso do mês</div>
+                  <div style="font-size: 11.5px; color: #8b9098; margin-top: 1px;">1.240 / 5.000 agendamentos</div>
+                </div>
+                <button onClick="{{ openPlanDialog }}" style="padding: 7px 13px; border: 1px solid #e2e4e8; border-radius: 8px; background: #fff; font-size: 12px; font-weight: 600; color: #4b5158; cursor: pointer; font-family: inherit;">Alterar plano</button>
+              </div>
+            </sc-if>
+            <sc-if value="{{ notHasPlan }}">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px; margin: 0 20px 20px; background: #fdf8ec; border: 1px solid #f0dfb8; border-radius: 9px;">
+                <div>
+                  <div style="font-size: 13px; font-weight: 600; color: #7a5a12;">Nenhum plano escolhido ainda</div>
+                  <div style="font-size: 11.5px; color: #7a5a12; margin-top: 2px; opacity: .85;">Escolha um plano para começar a orquestrar agendamentos em produção.</div>
+                </div>
+                <button onClick="{{ openPlanDialog }}" style="padding: 8px 15px; border: none; border-radius: 8px; background: #2f6bf3; color: #fff; font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: inherit; white-space: nowrap;">Escolher plano</button>
+              </div>
+            </sc-if>
+          </div>
+
+          <div style="border: 1px solid #f2c9c9; border-radius: 12px; padding: 20px;">
+            <div style="font-size: 13.5px; font-weight: 600; color: #d13c3c; margin-bottom: 3px;">Zona de risco</div>
+            <p style="margin: 0 0 14px; font-size: 12px; color: #8b9098;">Esta ação é permanente e afeta todos os membros da organização.</p>
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-top: 1px solid #f2f3f5;">
+              <div>
+                <div style="font-size: 13px; font-weight: 500;">Excluir organização</div>
+                <div style="font-size: 11.5px; color: #8b9098; margin-top: 1px;">Remove permanentemente {{ activeOrg.name }}, dados e integrações.</div>
+              </div>
+              <button onClick="{{ openDeleteOrgDialog }}" style="padding: 7px 13px; border: none; border-radius: 8px; background: #d13c3c; color: #fff; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit;">Excluir</button>
+            </div>
+          </div>
+        </section>
+      </sc-if>
+
+      <!-- ============ CONNECTION (Hub do WhatsApp) ============ -->
+      <sc-if value="{{ showConnection }}">
+        <section data-screen-label="Conexão" style="animation: cfmFade .18s ease; max-width: 780px;">
+
+          <!-- PASSO 1 — escolher motor -->
+          <div style="margin-bottom: 22px;">
+            <div style="display: flex; align-items: center; gap: 9px; margin-bottom: 12px;">
+              <span style="width: 20px; height: 20px; border-radius: 50%; background: #17191c; color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">1</span>
+              <span style="font-size: 13.5px; font-weight: 600;">Escolha o motor de disparo</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+              <button onClick="{{ selectEvolution }}" style="{{ evolutionCard }}">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
+                  <span style="font-size: 12.5px; font-weight: 600; color: #17191c;">Evolution API</span>
+                  <span style="{{ evolutionRadio }}"></span>
+                </div>
+                <div style="font-size: 11px; color: #8b9098; text-align: left; line-height: 1.45;">Self-hosted — sua própria instância.</div>
+              </button>
+              <button onClick="{{ selectZapi }}" style="{{ zapiCard }}">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
+                  <span style="font-size: 12.5px; font-weight: 600; color: #17191c;">Z-API Gateway</span>
+                  <span style="{{ zapiRadio }}"></span>
+                </div>
+                <div style="font-size: 11px; color: #8b9098; text-align: left; line-height: 1.45;">Gateway gerenciado na nuvem.</div>
+              </button>
+            </div>
+          </div>
+
+          <!-- PASSO 2 — credenciais -->
+          <div style="display: flex; align-items: center; gap: 9px; margin-bottom: 12px;">
+            <span style="width: 20px; height: 20px; border-radius: 50%; background: #17191c; color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">2</span>
+            <span style="font-size: 13.5px; font-weight: 600;">Conecte as credenciais — {{ providerName }}</span>
+          </div>
+
+          <div style="border: 1px solid #ecedf0; border-radius: 12px; padding: 20px; margin-bottom: 16px;">
+            <div style="font-size: 13.5px; font-weight: 600; margin-bottom: 3px;">Credenciais · {{ providerName }}</div>
+            <p style="margin: 0 0 16px; font-size: 12px; color: #8b9098;">Cole os dados da sua instância {{ providerName }} abaixo.</p>
+
+            <sc-if value="{{ showInstanceUrlField }}">
+              <label style="display: block; font-size: 12px; font-weight: 600; color: #4b5158; margin-bottom: 6px;">URL da instância</label>
+              <input type="text" placeholder="https://sua-instancia.exemplo.com/instance/clinica-x" value="{{ instanceUrl }}" onChange="{{ onUrlChange }}" style="width: 100%; padding: 10px 13px; border: 1px solid #e2e4e8; border-radius: 9px; font-size: 13px; font-family: 'IBM Plex Mono', monospace; color: #17191c; margin-bottom: 14px;" style-focus="outline:none;border-color:#2f6bf3;box-shadow:0 0 0 3px rgba(47,107,243,.12);" />
+            </sc-if>
+
+            <label style="display: block; font-size: 12px; font-weight: 600; color: #4b5158; margin-bottom: 6px;">{{ instanceFieldLabel }}</label>
+            <input type="text" placeholder="{{ instanceFieldPlaceholder }}" value="{{ instanceId }}" onChange="{{ onInstanceIdChange }}" style="width: 100%; padding: 10px 13px; border: 1px solid #e2e4e8; border-radius: 9px; font-size: 13px; font-family: 'IBM Plex Mono', monospace; color: #17191c; margin-bottom: 14px;" style-focus="outline:none;border-color:#2f6bf3;box-shadow:0 0 0 3px rgba(47,107,243,.12);" />
+
+            <label style="display: block; font-size: 12px; font-weight: 600; color: #4b5158; margin-bottom: 6px;">Token de autenticação</label>
+            <div style="display: flex; align-items: center; gap: 10px; background: #fbfbfc; border: 1px solid #ecedf0; border-radius: 9px; padding: 10px 13px; margin-bottom: 18px;">
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #17191c; flex: 1;">{{ tokenDisplay }}</span>
+              <button onClick="{{ toggleToken }}" style="padding: 5px 11px; border: 1px solid #e2e4e8; border-radius: 7px; background: #fff; font-size: 11.5px; font-weight: 500; color: #4b5158; cursor: pointer; font-family: inherit;">{{ tokenRevealLabel }}</button>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <button onClick="{{ saveCredentials }}" style="padding: 9px 16px; border: none; border-radius: 8px; background: #17191c; color: #fff; font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: inherit;">Salvar credenciais</button>
+              <button onClick="{{ testConnection }}" style="{{ testBtnStyle }}">{{ testBtnLabel }}</button>
+            </div>
+          </div>
+
+          <!-- PASSO 3 — webhook, sempre em destaque -->
+          <div style="display: flex; align-items: center; gap: 9px; margin-bottom: 12px;">
+            <span style="width: 20px; height: 20px; border-radius: 50%; background: #17191c; color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">3</span>
+            <span style="font-size: 13.5px; font-weight: 600;">Configure o webhook — passo obrigatório</span>
+          </div>
+          <div style="border: 2px solid #2f6bf3; background: #f5f8ff; border-radius: 12px; padding: 20px; margin-bottom: 16px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#2f6bf3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 16H3zM12 10v4M12 17h.01"/></svg>
+              <span style="font-size: 13.5px; font-weight: 700; color: #17191c;">Sem esse passo, o Confirma não recebe as respostas dos pacientes</span>
+            </div>
+            <p style="margin: 0 0 14px; font-size: 12.5px; color: #3a3e44; line-height: 1.6;">Copie a URL abaixo e cole no painel da sua <strong>{{ providerName }}</strong>, no campo de webhook do evento <span style="font-family: 'IBM Plex Mono', monospace; background: #e2e9fb; padding: 1px 6px; border-radius: 5px;">messages.upsert</span>. {{ providerName }} não avisa o Confirma automaticamente — essa URL precisa ser colada manualmente lá.</p>
+            <div style="display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid #c9d8fb; border-radius: 9px; padding: 11px 14px; margin-bottom: 10px;">
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; color: #17191c; flex: 1; overflow-x: auto; white-space: nowrap;">{{ webhookUrl }}</span>
+              <button style="padding: 6px 12px; border: none; border-radius: 7px; background: #2f6bf3; color: #fff; font-size: 11.5px; font-weight: 600; cursor: pointer; font-family: inherit; flex-shrink: 0;">Copiar URL</button>
+            </div>
+            <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 600; background: {{ webhookBadgeBg }}; color: {{ webhookBadgeColor }};">{{ webhookBadgeDot }} {{ webhookBadgeLabel }}</span>
+          </div>
+
+          <div style="border: 1px solid #ecedf0; border-radius: 12px; padding: 18px 20px;">
+            <div style="font-size: 13px; font-weight: 600; margin-bottom: 4px;">Health-check</div>
+            <div style="font-size: 12px; color: #8b9098; margin-bottom: 14px; font-family: 'IBM Plex Mono', monospace;">POST /v1/organizations/byo-instance/test</div>
+
+            <sc-if value="{{ hcIdle }}" hint-placeholder-val="{{ true }}">
+              <div style="display: flex; align-items: center; gap: 8px; color: #b6bac1; font-size: 12.5px;">
+                <span style="width: 8px; height: 8px; border-radius: 50%; background: #e2e4e8;"></span>
+                Nenhum teste executado ainda.
+              </div>
+            </sc-if>
+            <sc-if value="{{ hcTesting }}">
+              <div style="display: flex; align-items: center; gap: 8px; color: #61656c; font-size: 12.5px;">
+                <span style="width: 8px; height: 8px; border-radius: 50%; background: #2f6bf3; animation: cfmPulse 1s ease-in-out infinite;"></span>
+                Testando conexão com a instância…
+              </div>
+            </sc-if>
+            <sc-if value="{{ hcDone }}">
+              <div style="display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 9px; background: {{ hcBg }}; animation: cfmFade .18s ease;">
+                <span style="font-size: 16px;">{{ hcEmoji }}</span>
+                <div>
+                  <div style="font-size: 12.5px; font-weight: 600; color: {{ hcColor }};">{{ hcTitle }}</div>
+                  <div style="font-size: 11.5px; color: {{ hcColor }}; opacity: .85; margin-top: 1px;">{{ hcDetail }}</div>
+                </div>
+              </div>
+            </sc-if>
+
+            <div style="display: flex; gap: 6px; margin-top: 16px; padding-top: 14px; border-top: 1px solid #f2f3f5;">
+              <span style="font-size: 11px; color: #b6bac1; margin-right: 4px;">Simular:</span>
+              <button onClick="{{ simConnected }}" style="{{ simBtnStyle }}">🟢 Conectado</button>
+              <button onClick="{{ simUnauthorized }}" style="{{ simBtnStyle }}">🔴 Erro 401</button>
+              <button onClick="{{ simOffline }}" style="{{ simBtnStyle }}">⚠️ Fora do ar</button>
+            </div>
+          </div>
+        </section>
+      </sc-if>
+
+      <!-- ============ APPOINTMENT DETAIL ============ -->
+      <sc-if value="{{ showDetail }}">
+        <section data-screen-label="Detalhe do agendamento" style="animation: cfmFade .18s ease; max-width: 1080px;">
+          <button onClick="{{ goAppointments }}" style="display: flex; align-items: center; gap: 6px; background: none; border: none; color: #61656c; font-size: 12.5px; font-weight: 500; cursor: pointer; font-family: inherit; margin-bottom: 16px; padding: 0;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            Agendamentos
+          </button>
+
+          <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <h2 style="margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -.02em;">{{ dAppt.name }}</h2>
+                <span style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 11px; border-radius: 999px; font-size: 12px; font-weight: 600; background: {{ dAppt.badgeBg }}; color: {{ dAppt.badgeColor }};"><span style="width: 6px; height: 6px; border-radius: 50%; background: {{ dAppt.badgeColor }};"></span>{{ dAppt.statusLabel }}</span>
+              </div>
+              <div style="display: flex; gap: 18px; margin-top: 8px; font-size: 12.5px; color: #8b9098; font-family: 'IBM Plex Mono', monospace;">
+                <span>cfm_a1b2c3</span><span>·</span><span>{{ dAppt.externalId }}</span><span>·</span><span>{{ dAppt.phone }}</span>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button style="padding: 8px 14px; border: 1px solid #e2e4e8; border-radius: 8px; background: #fff; font-size: 12.5px; font-weight: 500; color: #4b5158; cursor: pointer; font-family: inherit;">Reenviar lembrete</button>
+              <button style="padding: 8px 14px; border: none; border-radius: 8px; background: #17191c; color: #fff; font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: inherit;">Reenviar callback</button>
+            </div>
+          </div>
+
+          <sc-if value="{{ dShowErrorAlert }}">
+            <div style="display: flex; gap: 10px; align-items: flex-start; padding: 13px 16px; border-radius: 10px; margin-bottom: 16px; background: {{ dErrorBg }}; border: 1px solid {{ dErrorBorder }};">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="{{ dErrorColor }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 1px;"><path d="M12 3l9 16H3zM12 10v4M12 17h.01"/></svg>
+              <div>
+                <div style="font-size: 12.5px; font-weight: 600; color: {{ dErrorColor }};">{{ dErrorTitle }}</div>
+                <div style="font-size: 12.5px; color: {{ dErrorColor }}; opacity: .9; line-height: 1.55; margin-top: 2px;">{{ dErrorDetail }}</div>
+              </div>
+            </div>
+          </sc-if>
+
+          <div style="display: grid; grid-template-columns: 300px 1fr; gap: 16px; align-items: start;">
+            <!-- exam facts -->
+            <div style="border: 1px solid #ecedf0; border-radius: 12px; padding: 18px;">
+              <div style="font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #a2a7af; margin-bottom: 14px;">Agendamento</div>
+              <div style="display: flex; flex-direction: column; gap: 13px;">
+                <div><div style="font-size: 11px; color: #a2a7af; margin-bottom: 2px;">Exame</div><div style="font-size: 13px; font-weight: 500;">{{ dAppt.exam }}</div></div>
+                <div><div style="font-size: 11px; color: #a2a7af; margin-bottom: 2px;">Data / hora</div><div style="font-size: 13px; font-family: 'IBM Plex Mono', monospace;">{{ dAppt.datetime }}</div></div>
+                <div><div style="font-size: 11px; color: #a2a7af; margin-bottom: 2px;">Local</div><div style="font-size: 13px;">Unidade Centro</div></div>
+                <div><div style="font-size: 11px; color: #a2a7af; margin-bottom: 2px;">Offsets</div><div style="font-size: 13px; font-family: 'IBM Plex Mono', monospace;">{{ dAppt.offset }}</div></div>
+                <div><div style="font-size: 11px; color: #a2a7af; margin-bottom: 2px;">Provider</div><div style="font-size: 13px;">Evolution API</div></div>
+              </div>
+            </div>
+
+            <!-- trail -->
+            <div style="border: 1px solid #ecedf0; border-radius: 12px; padding: 20px 22px;">
+              <div style="font-size: 13.5px; font-weight: 600; margin-bottom: 18px;">Trilha do ciclo</div>
+              <div style="display: flex; flex-direction: column;">
+                <sc-for list="{{ dTrail }}" as="t" hint-placeholder-count="5">
+                  <div style="display: flex; gap: 14px;">
+                    <div style="display: flex; flex-direction: column; align-items: center;">
+                      <div style="width: 15px; height: 15px; border-radius: 50%; background: {{ t.dotBg }}; border: 2px solid {{ t.dotBorder }}; flex-shrink: 0; margin-top: 1px;"></div>
+                      <div style="width: 2px; flex: 1; min-height: 22px; background: {{ t.line }};"></div>
+                    </div>
+                    <div style="padding-bottom: 18px;">
+                      <div style="display: flex; align-items: center; gap: 9px;">
+                        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; font-weight: 600; color: {{ t.nameColor }};">{{ t.state }}</span>
+                        <span style="font-size: 11px; color: #b6bac1; font-family: 'IBM Plex Mono', monospace;">{{ t.time }}</span>
+                      </div>
+                      <div style="font-size: 12.5px; color: #61656c; margin-top: 3px;">{{ t.detail }}</div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+
+          <!-- logs -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
+            <div style="border: 1px solid #ecedf0; border-radius: 12px; overflow: hidden;">
+              <div style="padding: 13px 18px; border-bottom: 1px solid #ecedf0; font-size: 13px; font-weight: 600;">MessageLog</div>
+              <sc-for list="{{ dMsgLog }}" as="m" hint-placeholder-count="2">
+                <div style="padding: 12px 18px; border-bottom: 1px solid #f2f3f5; display: flex; align-items: center; gap: 10px;">
+                  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #8b9098; flex: 1;">{{ m.id }}</span>
+                  <span style="font-size: 11.5px; font-weight: 600; color: {{ m.color }};">{{ m.status }}</span>
+                  <span style="font-size: 11px; color: #b6bac1; font-family: 'IBM Plex Mono', monospace; width: 88px; text-align: right;">{{ m.time }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <div style="border: 1px solid #ecedf0; border-radius: 12px; overflow: hidden;">
+              <div style="padding: 13px 18px; border-bottom: 1px solid #ecedf0; font-size: 13px; font-weight: 600;">CallbackLog · retorno ao ERP</div>
+              <sc-for list="{{ dCbLog }}" as="c" hint-placeholder-count="2">
+                <div style="padding: 12px 18px; border-bottom: 1px solid #f2f3f5;">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #4b5158; flex: 1;">{{ c.event }}</span>
+                    <span style="font-size: 11.5px; font-weight: 600; color: {{ c.color }};">{{ c.emoji }} {{ c.status }}</span>
+                    <span style="font-size: 11px; color: #b6bac1; font-family: 'IBM Plex Mono', monospace; width: 80px; text-align: right;">{{ c.time }}</span>
+                  </div>
+                  <div style="font-size: 11.5px; color: #8b9098; margin-top: 4px;">{{ c.detail }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </section>
+      </sc-if>
+
+    </div>
+  </main>
+
+  <!-- ===== DIALOG: template create/edit ===== -->
+  <sc-if value="{{ tplDialogOpen }}">
+    <div style="position: fixed; inset: 0; z-index: 100; background: rgba(23,25,28,.4); display: flex; align-items: center; justify-content: center; animation: cfmFade .15s ease;">
+      <div style="width: 560px; max-width: calc(100vw - 40px); background: #fff; border-radius: 14px; box-shadow: 0 20px 60px rgba(16,24,40,.25); padding: 24px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+          <h3 style="margin: 0; font-size: 16px; font-weight: 700;">{{ tplDialogTitle }}</h3>
+          <button onClick="{{ closeTplDialog }}" style="background: none; border: none; cursor: pointer; color: #8b9098; padding: 4px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+        </div>
+        <p style="margin: 0 0 18px; font-size: 12.5px; color: #8b9098;">Templates são sempre transacionais (categoria utility) — sem texto promocional.</p>
+
+        <label style="display: block; font-size: 12px; font-weight: 600; color: #4b5158; margin-bottom: 6px;">Nome do template</label>
+        <input type="text" placeholder="ex.: Lembrete 3h" value="{{ tplDraftName }}" onChange="{{ onTplNameChange }}" style="width: 100%; padding: 9px 12px; border: 1px solid #e2e4e8; border-radius: 8px; font-size: 13px; font-family: inherit; color: #17191c; margin-bottom: 14px;" style-focus="outline:none;border-color:#2f6bf3;box-shadow:0 0 0 3px rgba(47,107,243,.12);" />
+
+        <label style="display: block; font-size: 12px; font-weight: 600; color: #4b5158; margin-bottom: 6px;">Gatilho</label>
+        <input type="text" placeholder="ex.: Disparado 3h antes do exame" value="{{ tplDraftTrigger }}" onChange="{{ onTplTriggerChange }}" style="width: 100%; padding: 9px 12px; border: 1px solid #e2e4e8; border-radius: 8px; font-size: 13px; font-family: inherit; color: #17191c; margin-bottom: 14px;" style-focus="outline:none;border-color:#2f6bf3;box-shadow:0 0 0 3px rgba(47,107,243,.12);" />
+
+        <label style="display: block; font-size: 12px; font-weight: 600; color: #4b5158; margin-bottom: 6px;">Corpo da mensagem</label>
+        <textarea rows="5" placeholder="{{ tplBodyPlaceholder }}" value="{{ tplDraftBody }}" onChange="{{ onTplBodyChange }}" style="width: 100%; padding: 10px 12px; border: 1px solid #e2e4e8; border-radius: 8px; font-size: 12.5px; font-family: 'IBM Plex Mono', monospace; color: #17191c; resize: vertical; margin-bottom: 18px;" style-focus="outline:none;border-color:#2f6bf3;box-shadow:0 0 0 3px rgba(47,107,243,.12);"></textarea>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button onClick="{{ closeTplDialog }}" style="padding: 9px 16px; border: 1px solid #e2e4e8; border-radius: 8px; background: #fff; color: #4b5158; font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: inherit;">Cancelar</button>
+          <button onClick="{{ saveTplDraft }}" style="{{ tplSaveBtnStyle }}">Salvar template</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ===== DIALOG: nova API key ===== -->
+  <sc-if value="{{ newKeyDialogOpen }}">
+    <div style="position: fixed; inset: 0; z-index: 100; background: rgba(23,25,28,.4); display: flex; align-items: center; justify-content: center; animation: cfmFade .15s ease;">
+      <div style="width: 460px; max-width: calc(100vw - 40px); background: #fff; border-radius: 14px; box-shadow: 0 20px 60px rgba(16,24,40,.25); padding: 24px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+          <h3 style="margin: 0; font-size: 16px; font-weight: 700;">Nova chave publicável</h3>
+          <button onClick="{{ closeNewKeyDialog }}" style="background: none; border: none; cursor: pointer; color: #8b9098; padding: 4px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+        </div>
+        <p style="margin: 0 0 18px; font-size: 12.5px; color: #8b9098;">Dê um nome descritivo para identificar onde essa chave será usada.</p>
+
+        <label style="display: block; font-size: 12px; font-weight: 600; color: #4b5158; margin-bottom: 6px;">Nome da chave</label>
+        <input type="text" placeholder="ex.: Integração ERP interno" value="{{ newKeyName }}" onChange="{{ onNewKeyNameChange }}" style="width: 100%; padding: 9px 12px; border: 1px solid #e2e4e8; border-radius: 8px; font-size: 13px; font-family: inherit; color: #17191c; margin-bottom: 16px;" style-focus="outline:none;border-color:#2f6bf3;box-shadow:0 0 0 3px rgba(47,107,243,.12);" />
+
+        <sc-if value="{{ newKeyHasResult }}">
+          <div style="display: flex; align-items: center; gap: 10px; background: #fbfbfc; border: 1px solid #ecedf0; border-radius: 9px; padding: 10px 13px; margin-bottom: 16px; animation: cfmFade .18s ease;">
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; color: #17191c; flex: 1;">{{ newKeyCreated }}</span>
+            <button style="padding: 5px 11px; border: 1px solid #e2e4e8; border-radius: 7px; background: #fff; font-size: 11px; font-weight: 500; color: #4b5158; cursor: pointer; font-family: inherit;">Copiar</button>
+          </div>
+        </sc-if>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button onClick="{{ closeNewKeyDialog }}" style="padding: 9px 16px; border: 1px solid #e2e4e8; border-radius: 8px; background: #fff; color: #4b5158; font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: inherit;">Fechar</button>
+          <sc-if value="{{ newKeyNotYetGenerated }}">
+            <button onClick="{{ generateNewKey }}" style="{{ genKeyBtnStyle }}">Gerar chave</button>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ===== DIALOG: adicionar offset ===== -->
+  <sc-if value="{{ offsetDialogOpen }}">
+    <div style="position: fixed; inset: 0; z-index: 100; background: rgba(23,25,28,.4); display: flex; align-items: center; justify-content: center; animation: cfmFade .15s ease; padding: 20px;">
+      <div style="width: 400px; max-width: 100%; background: #fff; border-radius: 14px; box-shadow: 0 20px 60px rgba(16,24,40,.25); padding: 24px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+          <h3 style="margin: 0; font-size: 16px; font-weight: 700;">Adicionar offset</h3>
+          <button onClick="{{ closeOffsetDialog }}" style="background: none; border: none; cursor: pointer; color: #8b9098; padding: 4px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+        </div>
+        <p style="margin: 0 0 18px; font-size: 12.5px; color: #8b9098;">Quanto tempo antes do exame o lembrete deve disparar.</p>
+
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+          <input type="number" min="1" max="48" placeholder="24" value="{{ offsetValue }}" onChange="{{ onOffsetValueChange }}" style="width: 100px; padding: 9px 12px; border: 1px solid #e2e4e8; border-radius: 8px; font-size: 13px; font-family: 'IBM Plex Mono', monospace; color: #17191c;" style-focus="outline:none;border-color:#2f6bf3;box-shadow:0 0 0 3px rgba(47,107,243,.12);" />
+          <span style="font-size: 13px; color: #4b5158; font-weight: 500;">horas antes do exame</span>
+        </div>
+        <div style="font-size: 11px; color: #a2a7af; margin-bottom: 14px;">Máximo de 48h (2 dias) de antecedência.</div>
+
+        <div style="font-size: 11.5px; color: #a2a7af; margin-bottom: 20px;">Pré-visualização: <span style="font-family: 'IBM Plex Mono', monospace; color: #4b5158; font-weight: 600;">{{ offsetPreview }}</span></div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button onClick="{{ closeOffsetDialog }}" style="padding: 9px 16px; border: 1px solid #e2e4e8; border-radius: 8px; background: #fff; color: #4b5158; font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: inherit;">Cancelar</button>
+          <button onClick="{{ confirmAddOffset }}" style="{{ offsetConfirmBtnStyle }}">Adicionar</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ===== DIALOG: criar organização ===== -->
+  <sc-if value="{{ createOrgDialogOpen }}">
+    <div style="position: fixed; inset: 0; z-index: 100; background: rgba(23,25,28,.4); display: flex; align-items: center; justify-content: center; animation: cfmFade .15s ease; padding: 20px;">
+      <div style="width: 420px; max-width: 100%; background: #fff; border-radius: 14px; box-shadow: 0 20px 60px rgba(16,24,40,.25); padding: 24px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+          <h3 style="margin: 0; font-size: 16px; font-weight: 700;">Nova organização</h3>
+          <button onClick="{{ closeCreateOrgDialog }}" style="background: none; border: none; cursor: pointer; color: #8b9098; padding: 4px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+        </div>
+        <p style="margin: 0 0 18px; font-size: 12.5px; color: #8b9098;">Crie uma organização separada — útil para outra clínica, unidade ou cliente.</p>
+
+        <label style="display: block; font-size: 12px; font-weight: 600; color: #4b5158; margin-bottom: 6px;">Nome da organização</label>
+        <input type="text" placeholder="ex.: Clínica Vida Nova" value="{{ createOrgName }}" onChange="{{ onCreateOrgNameChange }}" style="width: 100%; padding: 9px 12px; border: 1px solid #e2e4e8; border-radius: 8px; font-size: 13px; font-family: inherit; color: #17191c; margin-bottom: 20px;" style-focus="outline:none;border-color:#2f6bf3;box-shadow:0 0 0 3px rgba(47,107,243,.12);" />
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button onClick="{{ closeCreateOrgDialog }}" style="padding: 9px 16px; border: 1px solid #e2e4e8; border-radius: 8px; background: #fff; color: #4b5158; font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: inherit;">Cancelar</button>
+          <button onClick="{{ confirmCreateOrg }}" style="{{ createOrgConfirmBtnStyle }}">Criar organização</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ===== DIALOG: escolher plano ===== -->
+  <sc-if value="{{ planDialogOpen }}">
+    <div style="position: fixed; inset: 0; z-index: 100; background: rgba(23,25,28,.4); display: flex; align-items: center; justify-content: center; animation: cfmFade .15s ease; padding: 20px;">
+      <div style="width: 720px; max-width: 100%; background: #fff; border-radius: 14px; box-shadow: 0 20px 60px rgba(16,24,40,.25); padding: 26px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+          <h3 style="margin: 0; font-size: 17px; font-weight: 700;">{{ planDialogTitle }}</h3>
+          <button onClick="{{ closePlanDialog }}" style="background: none; border: none; cursor: pointer; color: #8b9098; padding: 4px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+        </div>
+        <p style="margin: 0 0 20px; font-size: 12.5px; color: #8b9098;">Cobrança por agendamentos orquestrados no mês — sem taxa por mensagem enviada.</p>
+
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 22px;">
+          <sc-for list="{{ planOptions }}" as="p" hint-placeholder-count="4">
+            <button onClick="{{ p.onSelect }}" style="{{ p.cardStyle }}">
+              <div style="font-size: 13px; font-weight: 700;">{{ p.name }}</div>
+              <div style="display: flex; align-items: baseline; gap: 3px; margin: 8px 0 4px;">
+                <span style="font-size: 18px; font-weight: 700; letter-spacing: -.01em;">{{ p.price }}</span>
+                <span style="font-size: 10.5px; color: #8b9098;">{{ p.per }}</span>
+              </div>
+              <div style="font-size: 10.5px; color: #8b9098; line-height: 1.5;">{{ p.volume }}</div>
+            </button>
+          </sc-for>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button onClick="{{ closePlanDialog }}" style="padding: 9px 16px; border: 1px solid #e2e4e8; border-radius: 8px; background: #fff; color: #4b5158; font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: inherit;">Cancelar</button>
+          <button onClick="{{ confirmPlan }}" style="{{ confirmPlanBtnStyle }}">{{ confirmPlanLabel }}</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ===== DIALOG: excluir organização ===== -->
+  <sc-if value="{{ deleteOrgDialogOpen }}">
+    <div style="position: fixed; inset: 0; z-index: 100; background: rgba(23,25,28,.4); display: flex; align-items: center; justify-content: center; animation: cfmFade .15s ease;">
+      <div style="width: 420px; max-width: calc(100vw - 40px); background: #fff; border-radius: 14px; box-shadow: 0 20px 60px rgba(16,24,40,.25); padding: 24px;">
+        <h3 style="margin: 0 0 8px; font-size: 16px; font-weight: 700; color: #d13c3c;">Excluir {{ activeOrg.name }}?</h3>
+        <p style="margin: 0 0 14px; font-size: 12.5px; color: #61656c; line-height: 1.55;">Todos os dados, integrações e chaves desta organização serão apagados permanentemente. Digite o nome da organização para confirmar.</p>
+        <input type="text" placeholder="{{ activeOrg.name }}" value="{{ deleteOrgConfirmText }}" onChange="{{ onDeleteOrgConfirmChange }}" style="width: 100%; padding: 9px 12px; border: 1px solid #e2e4e8; border-radius: 8px; font-size: 13px; font-family: inherit; color: #17191c; margin-bottom: 18px;" style-focus="outline:none;border-color:#d13c3c;box-shadow:0 0 0 3px rgba(209,60,60,.12);" />
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button onClick="{{ closeDeleteOrgDialog }}" style="padding: 9px 16px; border: 1px solid #e2e4e8; border-radius: 8px; background: #fff; color: #4b5158; font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: inherit;">Cancelar</button>
+          <button onClick="{{ confirmDeleteOrg }}" style="{{ deleteOrgBtnStyle }}">Excluir permanentemente</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ===== DIALOG: confirmar revogação ===== -->
+  <sc-if value="{{ revokeDialogOpen }}">
+    <div style="position: fixed; inset: 0; z-index: 100; background: rgba(23,25,28,.4); display: flex; align-items: center; justify-content: center; animation: cfmFade .15s ease;">
+      <div style="width: 400px; max-width: calc(100vw - 40px); background: #fff; border-radius: 14px; box-shadow: 0 20px 60px rgba(16,24,40,.25); padding: 24px;">
+        <h3 style="margin: 0 0 8px; font-size: 16px; font-weight: 700;">Revogar chave?</h3>
+        <p style="margin: 0 0 20px; font-size: 12.5px; color: #61656c; line-height: 1.55;">A chave <strong style="color: #17191c;">{{ revokeTarget }}</strong> deixará de autenticar requisições imediatamente. Isso não pode ser desfeito.</p>
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button onClick="{{ closeRevokeDialog }}" style="padding: 9px 16px; border: 1px solid #e2e4e8; border-radius: 8px; background: #fff; color: #4b5158; font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: inherit;">Cancelar</button>
+          <button onClick="{{ confirmRevoke }}" style="padding: 9px 18px; border: none; border-radius: 8px; background: #d13c3c; color: #fff; font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: inherit;">Revogar chave</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { screen: 'overview', env: 'sandbox', showSecret: false, filter: 'all', template: 'reminder', sandbox: 'idle', reply: null, provider: 'evolution', detailId: 'agd_9931', qlang: 'curl', orgMenuOpen: false, activeOrgId: 'odonto-x',
+    instanceUrl: 'https://evo.clinicaodontox.com.br', instanceId: 'odonto-x-01', showToken: false, tokenValue: 'B6F1C9D2-4E7A-4B3C-9F21-AA0912EE3D4C',
+    webhookState: 'manual', testState: 'idle',
+    hasOrg: false, onbName: '', onbKind: 'clinica',
+    sbApiKey: '', sbPatientName: 'Maria Silva', sbPatientPhone: '+5521999998888', sbExamType: 'Ressonância de Crânio', sbDatetime: '2026-07-10T14:30',
+    tplDialogOpen: false, tplDialogMode: 'create', tplDraftId: null, tplDraftName: '', tplDraftTrigger: '', tplDraftBody: '',
+    customTemplates: [],
+    orgNameDraft: 'Clínica Odonto X', orgNameSaved: false,
+    hasPlan: false, orgPlanId: null,
+    planDialogOpen: false, planDraftId: null,
+    createOrgDialogOpen: false, createOrgName: '', extraOrgs: [],
+    offsets: [{ value: 24 }, { value: 3 }],
+    offsetDialogOpen: false, offsetValue: '',
+    userMenuOpen: false,
+    deleteOrgDialogOpen: false, deleteOrgConfirmText: '' };
+
+  go(s) { this.setState({ screen: s }); }
+  onOnbNameChange(e) { this.setState({ onbName: e.target.value }); }
+  setOnbKind(k) { this.setState({ onbKind: k }); }
+  createOrg() {
+    if (!this.state.onbName.trim()) return;
+    this.setState({ hasOrg: true, activeOrgId: 'nova-org', onbCreatedName: this.state.onbName.trim() });
+  }
+  openDetail(id) { this.setState({ screen: 'detail', detailId: id }); }
+  setLang(l) { this.setState({ qlang: l }); }
+  toggleOrgMenu() { this.setState(s => ({ orgMenuOpen: !s.orgMenuOpen })); }
+  toggleUserMenu() { this.setState(s => ({ userMenuOpen: !s.userMenuOpen })); }
+  selectOrg(id) { this.setState({ activeOrgId: id, orgMenuOpen: false }); }
+  toggleToken() { this.setState(s => ({ showToken: !s.showToken })); }
+  saveCredentials() { this.setState({ testState: 'idle' }); }
+  runTest(outcome) {
+    this.setState({ testState: 'testing' });
+    setTimeout(() => {
+      this.setState({ testState: outcome, webhookState: outcome === 'connected' ? 'auto' : 'manual' });
+    }, 900);
+  }
+  setEnv(e) { this.setState({ env: e }); }
+  toggleSecret() { this.setState(x => ({ showSecret: !x.showSecret })); }
+  setFilter(f) { this.setState({ filter: f }); }
+  selTemplate(t) { this.setState({ template: t }); }
+  setProvider(p) { this.setState({ provider: p, testState: 'idle', webhookState: 'manual' }); }
+  onInstanceIdChange(e) { this.setState({ instanceId: e.target.value }); }
+  send() { this.setState({ sandbox: 'sent', reply: null }); }
+  resetSb() { this.setState({ sandbox: 'idle', reply: null }); }
+  doReply(r) { this.setState({ reply: r }); }
+  onSbApiKeyChange(e) { this.setState({ sbApiKey: e.target.value }); }
+  onSbPatientNameChange(e) { this.setState({ sbPatientName: e.target.value }); }
+  onSbPatientPhoneChange(e) { this.setState({ sbPatientPhone: e.target.value }); }
+  onSbExamTypeChange(e) { this.setState({ sbExamType: e.target.value }); }
+  onSbDatetimeChange(e) { this.setState({ sbDatetime: e.target.value }); }
+  sendSandboxReq() {
+    if (!/^pk_test_/.test(this.state.sbApiKey.trim())) { this.setState({ sandbox: 'error', reply: null }); return; }
+    this.setState({ sandbox: 'sent', reply: null });
+  }
+  openTplDialog(tpl) {
+    this.setState({ tplDialogOpen: true, tplDraftId: tpl.id, tplDraftName: tpl.name, tplDraftTrigger: tpl.trigger, tplDraftBody: tpl.body });
+  }
+  closeTplDialog() { this.setState({ tplDialogOpen: false }); }
+  onTplDraftChange(field, e) { this.setState({ [field]: e.target.value }); }
+  saveTplDraft() {
+    if (!this.state.tplDraftName.trim() || !this.state.tplDraftBody.trim()) return;
+    const draft = { id: this.state.tplDraftId || ('custom_' + Date.now()), name: this.state.tplDraftName.trim(), trigger: this.state.tplDraftTrigger.trim() || 'Disparo manual', body: this.state.tplDraftBody };
+    this.setState(s => {
+      const existing = s.customTemplates.some(t => t.id === draft.id);
+      const customTemplates = existing ? s.customTemplates.map(t => t.id === draft.id ? draft : t) : [...s.customTemplates, draft];
+      return { customTemplates, tplDialogOpen: false, template: draft.id };
+    });
+  }
+  openNewKeyDialog() { this.setState({ newKeyDialogOpen: true, newKeyName: '', newKeyCreated: null }); }
+  closeNewKeyDialog() { this.setState({ newKeyDialogOpen: false }); }
+  onNewKeyNameChange(e) { this.setState({ newKeyName: e.target.value }); }
+  generateNewKey() {
+    if (!this.state.newKeyName.trim()) return;
+    const rand = Math.random().toString(36).slice(2, 8);
+    this.setState({ newKeyCreated: (this.state.env === 'sandbox' ? 'pk_test_' : 'pk_live_') + rand + '…' + rand });
+  }
+  openRevokeDialog(key) { this.setState({ revokeDialogOpen: true, revokeTarget: key }); }
+  closeRevokeDialog() { this.setState({ revokeDialogOpen: false, revokeTarget: null }); }
+  confirmRevoke() {
+    this.setState(s => ({ revokeDialogOpen: false, revokedNames: [...(s.revokedNames || []), s.revokeTarget] }));
+  }
+  onOrgNameDraftChange(e) { this.setState({ orgNameDraft: e.target.value, orgNameDraftOrgId: this.state.activeOrgId, orgNameSaved: false }); }
+  saveOrgName() { if (this.state.orgNameDraft.trim()) this.setState({ orgNameSaved: true }); }
+  openOffsetDialog() { this.setState({ offsetDialogOpen: true, offsetValue: '' }); }
+  closeOffsetDialog() { this.setState({ offsetDialogOpen: false }); }
+  onOffsetValueChange(e) {
+    let n = parseInt(e.target.value, 10);
+    if (isNaN(n)) { this.setState({ offsetValue: '' }); return; }
+    if (n > 48) n = 48;
+    if (n < 0) n = 0;
+    this.setState({ offsetValue: String(n) });
+  }
+  confirmAddOffset() {
+    const n = parseInt(this.state.offsetValue, 10);
+    if (!n || n <= 0 || n > 48) return;
+    this.setState(s => ({ offsets: [...s.offsets, { value: n }], offsetDialogOpen: false }));
+  }
+  removeOffset(idx) { this.setState(s => ({ offsets: s.offsets.filter((_, i) => i !== idx) })); }
+  openCreateOrgDialog() { this.setState({ createOrgDialogOpen: true, createOrgName: '', orgMenuOpen: false }); }
+  closeCreateOrgDialog() { this.setState({ createOrgDialogOpen: false }); }
+  onCreateOrgNameChange(e) { this.setState({ createOrgName: e.target.value }); }
+  confirmCreateOrg() {
+    const name = this.state.createOrgName.trim();
+    if (!name) return;
+    const id = 'org_' + Date.now();
+    const initials = name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('') || 'OR';
+    const colors = ['#2f6bf3', '#178a45', '#7c3aed', '#c2820a'];
+    const color = colors[this.state.extraOrgs.length % colors.length];
+    this.setState(s => ({
+      extraOrgs: [...s.extraOrgs, { id, name, role: 'Owner', plan: 'Sem plano', color, initials }],
+      activeOrgId: id, createOrgDialogOpen: false
+    }));
+  }
+  openPlanDialog() { this.setState({ planDialogOpen: true, planDraftId: this.state.orgPlanId || 'pro' }); }
+  closePlanDialog() { this.setState({ planDialogOpen: false }); }
+  setPlanDraft(id) { this.setState({ planDraftId: id }); }
+  confirmPlan() {
+    this.setState({ hasPlan: true, orgPlanId: this.state.planDraftId, planDialogOpen: false });
+  }
+  openDeleteOrgDialog() { this.setState({ deleteOrgDialogOpen: true, deleteOrgConfirmText: '' }); }
+  closeDeleteOrgDialog() { this.setState({ deleteOrgDialogOpen: false }); }
+  onDeleteOrgConfirmChange(e) { this.setState({ deleteOrgConfirmText: e.target.value }); }
+  confirmDeleteOrg() { this.setState({ deleteOrgDialogOpen: false }); }
+
+  navStyle(active) {
+    return {
+      display: 'flex', alignItems: 'center', gap: '10px', width: '100%',
+      padding: '8px 10px', border: 'none', borderRadius: '8px',
+      background: active ? '#eef3fe' : 'transparent',
+      color: active ? '#2f6bf3' : '#4b5158',
+      fontFamily: 'inherit', fontSize: '13.5px', fontWeight: active ? 600 : 500,
+      cursor: 'pointer', textAlign: 'left'
+    };
+  }
+  chipStyle(active) {
+    return {
+      padding: '5px 13px', borderRadius: '999px', fontSize: '12.5px', fontWeight: active ? 600 : 500,
+      cursor: 'pointer', fontFamily: 'inherit',
+      border: '1px solid ' + (active ? '#2f6bf3' : '#e2e4e8'),
+      color: active ? '#2f6bf3' : '#61656c',
+      background: active ? '#eef3fe' : '#fff'
+    };
+  }
+  envSeg(active) {
+    return {
+      flex: 1, padding: '5px 0', borderRadius: '6px', fontSize: '12px', fontWeight: 600,
+      border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+      background: active ? '#fff' : 'transparent',
+      color: active ? '#17191c' : '#8b9098',
+      boxShadow: active ? '0 1px 2px rgba(0,0,0,.08)' : 'none'
+    };
+  }
+  replyBtn(active, color, bg) {
+    return {
+      flex: 1, padding: '9px 0', borderRadius: '8px', fontSize: '12.5px', fontWeight: 600,
+      cursor: 'pointer', fontFamily: 'inherit',
+      border: '1px solid ' + (active ? color : '#e2e4e8'),
+      color: active ? '#fff' : '#4b5158',
+      background: active ? color : '#fff'
+    };
+  }
+  providerCard(active) {
+    return {
+      textAlign: 'left', padding: '14px 16px', borderRadius: '10px', cursor: 'pointer', fontFamily: 'inherit',
+      border: '1.5px solid ' + (active ? '#2f6bf3' : '#e2e4e8'),
+      background: active ? '#f7faff' : '#fff'
+    };
+  }
+  radioDot(active) {
+    return {
+      width: '16px', height: '16px', borderRadius: '50%', display: 'inline-block',
+      border: '2px solid ' + (active ? '#2f6bf3' : '#cdd0d6'),
+      background: active ? 'radial-gradient(circle, #2f6bf3 0 4px, #fff 5px 16px)' : '#fff'
+    };
+  }
+
+  renderVals() {
+    const s = this.state.screen;
+    const isSb = this.state.env === 'sandbox';
+
+    const meta = {
+      confirmed: { label: 'Confirmado', bg: '#e7f6ec', color: '#178a45' },
+      awaiting_response: { label: 'Aguardando', bg: '#fbf1dc', color: '#a86a09' },
+      cancelled: { label: 'Cancelado', bg: '#fdecec', color: '#d13c3c' },
+      reschedule_requested: { label: 'Remarcar', bg: '#f0ecfd', color: '#7c3aed' },
+      no_response: { label: 'Sem resposta', bg: '#f1f2f4', color: '#6b7280' },
+      sent: { label: 'Enviado', bg: '#eaf1ff', color: '#2f6bf3' },
+      delivery_failed: { label: 'Falha interna', bg: '#fdecec', color: '#d13c3c' },
+      client_instance_error: { label: 'Falha (BYO)', bg: '#fde6df', color: '#c2410c' }
+    };
+    const raw = [
+      { externalId: 'agd_9931', name: 'Maria Silva', exam: 'Ressonância de Crânio', datetime: '10/07 14:30', offset: '24h · 3h', status: 'confirmed', updated: 'há 2 min' },
+      { externalId: 'agd_9930', name: 'João Pereira', exam: 'Tomografia de Tórax', datetime: '10/07 09:00', offset: '24h', status: 'awaiting_response', updated: 'há 6 min' },
+      { externalId: 'agd_9929', name: 'Ana Costa', exam: 'Ultrassom Abdominal', datetime: '09/07 16:15', offset: '24h · 3h', status: 'cancelled', updated: 'há 18 min' },
+      { externalId: 'agd_9928', name: 'Carlos Mendes', exam: 'Raio-X de Coluna', datetime: '11/07 11:45', offset: '24h', status: 'reschedule_requested', updated: 'há 32 min' },
+      { externalId: 'agd_9927', name: 'Beatriz Lima', exam: 'Mamografia', datetime: '08/07 08:30', offset: '24h · 3h', status: 'no_response', updated: 'há 1 h' },
+      { externalId: 'agd_9926', name: 'Rafael Souza', exam: 'Densitometria Óssea', datetime: '11/07 15:00', offset: '24h', status: 'sent', updated: 'há 1 h' },
+      { externalId: 'agd_9925', name: 'Fernanda Alves', exam: 'Ecocardiograma', datetime: '12/07 10:20', offset: '24h · 3h', status: 'confirmed', updated: 'há 2 h' },
+      { externalId: 'agd_9924', name: 'Diego Rocha', exam: 'Ressonância de Joelho', datetime: '12/07 13:40', offset: '24h', status: 'client_instance_error', updated: 'há 3 h' },
+      { externalId: 'agd_9923', name: 'Patrícia Nunes', exam: 'Eletrocardiograma', datetime: '12/07 09:10', offset: '24h', status: 'delivery_failed', updated: 'há 4 h' }
+    ];
+    const phones = {
+      agd_9931: '+55 21 99999-8888', agd_9930: '+55 21 98888-7777', agd_9929: '+55 21 97777-6666',
+      agd_9928: '+55 21 96666-5555', agd_9927: '+55 21 95555-4444', agd_9926: '+55 21 94444-3333',
+      agd_9925: '+55 21 93333-2222', agd_9924: '+55 21 92222-1111'
+    };
+    const f = this.state.filter;
+    const appointments = raw.filter(a => f === 'all' ? true : a.status === f).map(a => {
+      const m = meta[a.status];
+      return { ...a, statusLabel: m.label, badgeBg: m.bg, badgeColor: m.color, onOpen: () => this.openDetail(a.externalId) };
+    });
+
+    // ---- appointment detail ----
+    const dRaw = raw.find(a => a.externalId === this.state.detailId) || raw[0];
+    const dm = meta[dRaw.status];
+    const dAppt = { ...dRaw, statusLabel: dm.label, badgeBg: dm.bg, badgeColor: dm.color, phone: phones[dRaw.externalId] || '+55 21 90000-0000' };
+    const order = ['received', 'pending', 'enqueued', 'sent', 'awaiting_response'];
+    const baseTrail = [
+      { state: 'RECEIVED', detail: 'Agendamento ingerido — payload validado (HMAC + idempotência)', time: '09/07 12:04' },
+      { state: 'PENDING', detail: 'Guardado no banco frio (Postgres), aguardando a janela de 24h', time: '09/07 12:04' },
+      { state: 'ENQUEUED', detail: 'Promovido para a fila quente (Redis / BullMQ)', time: '09/07 14:29' },
+      { state: 'SENT', detail: 'Mensagem entregue à instância do cliente', time: '09/07 14:30' },
+      { state: 'AWAITING_RESPONSE', detail: 'Paciente notificado — janela de 24h aberta', time: '09/07 14:30' }
+    ];
+    const termDetail = {
+      confirmed: 'Paciente respondeu "1" — agenda sincronizada', cancelled: 'Paciente respondeu "2" — slot liberado',
+      reschedule_requested: 'Paciente respondeu "3" — remarcação solicitada', no_response: 'Prazo expirou sem resposta',
+      delivery_failed: 'Falha interna do Confirma após retries — marcado failed',
+      client_instance_error: 'Instância BYO do cliente recusou o envio — marcado failed'
+    };
+    const isTerm = !order.includes(dRaw.status);
+    const trailSteps = baseTrail.map(s => ({ ...s, done: true }));
+    if (dRaw.status === 'delivery_failed' || dRaw.status === 'client_instance_error') { trailSteps.length = 4; }
+    if (isTerm) trailSteps.push({ state: dRaw.status.toUpperCase(), detail: termDetail[dRaw.status] || '', time: '09/07 16:02', done: true, term: true });
+    const dTrail = trailSteps.map((s, i) => {
+      const last = i === trailSteps.length - 1;
+      const c = s.term ? dm.color : (last ? '#2f6bf3' : '#178a45');
+      return { state: s.state, detail: s.detail, time: s.time, nameColor: last ? c : '#17191c',
+        dotBg: c, dotBorder: c, line: last ? 'transparent' : '#e5e8ec' };
+    });
+    const dMsgLog = dRaw.status === 'client_instance_error'
+      ? [
+          { id: 'msg_evo_' + dRaw.externalId.slice(-6), status: 'send_attempt', color: '#c2410c', time: '14:30:01' },
+          { id: 'msg_evo_' + dRaw.externalId.slice(-6), status: 'instance_error', color: '#c2410c', time: '14:30:04' }
+        ]
+      : dRaw.status === 'delivery_failed'
+      ? [{ id: 'msg_evo_' + dRaw.externalId.slice(-6), status: 'internal_error', color: '#d13c3c', time: '14:30:02' }]
+      : [
+          { id: 'msg_evo_' + dRaw.externalId.slice(-6), status: 'delivered', color: '#178a45', time: '14:30:02' },
+          { id: 'msg_evo_' + dRaw.externalId.slice(-6), status: 'read', color: '#178a45', time: '14:31:44' }
+        ];
+    const cbMap = {
+      confirmed: 'appointment.confirmed', cancelled: 'appointment.cancelled',
+      reschedule_requested: 'appointment.reschedule_requested', no_response: 'appointment.no_response',
+      delivery_failed: 'appointment.delivery_failed', client_instance_error: 'appointment.delivery_failed'
+    };
+    const replyInterp = {
+      confirmed: 'Paciente respondeu "1" — intenção interpretada como confirmação.',
+      cancelled: 'Paciente respondeu "2" — intenção interpretada como cancelamento.',
+      reschedule_requested: 'Paciente respondeu "3" — intenção interpretada como pedido de remarcação.',
+      no_response: 'Sem resposta do paciente na janela — nada a repassar.',
+      delivery_failed: 'Mensagem nunca chegou ao paciente — erro interno do Confirma.',
+      client_instance_error: 'Mensagem nunca chegou ao paciente — a instância BYO do cliente falhou no envio.'
+    };
+    const dCbLog = (isTerm || dRaw.status === 'delivery_failed' || dRaw.status === 'client_instance_error')
+      ? [
+          { event: 'Interpretação da resposta', color: '#4b5158', emoji: '', status: '', time: '', detail: replyInterp[dRaw.status] || '' },
+          { event: cbMap[dRaw.status] || 'appointment.updated', status: '200 OK', emoji: '🟢', color: '#178a45', time: '16:02:12', detail: 'Callback enviado ao ERP — recebido com sucesso.' }
+        ]
+      : [{ event: 'awaiting response', status: '—', emoji: '', color: '#b6bac1', time: '—', detail: 'Ainda não há resposta do paciente para repassar.' }];
+
+    // chart
+    const heights = [[54,20],[70,26],[62,18],[80,30],[46,34],[90,22],[74,28],[58,16],[96,24],[68,30],[84,20],[100,26],[78,18],[92,24]];
+    const chartBars = heights.map(h => ({ blue: h[0], gray: h[1] }));
+
+    const funnel = [
+      { label: 'Recebidos', value: '2.481', pct: '100%', color: '#c7d6f7' },
+      { label: 'Enviados', value: '2.468', pct: '99%', color: '#9bb8f5' },
+      { label: 'Aguardando resposta', value: '2.301', pct: '93%', color: '#6a9bf0' },
+      { label: 'Confirmados', value: '1.593', pct: '64%', color: '#2f6bf3' }
+    ];
+    const recent = [
+      { dot: '#178a45', id: 'cfm_a1b2c3', text: 'Maria Silva confirmou — Ressonância de Crânio (10/07)', time: 'há 2 min' },
+      { dot: '#2f6bf3', id: 'cfm_9f7e21', text: 'Lembrete enviado a Rafael Souza — Densitometria Óssea', time: 'há 6 min' },
+      { dot: '#7c3aed', id: 'cfm_b3d901', text: 'Carlos Mendes pediu remarcação — callback disparado', time: 'há 32 min' },
+      { dot: '#d13c3c', id: 'cfm_7712aa', text: 'Falha de envio a Diego Rocha — retry agendado', time: 'há 3 h' }
+    ];
+    const stateFlow = ['RECEIVED','PENDING','ENQUEUED','SENT','AWAITING_RESPONSE'].map(n => ({
+      name: n, bg: '#f1f2f4', color: '#4b5158'
+    }));
+
+    // templates
+    const tmpl = {
+      reminder: {
+        name: 'Lembrete 24h',
+        trigger: 'Disparado 24h antes do exame',
+        body: 'Olá, {{patient.name}}. Lembrete do seu exame de {{appointment.type}} em {{appointment.date}} às {{appointment.time}}, na {{appointment.location}}.\n\nResponda:\n1 - Confirmar\n2 - Cancelar\n3 - Remarcar',
+        preview: 'Olá, Maria Silva. Lembrete do seu exame de Ressonância de Crânio em 10/07 às 14:30, na Unidade Centro.\n\nResponda:\n1 - Confirmar\n2 - Cancelar\n3 - Remarcar',
+        showReply: true, reply: '1'
+      },
+      followup: {
+        name: 'Follow-up 3h',
+        trigger: 'Se sem resposta, 3h antes',
+        body: 'Olá, {{patient.name}}. Ainda não recebemos sua confirmação para o exame de hoje às {{appointment.time}}. Podemos confirmar?\n\n1 - Sim\n2 - Não',
+        preview: 'Olá, João Pereira. Ainda não recebemos sua confirmação para o exame de hoje às 09:00. Podemos confirmar?\n\n1 - Sim\n2 - Não',
+        showReply: false, reply: ''
+      },
+      confirmed: {
+        name: 'Confirmação recebida',
+        trigger: 'Ao paciente confirmar',
+        body: 'Perfeito, {{patient.name}}! Seu exame de {{appointment.type}} está confirmado para {{appointment.date}} às {{appointment.time}}. Até lá.',
+        preview: 'Perfeito, Maria Silva! Seu exame de Ressonância de Crânio está confirmado para 10/07 às 14:30. Até lá.',
+        showReply: false, reply: ''
+      }
+    };
+    this.state.customTemplates.forEach(t => {
+      tmpl[t.id] = { name: t.name, trigger: t.trigger, body: t.body, preview: t.body, showReply: false, reply: '' };
+    });
+    const builtinIds = ['reminder', 'followup', 'confirmed'];
+    const customIds = this.state.customTemplates.map(t => t.id);
+    const templateList = [...builtinIds, ...customIds].map(id => ({
+      id,
+      name: tmpl[id].name, trigger: tmpl[id].trigger,
+      isCustom: customIds.includes(id),
+      onSelect: () => this.selTemplate(id),
+      onEdit: (e) => { e.stopPropagation(); this.openTplDialog({ id, name: tmpl[id].name, trigger: tmpl[id].trigger, body: tmpl[id].body }); },
+      cardStyle: {
+        textAlign: 'left', padding: '13px 15px', borderRadius: '10px', cursor: 'pointer', fontFamily: 'inherit', position: 'relative',
+        border: '1.5px solid ' + (this.state.template === id ? '#2f6bf3' : '#ecedf0'),
+        background: this.state.template === id ? '#f7faff' : '#fff'
+      }
+    }));
+    const at = tmpl[this.state.template] || tmpl.reminder;
+
+    // sandbox callback body
+    const replyMap = {
+      '1': { event: 'appointment.confirmed', status: 'confirmed', raw: '1' },
+      '2': { event: 'appointment.cancelled', status: 'cancelled', raw: '2' },
+      '3': { event: 'appointment.reschedule_requested', status: 'reschedule_requested', raw: '3' }
+    };
+    const rp = this.state.reply ? replyMap[this.state.reply] : null;
+    const callbackBody = rp ? '{\n  "event": "' + rp.event + '",\n  "appointmentId": "cfm_a1b2c3",\n  "externalId": "agd_9931",\n  "status": "' + rp.status + '",\n  "respondedAt": "2026-07-09T16:02:11-03:00",\n  "raw": { "reply": "' + rp.raw + '" }\n}' : '';
+
+    const titles = {
+      overview: ['Visão geral', 'Métricas de confirmação e recuperação de faltas'],
+      appointments: ['Agendamentos', 'Ciclo de confirmação por agendamento'],
+      sandbox: ['Sandbox', 'Teste a integração sem custo de mensagem'],
+      templates: ['Templates', 'Mensagens transacionais (utility) por conta'],
+      keys: ['API Keys', 'Autenticação, assinatura HMAC e rotação'],
+      settings: ['Configurações', 'Offsets, organização, membros e faturamento'],
+      quickstart: ['Quickstart', 'Da chave à primeira confirmação'],
+      connection: ['Conexão', 'Pareie sua própria instância Evolution API (BYO)'],
+      detail: ['Detalhe do agendamento', 'Trilha: ingestão → envio → resposta → callback']
+    };
+
+    // ---- org switcher ----
+    const orgsRaw = [
+      { id: 'odonto-x', name: 'Clínica Odonto X', role: 'Owner', plan: 'Plano Scale', color: '#2f6bf3', initials: 'OX' },
+      { id: 'hospital-y', name: 'Hospital Y', role: 'Admin', plan: 'Plano Enterprise', color: '#178a45', initials: 'HY' },
+      { id: 'diag-vida', name: 'Diagnóstico Vida', role: 'Member', plan: 'Plano Growth', color: '#7c3aed', initials: 'DV' }
+    ];
+    if (this.state.hasOrg && this.state.onbCreatedName) {
+      const nm = this.state.onbCreatedName;
+      const initials = nm.split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('') || 'OR';
+      orgsRaw.unshift({ id: 'nova-org', name: nm, role: 'Owner', plan: 'Sem plano', color: '#c2820a', initials });
+    }
+    this.state.extraOrgs.forEach(o => orgsRaw.unshift(o));
+    const activeOrgRaw = orgsRaw.find(o => o.id === this.state.activeOrgId) || orgsRaw[0];
+    const activeOrg = { ...activeOrgRaw };
+    if (activeOrg.id === 'nova-org' || this.state.extraOrgs.some(o => o.id === activeOrg.id)) {
+      const planNames = { starter: 'Plano Starter', pro: 'Plano Clínica Pro', integrador: 'Plano Integrador', enterprise: 'Plano Enterprise' };
+      activeOrg.plan = this.state.hasPlan ? (planNames[this.state.orgPlanId] || 'Sem plano') : 'Sem plano';
+    }
+    const orgList = orgsRaw.map(o => ({
+      ...o, isActive: o.id === this.state.activeOrgId,
+      rowBg: o.id === this.state.activeOrgId ? '#f5f8ff' : 'transparent',
+      onSelect: () => this.selectOrg(o.id)
+    }));
+
+    // ---- connection / BYO Evolution API ----
+    const ts = this.state.testState;
+    const prov = this.state.provider;
+    const providerNames = { evolution: 'Evolution API', zapi: 'Z-API Gateway', meta: 'WhatsApp Cloud API (Meta)' };
+    const providerName = providerNames[prov] || 'Evolution API';
+    const isByo = prov === 'evolution' || prov === 'zapi';
+    const hcMeta = {
+      connected: { emoji: '🟢', title: 'Conectado', detail: 'Instância respondendo normalmente. Última verificação agora.', bg: '#e7f6ec', color: '#178a45' },
+      unauthorized: { emoji: '🔴', title: 'Erro 401: Token inválido', detail: 'A instância recusou o token de autenticação enviado.', bg: '#fdecec', color: '#d13c3c' },
+      offline: { emoji: '⚠️', title: 'Fora do ar', detail: 'Não foi possível alcançar a URL da instância.', bg: '#fdf2dc', color: '#a86a09' }
+    };
+    const hc = hcMeta[ts] || null;
+    const simBtnStyle = { padding: '5px 11px', border: '1px solid #e2e4e8', borderRadius: '7px', background: '#fff', fontSize: '11.5px', fontWeight: 500, color: '#4b5158', cursor: 'pointer', fontFamily: 'inherit' };
+    const isManual = this.state.webhookState === 'manual';
+
+    return {
+      showConnection: s === 'connection',
+      navConnection: this.navStyle(s === 'connection'), icConnection: s === 'connection' ? '#2f6bf3' : '#9aa0a8',
+      goConnection: () => this.go('connection'),
+
+      providerName,
+      showInstanceUrlField: prov === 'evolution',
+      instanceFieldLabel: prov === 'zapi' ? 'ID da instância' : 'Nome/ID da instância',
+      instanceFieldPlaceholder: prov === 'zapi' ? 'ex.: 3D9F21AAB0C4' : 'ex.: odonto-x-01',
+      instanceId: this.state.instanceId, onInstanceIdChange: (e) => this.onInstanceIdChange(e),
+
+      instanceUrl: this.state.instanceUrl,
+      onUrlChange: (e) => this.setState({ instanceUrl: e.target.value }),
+      tokenDisplay: this.state.showToken ? this.state.tokenValue : '••••••••-••••-••••-••••-••••••••••••',
+      tokenRevealLabel: this.state.showToken ? 'Ocultar' : 'Revelar',
+      toggleToken: () => this.toggleToken(),
+      saveCredentials: () => this.saveCredentials(),
+
+      webhookBadgeLabel: isManual ? 'Aguardando webhook' : 'Webhook confirmado',
+      webhookBadgeDot: isManual ? '⚠️' : '🟢',
+      webhookBadgeBg: isManual ? '#fdf2dc' : '#e7f6ec',
+      webhookBadgeColor: isManual ? '#a86a09' : '#178a45',
+      webhookUrl: 'https://hooks.confirma.dev/' + prov + '/odonto-x/9f21aa',
+
+      testConnection: () => this.runTest('connected'),
+      testBtnLabel: ts === 'testing' ? 'Testando…' : 'Testar Conexão',
+      testBtnStyle: { padding: '9px 16px', border: '1px solid #e2e4e8', borderRadius: '8px', background: '#fff', color: '#4b5158', fontSize: '12.5px', fontWeight: 600, cursor: ts === 'testing' ? 'default' : 'pointer', fontFamily: 'inherit', opacity: ts === 'testing' ? .6 : 1 },
+      showResultInline: false, resultColor: '#178a45', resultInlineLabel: '',
+
+      hcIdle: ts === 'idle', hcTesting: ts === 'testing', hcDone: !!hc,
+      hcEmoji: hc ? hc.emoji : '', hcTitle: hc ? hc.title : '', hcDetail: hc ? hc.detail : '',
+      hcBg: hc ? hc.bg : '', hcColor: hc ? hc.color : '',
+      simConnected: () => this.runTest('connected'), simUnauthorized: () => this.runTest('unauthorized'), simOffline: () => this.runTest('offline'),
+      simBtnStyle,
+
+      // ---- onboarding ----
+      showOnboarding: !this.state.hasOrg, showApp: this.state.hasOrg,
+      onbName: this.state.onbName, onOnbNameChange: (e) => this.onOnbNameChange(e),
+      onbKinds: (() => {
+        const kindsRaw = [
+          { id: 'clinica', label: 'Clínica' }, { id: 'hospital', label: 'Hospital' },
+          { id: 'diagnostico', label: 'Diagnóstico' }, { id: 'outro', label: 'Outro' }
+        ];
+        return kindsRaw.map(k => ({
+          label: k.label, onSelect: () => this.setOnbKind(k.id),
+          style: {
+            padding: '9px 0', borderRadius: '8px', fontSize: '12.5px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+            border: '1.5px solid ' + (this.state.onbKind === k.id ? '#2f6bf3' : '#e2e4e8'),
+            color: this.state.onbKind === k.id ? '#2f6bf3' : '#4b5158',
+            background: this.state.onbKind === k.id ? '#f5f8ff' : '#fff'
+          }
+        }));
+      })(),
+      createOrg: () => this.createOrg(),
+      createOrgBtnStyle: {
+        width: '100%', padding: '11px', border: 'none', borderRadius: '9px',
+        background: this.state.onbName.trim() ? '#2f6bf3' : '#eef1f5', color: this.state.onbName.trim() ? '#fff' : '#a2a7af',
+        fontSize: '13.5px', fontWeight: 600, fontFamily: 'inherit', cursor: this.state.onbName.trim() ? 'pointer' : 'default',
+        boxShadow: this.state.onbName.trim() ? '0 1px 3px rgba(47,107,243,.3)' : 'none'
+      },
+
+      orgMenuOpen: this.state.orgMenuOpen, toggleOrgMenu: () => this.toggleOrgMenu(),
+      userMenuOpen: this.state.userMenuOpen, toggleUserMenu: () => this.toggleUserMenu(),
+      activeOrg, orgList,
+
+      // nav
+      navOverview: this.navStyle(s === 'overview'), icOverview: s === 'overview' ? '#2f6bf3' : '#9aa0a8',
+      navAppointments: this.navStyle(s === 'appointments'), icAppointments: s === 'appointments' ? '#2f6bf3' : '#9aa0a8',
+      navSandbox: this.navStyle(s === 'sandbox'), icSandbox: s === 'sandbox' ? '#2f6bf3' : '#9aa0a8',
+      navTemplates: this.navStyle(s === 'templates'), icTemplates: s === 'templates' ? '#2f6bf3' : '#9aa0a8',
+      navKeys: this.navStyle(s === 'keys'), icKeys: s === 'keys' ? '#2f6bf3' : '#9aa0a8',
+      navSettings: this.navStyle(s === 'settings'), icSettings: s === 'settings' ? '#2f6bf3' : '#9aa0a8',
+      goOverview: () => this.go('overview'), goAppointments: () => this.go('appointments'),
+      goSandbox: () => this.go('sandbox'), goTemplates: () => this.go('templates'),
+      goKeys: () => this.go('keys'), goSettings: () => this.go('settings'),
+
+      // env
+      envSandboxStyle: this.envSeg(isSb), envProdStyle: this.envSeg(!isSb),
+      toSandbox: () => this.setEnv('sandbox'), toProd: () => this.setEnv('prod'),
+      envLabel: isSb ? 'SANDBOX' : 'PRODUÇÃO',
+      envBadgeBg: isSb ? '#fbf1dc' : '#e7f6ec',
+      envBadgeBorder: isSb ? '#f0dfb8' : '#d3ecdb',
+      envBadgeDot: isSb ? '#c2820a' : '#178a45',
+      envBadgeText: isSb ? '#a86a09' : '#178a45',
+
+      // title
+      currentTitle: titles[s][0], currentSubtitle: titles[s][1],
+
+      // screen flags
+      showOverview: s === 'overview', showAppointments: s === 'appointments',
+      showSandbox: s === 'sandbox', showTemplates: s === 'templates',
+      showKeys: s === 'keys', showSettings: s === 'settings',
+      showDetail: s === 'detail',
+
+      // detail
+      dAppt, dTrail, dMsgLog, dCbLog,
+      dShowErrorAlert: dRaw.status === 'client_instance_error' || dRaw.status === 'delivery_failed',
+      dErrorTitle: dRaw.status === 'client_instance_error' ? 'Falha no envio: instância BYO inacessível' : 'Falha interna do sistema',
+      dErrorDetail: dRaw.status === 'client_instance_error'
+        ? 'Sua instância da Evolution API respondeu com erro ou está inacessível. Verifique suas credenciais BYO em Conexão.'
+        : 'Erro no processamento interno do Confirma — nossa equipe já foi notificada e o reenvio será tentado automaticamente.',
+      dErrorBg: dRaw.status === 'client_instance_error' ? '#fdf1ec' : '#fdecec',
+      dErrorBorder: dRaw.status === 'client_instance_error' ? '#f3c7ae' : '#f2c9c9',
+      dErrorColor: dRaw.status === 'client_instance_error' ? '#c2410c' : '#d13c3c',
+
+      // overview data
+      chartBars, funnel, recent,
+
+      // appointments
+      appointments, stateFlow,
+      chipAll: this.chipStyle(f === 'all'), chipConfirmed: this.chipStyle(f === 'confirmed'),
+      chipAwaiting: this.chipStyle(f === 'awaiting_response'), chipCancelled: this.chipStyle(f === 'cancelled'),
+      chipNoResp: this.chipStyle(f === 'no_response'),
+      filterAll: () => this.setFilter('all'), filterConfirmed: () => this.setFilter('confirmed'),
+      filterAwaiting: () => this.setFilter('awaiting_response'), filterCancelled: () => this.setFilter('cancelled'),
+      filterNoResp: () => this.setFilter('no_response'),
+
+      // sandbox
+      sbApiKey: this.state.sbApiKey, onSbApiKeyChange: (e) => this.onSbApiKeyChange(e),
+      sbKeyHint: this.state.sbApiKey.trim() ? (/^pk_test_/.test(this.state.sbApiKey.trim()) ? 'Formato válido de chave de sandbox.' : 'A chave deve começar com pk_test_ no ambiente Sandbox.') : 'Cole sua chave pk_test_… (veja em API Keys).',
+      sbKeyHintColor: this.state.sbApiKey.trim() && /^pk_test_/.test(this.state.sbApiKey.trim()) ? '#178a45' : '#a2a7af',
+      sbPatientName: this.state.sbPatientName, onSbPatientNameChange: (e) => this.onSbPatientNameChange(e),
+      sbPatientPhone: this.state.sbPatientPhone, onSbPatientPhoneChange: (e) => this.onSbPatientPhoneChange(e),
+      sbExamType: this.state.sbExamType, onSbExamTypeChange: (e) => this.onSbExamTypeChange(e),
+      sbDatetime: this.state.sbDatetime, onSbDatetimeChange: (e) => this.onSbDatetimeChange(e),
+      sbRequestPreview: '{\n  "patient": { "name": "' + this.state.sbPatientName + '", "phone": "' + this.state.sbPatientPhone + '" },\n  "appointment": { "type": "' + this.state.sbExamType + '", "datetime": "' + this.state.sbDatetime + '" }\n}',
+      sbResponseBody: '{\n  "appointmentId": "cfm_a1b2c3",\n  "patient": "' + this.state.sbPatientName + '",\n  "status": "received",\n  "scheduledFor": "' + this.state.sbDatetime + '"\n}',
+      sandboxIdle: this.state.sandbox === 'idle', sandboxSent: this.state.sandbox === 'sent', sandboxError: this.state.sandbox === 'error',
+      sendSandbox: () => this.sendSandboxReq(), resetSandbox: () => this.resetSb(),
+      sendBtnLabel: 'Enviar requisição simulada',
+      sendBtnStyle: { flex: 1, padding: '10px', border: 'none', borderRadius: '9px', background: '#2f6bf3', color: '#fff', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 1px 3px rgba(47,107,243,.3)' },
+      reply1: () => this.doReply('1'), reply2: () => this.doReply('2'), reply3: () => this.doReply('3'),
+      reply1Style: this.replyBtn(this.state.reply === '1', '#178a45'),
+      reply2Style: this.replyBtn(this.state.reply === '2', '#d13c3c'),
+      reply3Style: this.replyBtn(this.state.reply === '3', '#7c3aed'),
+      hasReply: !!this.state.reply, callbackBody, cbSig: '9c2f…hmac',
+
+      // templates
+      templateList, activeName: at.name, activeBody: at.body, previewText: at.preview,
+      showReplyBubble: at.showReply, replyText: at.reply,
+      tplDialogOpen: this.state.tplDialogOpen, tplDialogTitle: 'Editar template',
+      tplDraftName: this.state.tplDraftName, onTplNameChange: (e) => this.onTplDraftChange('tplDraftName', e),
+      tplDraftTrigger: this.state.tplDraftTrigger, onTplTriggerChange: (e) => this.onTplDraftChange('tplDraftTrigger', e),
+      tplDraftBody: this.state.tplDraftBody, onTplBodyChange: (e) => this.onTplDraftChange('tplDraftBody', e),
+      tplBodyPlaceholder: 'Olá, ' + '{' + '{patient.name}' + '}' + '. …',
+      closeTplDialog: () => this.closeTplDialog(), saveTplDraft: () => this.saveTplDraft(),
+      tplSaveEnabled: !!(this.state.tplDraftName.trim() && this.state.tplDraftBody.trim()),
+      tplSaveBtnStyle: {
+        padding: '9px 18px', border: 'none', borderRadius: '8px', fontFamily: 'inherit', fontSize: '12.5px', fontWeight: 600,
+        background: (this.state.tplDraftName.trim() && this.state.tplDraftBody.trim()) ? '#2f6bf3' : '#eef1f5',
+        color: (this.state.tplDraftName.trim() && this.state.tplDraftBody.trim()) ? '#fff' : '#a2a7af',
+        cursor: (this.state.tplDraftName.trim() && this.state.tplDraftBody.trim()) ? 'pointer' : 'default'
+      },
+
+      // keys
+      secretDisplay: this.state.showSecret ? 'sk_test_4eC39HqLyjWDarjtT1zdp7dcNy' : 'sk_test_••••••••••••••••••••••••',
+      revealLabel: this.state.showSecret ? 'Ocultar' : 'Revelar',
+      toggleSecret: () => this.toggleSecret(),
+      openNewKeyDialog: () => this.openNewKeyDialog(),
+      keysList: [
+        { name: 'Chave de produção', token: 'pk_live_51Hx…9Qa', created: '12 mar 2026', lastUsed: 'há 4 min' },
+        { name: 'Chave de sandbox', token: 'pk_test_51Hx…2Zb', created: '12 mar 2026', lastUsed: 'há 2 min' },
+        { name: 'CI / integração', token: 'pk_test_9plQ…7Km', created: '28 mai 2026', lastUsed: 'há 3 dias' }
+      ].filter(k => !(this.state.revokedNames || []).includes(k.name)).map(k => ({ ...k, onRevoke: () => this.openRevokeDialog(k.name) })),
+
+      newKeyDialogOpen: !!this.state.newKeyDialogOpen,
+      newKeyName: this.state.newKeyName || '', onNewKeyNameChange: (e) => this.onNewKeyNameChange(e),
+      closeNewKeyDialog: () => this.closeNewKeyDialog(), generateNewKey: () => this.generateNewKey(),
+      newKeyCreated: this.state.newKeyCreated || null, newKeyHasResult: !!this.state.newKeyCreated,
+      newKeyNotYetGenerated: !this.state.newKeyCreated,
+      genKeyBtnStyle: {
+        padding: '9px 18px', border: 'none', borderRadius: '8px', fontFamily: 'inherit', fontSize: '12.5px', fontWeight: 600,
+        background: (this.state.newKeyName && this.state.newKeyName.trim()) ? '#2f6bf3' : '#eef1f5',
+        color: (this.state.newKeyName && this.state.newKeyName.trim()) ? '#fff' : '#a2a7af',
+        cursor: (this.state.newKeyName && this.state.newKeyName.trim()) ? 'pointer' : 'default'
+      },
+
+      revokeDialogOpen: !!this.state.revokeDialogOpen, revokeTarget: this.state.revokeTarget || '',
+      closeRevokeDialog: () => this.closeRevokeDialog(), confirmRevoke: () => this.confirmRevoke(),
+
+      // ---- organização ----
+      orgNameDraft: this.state.orgNameDraftOrgId === this.state.activeOrgId ? this.state.orgNameDraft : activeOrg.name,
+      onOrgNameDraftChange: (e) => this.onOrgNameDraftChange(e),
+      saveOrgName: () => this.saveOrgName(),
+      saveOrgBtnLabel: this.state.orgNameSaved ? 'Salvo ✓' : 'Salvar alterações',
+      saveOrgBtnStyle: {
+        padding: '9px 16px', border: 'none', borderRadius: '8px', fontFamily: 'inherit', fontSize: '12.5px', fontWeight: 600, cursor: 'pointer',
+        background: this.state.orgNameSaved ? '#e7f6ec' : '#17191c',
+        color: this.state.orgNameSaved ? '#178a45' : '#fff'
+      },
+      offsetList: this.state.offsets.map((o, i) => ({
+        label: o.value + 'h antes',
+        onRemove: () => this.removeOffset(i)
+      })),
+      openOffsetDialog: () => this.openOffsetDialog(), closeOffsetDialog: () => this.closeOffsetDialog(),
+      offsetDialogOpen: this.state.offsetDialogOpen,
+      offsetValue: this.state.offsetValue, onOffsetValueChange: (e) => this.onOffsetValueChange(e),
+      offsetPreview: (parseInt(this.state.offsetValue, 10) || '—') + 'h antes do exame',
+      confirmAddOffset: () => this.confirmAddOffset(),
+      offsetConfirmBtnStyle: {
+        padding: '9px 18px', border: 'none', borderRadius: '8px', fontFamily: 'inherit', fontSize: '12.5px', fontWeight: 600,
+        background: (parseInt(this.state.offsetValue, 10) > 0 && parseInt(this.state.offsetValue, 10) <= 48) ? '#2f6bf3' : '#eef1f5',
+        color: (parseInt(this.state.offsetValue, 10) > 0 && parseInt(this.state.offsetValue, 10) <= 48) ? '#fff' : '#a2a7af',
+        cursor: (parseInt(this.state.offsetValue, 10) > 0 && parseInt(this.state.offsetValue, 10) <= 48) ? 'pointer' : 'default'
+      },
+
+      openCreateOrgDialog: () => this.openCreateOrgDialog(), closeCreateOrgDialog: () => this.closeCreateOrgDialog(),
+      createOrgDialogOpen: this.state.createOrgDialogOpen,
+      createOrgName: this.state.createOrgName, onCreateOrgNameChange: (e) => this.onCreateOrgNameChange(e),
+      confirmCreateOrg: () => this.confirmCreateOrg(),
+      createOrgConfirmBtnStyle: {
+        padding: '9px 18px', border: 'none', borderRadius: '8px', fontFamily: 'inherit', fontSize: '12.5px', fontWeight: 600,
+        background: this.state.createOrgName.trim() ? '#2f6bf3' : '#eef1f5',
+        color: this.state.createOrgName.trim() ? '#fff' : '#a2a7af',
+        cursor: this.state.createOrgName.trim() ? 'pointer' : 'default'
+      },
+
+      hasPlan: this.state.hasPlan, notHasPlan: !this.state.hasPlan,
+      openPlanDialog: () => this.openPlanDialog(), closePlanDialog: () => this.closePlanDialog(),
+      planDialogOpen: this.state.planDialogOpen,
+      planDialogTitle: this.state.hasPlan ? 'Alterar plano' : 'Escolha seu plano',
+      planOptions: [
+        { id: 'starter', name: 'Starter', price: 'R$ 149', per: '/mês', volume: 'até 500 agend./mês' },
+        { id: 'pro', name: 'Clínica Pro', price: 'R$ 399', per: '/mês', volume: 'até 2.500 agend./mês' },
+        { id: 'integrador', name: 'Integrador', price: 'R$ 999', per: '/mês', volume: 'até 10.000 agend./mês' },
+        { id: 'enterprise', name: 'Enterprise', price: 'Consulta', per: '', volume: 'acima de 10.000/mês' }
+      ].map(p => ({
+        ...p, onSelect: () => this.setPlanDraft(p.id),
+        cardStyle: {
+          textAlign: 'left', padding: '14px', borderRadius: '10px', cursor: 'pointer', fontFamily: 'inherit',
+          border: '1.5px solid ' + (this.state.planDraftId === p.id ? '#2f6bf3' : '#e2e4e8'),
+          background: this.state.planDraftId === p.id ? '#f5f8ff' : '#fff'
+        }
+      })),
+      confirmPlan: () => this.confirmPlan(),
+      confirmPlanLabel: this.state.hasPlan ? 'Salvar plano' : 'Ativar plano',
+      confirmPlanBtnStyle: {
+        padding: '9px 18px', border: 'none', borderRadius: '8px', fontFamily: 'inherit', fontSize: '12.5px', fontWeight: 600, cursor: 'pointer',
+        background: '#2f6bf3', color: '#fff'
+      },
+      openDeleteOrgDialog: () => this.openDeleteOrgDialog(), closeDeleteOrgDialog: () => this.closeDeleteOrgDialog(),
+      deleteOrgDialogOpen: this.state.deleteOrgDialogOpen,
+      deleteOrgConfirmText: this.state.deleteOrgConfirmText, onDeleteOrgConfirmChange: (e) => this.onDeleteOrgConfirmChange(e),
+      confirmDeleteOrg: () => this.confirmDeleteOrg(),
+      deleteOrgBtnStyle: {
+        padding: '9px 18px', border: 'none', borderRadius: '8px', fontFamily: 'inherit', fontSize: '12.5px', fontWeight: 600,
+        background: this.state.deleteOrgConfirmText.trim() === activeOrg.name ? '#d13c3c' : '#f7d6d6',
+        color: '#fff', cursor: this.state.deleteOrgConfirmText.trim() === activeOrg.name ? 'pointer' : 'default'
+      },
+
+      // provider selector (Conexão)
+      selectEvolution: () => this.setProvider('evolution'), selectZapi: () => this.setProvider('zapi'),
+      evolutionCard: this.providerCard(this.state.provider === 'evolution'),
+      zapiCard: this.providerCard(this.state.provider === 'zapi'),
+      evolutionRadio: this.radioDot(this.state.provider === 'evolution'),
+      zapiRadio: this.radioDot(this.state.provider === 'zapi')
+    };
+  }
+}
+</script>
+</body>
+</html>

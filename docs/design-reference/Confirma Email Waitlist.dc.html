@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: 'IBM Plex Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: #2f6bf3; }
+  a:hover { color: #1d54d1; }
+</style>
+</helmet>
+
+<div style="background: #f0f1f3; padding: 48px 16px; min-height: 100vh;">
+  <div style="max-width: 560px; margin: 0 auto; background: #ffffff; border-radius: 14px; overflow: hidden; border: 1px solid #e5e7eb;">
+
+    <!-- header -->
+    <div style="padding: 28px 36px; border-bottom: 1px solid #ecedf0; display: flex; align-items: center; gap: 9px;">
+      <div style="width: 26px; height: 26px; border-radius: 7px; background: #2f6bf3; display: flex; align-items: center; justify-content: center;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+      </div>
+      <span style="font-size: 16px; font-weight: 700; letter-spacing: -.02em; color: #17191c;">Confirma</span>
+    </div>
+
+    <!-- hero -->
+    <div style="padding: 40px 36px 8px;">
+      <div style="display: inline-flex; align-items: center; gap: 7px; padding: 5px 13px; border-radius: 999px; background: #f5f8ff; border: 1px solid #dbe6fd; font-size: 11.5px; font-weight: 600; color: #2f6bf3; margin-bottom: 20px;">
+        <span style="width: 6px; height: 6px; border-radius: 50%; background: #2f6bf3;"></span>
+        Você está na lista
+      </div>
+      <h1 style="margin: 0 0 14px; font-size: 24px; line-height: 1.3; font-weight: 700; letter-spacing: -.02em; color: #17191c;">Prontinho, Renata. Sua vaga no acesso antecipado está garantida.</h1>
+      <p style="margin: 0 0 28px; font-size: 14.5px; line-height: 1.65; color: #4b5158;">Obrigado por entrar na lista de espera do Confirma. Você vai ser um dos primeiros a integrar e testar a confirmação automática de agenda — direto no WhatsApp que você já usa.</p>
+    </div>
+
+    <!-- what's next -->
+    <div style="padding: 0 36px 32px;">
+      <div style="font-size: 12px; font-weight: 700; color: #8b9098; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 14px;">O que vem a seguir</div>
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <div style="display: flex; gap: 14px;">
+          <div style="width: 26px; height: 26px; border-radius: 50%; background: #f5f8ff; border: 1px solid #dbe6fd; color: #2f6bf3; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">1</div>
+          <div>
+            <div style="font-size: 13.5px; font-weight: 600; color: #17191c;">Documentação da API</div>
+            <div style="font-size: 12.5px; color: #8b9098; line-height: 1.5;">Referência completa de endpoints, autenticação e webhooks de callback.</div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 14px;">
+          <div style="width: 26px; height: 26px; border-radius: 50%; background: #f5f8ff; border: 1px solid #dbe6fd; color: #2f6bf3; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">2</div>
+          <div>
+            <div style="font-size: 13.5px; font-weight: 600; color: #17191c;">Acesso ao sandbox</div>
+            <div style="font-size: 12.5px; color: #8b9098; line-height: 1.5;">Ambiente de testes para simular agendamentos e respostas sem afetar produção.</div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 14px;">
+          <div style="width: 26px; height: 26px; border-radius: 50%; background: #f5f8ff; border: 1px solid #dbe6fd; color: #2f6bf3; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">3</div>
+          <div>
+            <div style="font-size: 13.5px; font-weight: 600; color: #17191c;">Condições de early adopter</div>
+            <div style="font-size: 12.5px; color: #8b9098; line-height: 1.5;">Preço vitalício e prioridade de liberação, exclusivos para a primeira turma.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- code demo -->
+    <div style="padding: 0 36px 32px;">
+      <div style="background: #17191c; border-radius: 12px; overflow: hidden;">
+        <div style="display: flex; align-items: center; gap: 6px; padding: 10px 14px; border-bottom: 1px solid #2a2d33;">
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #3a3e44;"></span>
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #3a3e44;"></span>
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #3a3e44;"></span>
+          <span style="margin-left: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; color: #8b9098;">POST /v1/appointments</span>
+        </div>
+        <pre style="margin: 0; padding: 16px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; line-height: 1.7; color: #d7dbe2; white-space: pre-wrap; word-break: break-word;"><span style="color: #8b9098;">// 202 Accepted</span>
+{
+  <span style="color: #7ea6f7;">"appointmentId"</span>: <span style="color: #9ece8f;">"cfm_a1b2c3"</span>,
+  <span style="color: #7ea6f7;">"status"</span>: <span style="color: #9ece8f;">"received"</span>
+}</pre>
+      </div>
+    </div>
+
+    <!-- cta -->
+    <div style="padding: 0 36px 40px; text-align: center;">
+      <a href="#" style="display: inline-flex; align-items: center; gap: 8px; padding: 14px 26px; border-radius: 10px; background: #2f6bf3; color: #fff; font-size: 14.5px; font-weight: 600; text-decoration: none;">
+        Acompanhar novidades
+      </a>
+      <div style="font-size: 12px; color: #8b9098; margin-top: 12px;">Sem ação necessária agora — te avisamos por aqui quando sua turma abrir.</div>
+    </div>
+
+    <!-- footer -->
+    <div style="padding: 22px 36px; border-top: 1px solid #ecedf0; text-align: center;">
+      <div style="font-size: 11.5px; color: #a2a7af; line-height: 1.7;">Confirma © 2026 — Confirmação de agenda via WhatsApp<br><a href="#" style="color: #8b9098; text-decoration: underline;">Cancelar inscrição</a></div>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

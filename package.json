@@ -1,5 +1,5 @@
 {
-  "name": "confirma-saas",
+  "name": "@confirma",
   "private": true,
   "scripts": {
     "build": "turbo run build",

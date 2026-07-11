@@ -1,159 +1,94 @@
-# Turborepo starter
+# Confirma
 
-This Turborepo starter is maintained by the Turborepo core team.
+**Confirma** é uma infraestrutura de confirmação de agenda para clínicas e sistemas de saúde. Sistemas externos (ERP, prontuário, RIS, agenda) chamam um webhook público para delegar ao Confirma o envio do lembrete via WhatsApp, a interpretação da resposta do paciente (confirmar / cancelar / remarcar) e o callback de volta ao sistema de origem, mantendo a agenda sincronizada automaticamente.
 
-## Using this example
+O produto se posiciona como redutor de **no-show**, não como notificador genérico.
 
-Run the following command:
+**Modelo de canal — BYO-Instance:** o Confirma não é reseller de mensageria. O cliente traz sua própria instância Evolution API (URL + token) e cadastra as credenciais no painel; o Confirma orquestra fila, timing, interpretação de resposta e sincronização, sem custo nem risco de mensageria.
 
-```sh
-npx create-turbo@latest
-```
+**Público-alvo:** software houses e desenvolvedores que constroem sistemas para clínicas e querem confirmação automática sem construir fila, retry, gestão de templates e compliance LGPD.
 
-## What's inside?
+> Documentação completa de produto e arquitetura em [`docs/context/PRD.md`](docs/context/PRD.md) e [`docs/context/TECH_SPECS.md`](docs/context/TECH_SPECS.md).
 
-This Turborepo includes the following packages/apps:
+---
 
-### Apps and Packages
+## Arquitetura
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+Monorepo **pnpm workspaces + Turborepo**, composto por 3 apps e 2 packages compartilhados:
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+| App                | Package            | Stack                       | Público                | Propósito                                                       |
+| ------------------ | ------------------- | ---------------------------- | ----------------------- | ----------------------------------------------------------------- |
+| `apps/api`         | `@confirma/api`     | Fastify + Prisma + BullMQ    | Dev integrador          | Núcleo do produto: ingestão, workers, auth, webhooks, métricas   |
+| `apps/painel`      | `@confirma/app`     | TanStack Router + Vite (SPA) | Gestor da clínica / dev | Painel autenticado: métricas, API keys, config BYO               |
+| `apps/marketing`   | `@confirma/marketing` | Next.js                    | Visitante / dev         | Landing page + documentação técnica pública + lista de espera    |
 
-### Utilities
+| Package               | Conteúdo                                                           |
+| --------------------- | -------------------------------------------------------------------- |
+| `packages/contracts`  | Schemas Zod + tipos compartilhados (ingestão, callback, waitlist)  |
+| `packages/config`     | `tsconfig` e ESLint config compartilhados (`@confirma/config`)     |
 
-This Turborepo has some additional tools already setup for you:
+**Stack principal:** Node.js 22 + TypeScript, Fastify, Prisma, PostgreSQL 15, Redis 7 (BullMQ), Better Auth (Google OAuth + Magic Link), Resend (e-mail transacional), Evolution API (canal WhatsApp BYO).
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+**Agendamento em duas camadas:** todo lembrete nasce como `NotificationJob` em `PENDING` no Postgres (camada fria); um cron de promoção materializa no BullMQ (`ENQUEUED`) só quando entra na janela de curto prazo (ex.: 24h antes do disparo). Isso evita acumular jobs de longuíssimo prazo no Redis e torna cancelamentos triviais antes da promoção.
 
-### Build
+**Deploy:** `api` e `painel` rodam em VPS via Docker Compose + GitHub Actions (SSH); `marketing` é publicado na Vercel com deploy nativo por push, isolando o blast radius do produto autenticado das páginas públicas.
 
-To build all apps and packages, run the following command:
+---
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+## Desenvolvimento
 
-```sh
-cd my-turborepo
-turbo build
-```
-
-Without global `turbo`, use your package manager:
+Pré-requisitos: Node.js 22, pnpm, PostgreSQL e Redis (local ou via Docker).
 
 ```sh
-cd my-turborepo
-npx turbo build
-pnpm dlx turbo build
-pnpm exec turbo build
+pnpm install
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+Rodar todos os apps em modo dev:
 
 ```sh
-turbo build --filter=docs
+pnpm turbo dev
 ```
 
-Without global `turbo`:
+Rodar um app específico (ex.: só a API):
 
 ```sh
-npx turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+pnpm turbo dev --filter=api
 ```
 
-### Develop
-
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+Build de todos os apps/packages:
 
 ```sh
-cd my-turborepo
-turbo dev
+pnpm turbo build
 ```
 
-Without global `turbo`, use your package manager:
+Lint e testes:
 
 ```sh
-cd my-turborepo
-npx turbo dev
-pnpm exec turbo dev
-pnpm exec turbo dev
+pnpm turbo lint
+pnpm turbo test
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+---
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+## Estrutura do repositório
 
-```sh
-turbo dev --filter=web
+```
+confirma/
+├── apps/
+│   ├── api/          # Fastify — API, workers, crons, auth
+│   ├── painel/        # TanStack Router SPA — painel autenticado
+│   └── marketing/     # Next.js — landing + docs públicas + waitlist
+├── packages/
+│   ├── contracts/        # Schemas Zod compartilhados (webhook, callback, waitlist)
+│   └── config/           # tsconfig e eslint-config compartilhados
+└── docs/
+    └── context/
+        ├── PRD.md         # Requisitos de produto
+        └── TECH_SPECS.md  # Especificação técnica e arquitetura
 ```
 
-Without global `turbo`:
+## Contexto de produto
 
-```sh
-npx turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
+Para entender requisitos funcionais, contrato de API, máquina de estados do agendamento, modelo de dados e modelo de negócio, ver [`docs/context/PRD.md`](docs/context/PRD.md).
 
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-pnpm exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-pnpm exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+Para detalhes de implementação (schema Prisma, autenticação, adapter BYO da Evolution API, agendamento em duas camadas, segurança e deploy), ver [`docs/context/TECH_SPECS.md`](docs/context/TECH_SPECS.md).

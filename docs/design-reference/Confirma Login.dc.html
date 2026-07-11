@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: 'IBM Plex Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  @keyframes cfmFade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+</style>
+</helmet>
+
+<div style="min-height: 100vh; width: 100%; display: flex; align-items: center; justify-content: center; background: #fbfbfc; color: #17191c; font-size: 14px; padding: 24px;">
+  <div style="width: 100%; max-width: 380px; animation: cfmFade .2s ease;">
+
+    <div style="display: flex; align-items: center; justify-content: center; gap: 9px; margin-bottom: 28px;">
+      <div style="width: 28px; height: 28px; border-radius: 8px; background: #2f6bf3; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(47,107,243,.35);">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+      </div>
+      <span style="font-size: 18px; font-weight: 700; letter-spacing: -.02em;">Confirma</span>
+    </div>
+
+    <div style="background: #fff; border: 1px solid #ecedf0; border-radius: 14px; padding: 32px 28px; box-shadow: 0 1px 2px rgba(16,24,40,.04);">
+      <h1 style="margin: 0 0 4px; font-size: 18px; font-weight: 700; letter-spacing: -.01em; text-align: center;">Entrar no painel</h1>
+      <p style="margin: 0 0 24px; font-size: 12.5px; color: #8b9098; text-align: center;">Acesse sua conta de desenvolvedor</p>
+
+      <button onClick="{{ onGoogle }}" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 11px; border: 1px solid #e2e4e8; border-radius: 9px; background: #fff; color: #17191c; font-size: 13.5px; font-weight: 600; cursor: pointer; font-family: inherit;" style-hover="background:#fafbfc;">
+        <svg width="18" height="18" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.47c-.28 1.5-1.13 2.77-2.4 3.62v3.01h3.88c2.27-2.09 3.57-5.17 3.57-8.82z"/>
+          <path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.95-2.91l-3.88-3.01c-1.08.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.27v3.11C3.25 21.3 7.31 24 12 24z"/>
+          <path fill="#FBBC05" d="M5.27 14.27a7.2 7.2 0 0 1 0-4.54V6.62H1.27a12 12 0 0 0 0 10.76z"/>
+          <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.44-3.44C17.95 1.19 15.24 0 12 0 7.31 0 3.25 2.7 1.27 6.62l4 3.11C6.22 6.86 8.87 4.75 12 4.75z"/>
+        </svg>
+        Entrar com Google
+      </button>
+
+      <div style="display: flex; align-items: center; gap: 12px; margin: 22px 0;">
+        <div style="flex: 1; height: 1px; background: #ecedf0;"></div>
+        <span style="font-size: 11.5px; color: #b6bac1;">ou</span>
+        <div style="flex: 1; height: 1px; background: #ecedf0;"></div>
+      </div>
+
+      <label style="display: block; font-size: 12px; font-weight: 600; color: #4b5158; margin-bottom: 6px;">E-mail</label>
+      <input type="email" placeholder="voce@clinica.com.br" value="{{ email }}" onChange="{{ onEmailChange }}" style="width: 100%; padding: 10px 13px; border: 1px solid #e2e4e8; border-radius: 9px; font-size: 13.5px; font-family: inherit; color: #17191c; margin-bottom: 12px;" style-focus="outline:none;border-color:#2f6bf3;box-shadow:0 0 0 3px rgba(47,107,243,.12);" />
+
+      <button onClick="{{ onMagicLink }}" style="{{ magicBtnStyle }}">{{ magicBtnLabel }}</button>
+
+      <sc-if value="{{ showSent }}">
+        <div style="display: flex; align-items: center; gap: 8px; margin-top: 14px; padding: 10px 12px; border-radius: 9px; background: #e7f6ec; animation: cfmFade .18s ease;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#178a45" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M20 6L9 17l-5-5"/></svg>
+          <span style="font-size: 12.5px; color: #178a45; font-weight: 500;">Link enviado para {{ email }} — confira sua caixa de entrada.</span>
+        </div>
+      </sc-if>
+    </div>
+
+    <p style="text-align: center; font-size: 11.5px; color: #b6bac1; margin-top: 22px; line-height: 1.6;">Ao continuar, você concorda com os Termos de Uso<br>e a Política de Privacidade do Confirma.</p>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { email: '', sent: false };
+
+  renderVals() {
+    const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.state.email.trim());
+    return {
+      email: this.state.email,
+      onEmailChange: (e) => this.setState({ email: e.target.value, sent: false }),
+      onGoogle: () => {},
+      onMagicLink: () => { if (valid) this.setState({ sent: true }); },
+      magicBtnLabel: 'Receber Link Mágico por E-mail',
+      magicBtnStyle: {
+        width: '100%', padding: '11px', border: 'none', borderRadius: '9px',
+        background: valid ? '#2f6bf3' : '#eef1f5',
+        color: valid ? '#fff' : '#a2a7af',
+        fontSize: '13.5px', fontWeight: 600, fontFamily: 'inherit',
+        cursor: valid ? 'pointer' : 'default',
+        boxShadow: valid ? '0 1px 3px rgba(47,107,243,.3)' : 'none'
+      },
+      showSent: this.state.sent && valid
+    };
+  }
+}
+</script>
+</body>
+</html>

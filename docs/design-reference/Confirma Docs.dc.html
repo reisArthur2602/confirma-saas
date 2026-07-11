@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: 'IBM Plex Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: #d9dbe0; border-radius: 8px; border: 3px solid #fff; }
+  ::-webkit-scrollbar-thumb:hover { background: #c3c6cd; }
+</style>
+</helmet>
+
+<div style="display: grid; grid-template-columns: 250px 1fr; height: 100vh; width: 100%; background: #ffffff; color: #17191c; font-size: 14px; overflow: hidden;">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside style="display: flex; flex-direction: column; background: #fbfbfc; border-right: 1px solid #ecedf0; overflow-y: auto;">
+    <div style="display: flex; align-items: center; gap: 9px; padding: 18px 20px 14px;">
+      <div style="width: 26px; height: 26px; border-radius: 7px; background: #2f6bf3; display: flex; align-items: center; justify-content: center;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+      </div>
+      <span style="font-size: 16px; font-weight: 700; letter-spacing: -.02em;">Confirma</span>
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; color: #8b9098; background: #f0f1f3; padding: 2px 7px; border-radius: 5px;">v1</span>
+    </div>
+
+    <nav style="display: flex; flex-direction: column; gap: 1px; padding: 6px 14px 30px;">
+      <div style="font-size: 10.5px; font-weight: 600; letter-spacing: .07em; color: #a2a7af; text-transform: uppercase; padding: 12px 10px 7px;">Começar</div>
+      <sc-for list="{{ navStart }}" as="n" hint-placeholder-count="4">
+        <button onClick="{{ n.onNav }}" style="{{ n.style }}">{{ n.label }}</button>
+      </sc-for>
+      <div style="font-size: 10.5px; font-weight: 600; letter-spacing: .07em; color: #a2a7af; text-transform: uppercase; padding: 18px 10px 7px;">Referência da API</div>
+      <sc-for list="{{ navApi }}" as="n" hint-placeholder-count="4">
+        <button onClick="{{ n.onNav }}" style="{{ n.style }}">{{ n.label }}</button>
+      </sc-for>
+      <div style="font-size: 10.5px; font-weight: 600; letter-spacing: .07em; color: #a2a7af; text-transform: uppercase; padding: 18px 10px 7px;">Operação</div>
+      <sc-for list="{{ navOps }}" as="n" hint-placeholder-count="3">
+        <button onClick="{{ n.onNav }}" style="{{ n.style }}">{{ n.label }}</button>
+      </sc-for>
+    </nav>
+
+    <button onClick="{{ goSandbox }}" style="width: calc(100% - 28px); display: flex; align-items: center; gap: 8px; margin: 4px 14px 16px; padding: 10px 12px; border-radius: 9px; border: 1px solid #dbe6fd; background: #f5f8ff; cursor: pointer; font-family: inherit;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2f6bf3" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M9 3H5a2 2 0 00-2 2v4m18-6h-4a2 2 0 00-2 2v4M3 15v4a2 2 0 002 2h4m8-6v4a2 2 0 01-2 2h-4"/></svg>
+      <span style="font-size: 13px; font-weight: 700; color: #2f6bf3;">Testar no Sandbox</span>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2f6bf3" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="margin-left: auto; flex-shrink: 0;"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </button>
+  </aside>
+
+  <!-- ===== CONTENT + TOC ===== -->
+  <div ref="{{ setScroller }}" style="position: relative; overflow-y: auto;">
+    <div style="display: grid; grid-template-columns: 1fr 200px; gap: 48px; max-width: 1080px; margin: 0 auto; padding: 44px 44px 120px;">
+
+      <article style="min-width: 0;">
+
+        <!-- INTRO -->
+        <section id="doc-introducao" style="scroll-margin-top: 24px;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600; color: #2f6bf3; letter-spacing: .04em; text-transform: uppercase;">Introdução</div>
+          <h1 style="margin: 8px 0 14px; font-size: 30px; font-weight: 700; letter-spacing: -.025em;">API do Confirma</h1>
+          <p style="margin: 0 0 16px; font-size: 15px; line-height: 1.7; color: #4b5158;">Infraestrutura de confirmação de agenda para clínicas. A API é REST sobre HTTPS, com corpos em JSON. Toda a integração gira em torno de um único <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; background: #f0f1f3; padding: 1px 6px; border-radius: 5px;">POST</span> autenticado — o Confirma cuida de fila, agendamento, envio, interpretação da resposta e do <em>callback</em> de volta ao seu sistema.</p>
+          <div style="display: flex; align-items: center; gap: 10px; background: #17191c; border-radius: 10px; padding: 13px 16px; margin: 18px 0 6px;">
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #8b9098;">BASE URL</span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13.5px; color: #d7dbe2;">https://api.confirma.dev</span>
+          </div>
+          <p style="margin: 14px 0 0; font-size: 14px; line-height: 1.7; color: #61656c;">Dois ambientes isolados: <strong>Sandbox</strong> (chaves <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px;">pk_test_…</span>, envio simulado sem custo) e <strong>Produção</strong> (<span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px;">pk_live_…</span>). A chave usada define o ambiente.</p>
+        </section>
+
+        <!-- QUICKSTART -->
+        <section id="doc-quickstart" style="scroll-margin-top: 24px; padding-top: 52px;">
+          <h2 style="margin: 0 0 12px; font-size: 22px; font-weight: 700; letter-spacing: -.02em;">Quickstart</h2>
+          <p style="margin: 0 0 20px; font-size: 14.5px; line-height: 1.7; color: #4b5158;">Da chave à primeira confirmação em menos de 30 minutos. Um único <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; background: #f0f1f3; padding: 1px 6px; border-radius: 5px;">POST</span> autenticado — você delega fila, retry, templates e callback ao Confirma.</p>
+
+          <div style="display: flex; gap: 18px;">
+            <div style="display: flex; flex-direction: column; align-items: center; padding-top: 4px;">
+              <sc-for list="{{ qsDots }}" as="d" hint-placeholder-count="5">
+                <div style="width: 26px; height: 26px; border-radius: 50%; background: #eef3fe; color: #2f6bf3; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; font-family: 'IBM Plex Mono', monospace; flex-shrink: 0;">{{ d.n }}</div>
+                <div style="width: 2px; height: {{ d.h }}; background: #ecedf0;"></div>
+              </sc-for>
+            </div>
+
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 20px; min-width: 0;">
+              <div>
+                <div style="font-size: 15px; font-weight: 600; margin-bottom: 4px;">Gere sua API key</div>
+                <div style="font-size: 13.5px; color: #61656c; line-height: 1.6;">No painel, em <strong>API Keys</strong>, copie a chave publicável (<span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px;">pk_test_…</span>) e o secret HMAC. O secret nunca sai do servidor.</div>
+              </div>
+
+              <div>
+                <div style="font-size: 15px; font-weight: 600; margin-bottom: 4px;">Assine o payload (HMAC-SHA256)</div>
+                <div style="font-size: 13.5px; color: #61656c; line-height: 1.6; margin-bottom: 10px;">Calcule <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px;">X-Signature</span> sobre o corpo exato da requisição, com o seu secret.</div>
+                <div style="background: #17191c; border-radius: 10px; padding: 14px 16px; overflow-x: auto;">
+                  <pre style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 12px; line-height: 1.7; color: #d7dbe2; white-space: pre;">const body = JSON.stringify(appointment);
+const sig  = createHmac("sha256", secret)
+               .update(body).digest("hex");</pre>
+                </div>
+              </div>
+
+              <div>
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                  <div style="font-size: 15px; font-weight: 600;">Envie o agendamento</div>
+                  <div style="display: flex; gap: 2px; padding: 3px; background: #f0f1f3; border-radius: 7px;">
+                    <button onClick="{{ langCurl }}" style="{{ curlTab }}">cURL</button>
+                    <button onClick="{{ langNode }}" style="{{ nodeTab }}">Node</button>
+                  </div>
+                </div>
+                <div style="font-size: 13.5px; color: #61656c; line-height: 1.6; margin-bottom: 10px;">Um <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px;">202 Accepted</span> confirma o enfileiramento. Não é enviado na hora — dispara no offset.</div>
+                <div style="background: #17191c; border-radius: 10px; padding: 14px 16px; overflow-x: auto;">
+                  <pre style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 12px; line-height: 1.7; color: #d7dbe2; white-space: pre;">{{ codeSend }}</pre>
+                </div>
+              </div>
+
+              <div>
+                <div style="font-size: 15px; font-weight: 600; margin-bottom: 4px;">Receba o callback</div>
+                <div style="font-size: 13.5px; color: #61656c; line-height: 1.6; margin-bottom: 10px;">Quando o paciente responde, o Confirma faz <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px;">POST</span> assinado na sua <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px;">callbackUrl</span>. Valide a assinatura e atualize a agenda.</div>
+                <div style="background: #17191c; border-radius: 10px; padding: 14px 16px; overflow-x: auto;">
+                  <pre style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 12px; line-height: 1.7; color: #d7dbe2; white-space: pre;">app.post("/webhooks/confirma", (req, res) =&gt; {
+  const sig = createHmac("sha256", secret)
+                .update(req.rawBody).digest("hex");
+  if (sig !== req.headers["x-confirma-signature"])
+    return res.sendStatus(403);
+  updateAgenda(req.body); // confirmed | cancelled | ...
+  res.sendStatus(200);
+});</pre>
+                </div>
+              </div>
+
+              <div>
+                <div style="font-size: 15px; font-weight: 600; margin-bottom: 4px;">Teste ponta a ponta</div>
+                <div style="font-size: 13.5px; color: #61656c; line-height: 1.6;">Rode o fluxo no <a href="Confirma.dc.html" style="color: #2f6bf3; font-weight: 600; text-decoration: none;">Sandbox</a> — envio simulado, sem custo de mensagem, e veja o callback disparar.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- AUTH -->
+        <section id="doc-autenticacao" style="scroll-margin-top: 24px; padding-top: 52px;">
+          <h2 style="margin: 0 0 12px; font-size: 22px; font-weight: 700; letter-spacing: -.02em;">Autenticação</h2>
+          <p style="margin: 0 0 16px; font-size: 14.5px; line-height: 1.7; color: #4b5158;">Toda requisição carrega dois cabeçalhos. A chave pública identifica a conta; a assinatura HMAC prova que o corpo não foi adulterado.</p>
+          <div style="border: 1px solid #ecedf0; border-radius: 10px; overflow: hidden; margin-bottom: 18px;">
+            <div style="display: grid; grid-template-columns: 190px 1fr; padding: 10px 16px; background: #fbfbfc; border-bottom: 1px solid #ecedf0; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #a2a7af;"><span>Header</span><span>Descrição</span></div>
+            <div style="display: grid; grid-template-columns: 190px 1fr; padding: 12px 16px; border-bottom: 1px solid #f2f3f5; align-items: baseline;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; color: #7c3aed;">X-Api-Key</span><span style="font-size: 13px; color: #4b5158; line-height: 1.5;">Chave publicável da conta. Enviada no header, nunca no corpo.</span></div>
+            <div style="display: grid; grid-template-columns: 190px 1fr; padding: 12px 16px; align-items: baseline;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; color: #7c3aed;">X-Signature</span><span style="font-size: 13px; color: #4b5158; line-height: 1.5;">HMAC-SHA256 do corpo <em>exato</em> da requisição, com o secret da conta (hex).</span></div>
+          </div>
+          <div style="background: #17191c; border-radius: 10px; padding: 15px 18px; overflow-x: auto;">
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; color: #8b9098; margin-bottom: 10px;">NODE.JS</div>
+            <pre style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; line-height: 1.75; color: #d7dbe2; white-space: pre;">import { createHmac } from "crypto";
+
+const body = JSON.stringify(appointment);
+const sig  = createHmac("sha256", secret)
+               .update(body).digest("hex");
+// envie sig em X-Signature</pre>
+          </div>
+          <div style="display: flex; gap: 10px; align-items: flex-start; margin-top: 16px; padding: 13px 16px; border: 1px solid #f0dfb8; background: #fdf8ec; border-radius: 10px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c2820a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 1px;"><path d="M12 3l9 16H3zM12 10v4M12 17h.01"/></svg>
+            <span style="font-size: 13px; color: #7a5a12; line-height: 1.55;">O <strong>secret</strong> só existe no seu servidor. Nunca o exponha em cliente, app mobile ou logs.</span>
+          </div>
+        </section>
+
+        <!-- IDEMPOTENCY -->
+        <section id="doc-idempotencia" style="scroll-margin-top: 24px; padding-top: 52px;">
+          <h2 style="margin: 0 0 12px; font-size: 22px; font-weight: 700; letter-spacing: -.02em;">Idempotência</h2>
+          <p style="margin: 0 0 14px; font-size: 14.5px; line-height: 1.7; color: #4b5158;">Envie o header <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; background: #f0f1f3; padding: 1px 6px; border-radius: 5px;">Idempotency-Key</span> (um UUID por agendamento) para garantir que reenvios não gerem notificação duplicada. Uma chave já processada retorna <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px;">200 OK</span> com o mesmo <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px;">appointmentId</span>.</p>
+          <p style="margin: 0; font-size: 14px; line-height: 1.7; color: #61656c;">Sem o header, o Confirma deriva a chave de <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px;">externalId + datetime</span>.</p>
+        </section>
+
+        <!-- CREATE APPOINTMENT -->
+        <section id="doc-agendamentos" style="scroll-margin-top: 24px; padding-top: 52px;">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px;">
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 700; color: #178a45; background: #e7f6ec; padding: 4px 9px; border-radius: 6px;">POST</span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 15px; font-weight: 500;">/v1/appointments</span>
+          </div>
+          <h2 style="margin: 0 0 12px; font-size: 22px; font-weight: 700; letter-spacing: -.02em;">Criar agendamento</h2>
+          <p style="margin: 0 0 20px; font-size: 14.5px; line-height: 1.7; color: #4b5158;">Recebe um agendamento e o enfileira. O lembrete <strong>não</strong> é enviado na hora — dispara no offset configurado antes do exame.</p>
+
+          <div style="font-size: 12.5px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: #61656c; margin-bottom: 10px;">Parâmetros do corpo</div>
+          <div style="border: 1px solid #ecedf0; border-radius: 10px; overflow: hidden; margin-bottom: 24px;">
+            <div style="display: grid; grid-template-columns: 210px 96px 1fr; padding: 10px 16px; background: #fbfbfc; border-bottom: 1px solid #ecedf0; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #a2a7af;"><span>Campo</span><span>Tipo</span><span>Descrição</span></div>
+            <sc-for list="{{ bodyParams }}" as="p" hint-placeholder-count="8">
+              <div style="display: grid; grid-template-columns: 210px 96px 1fr; padding: 11px 16px; border-bottom: 1px solid #f2f3f5; align-items: baseline;">
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #17191c;">{{ p.field }} <span style="color: {{ p.reqColor }}; font-size: 10px;">{{ p.req }}</span></span>
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #8b9098;">{{ p.type }}</span>
+                <span style="font-size: 12.5px; color: #4b5158; line-height: 1.5;">{{ p.desc }}</span>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+            <div>
+              <div style="font-size: 12px; font-weight: 600; color: #61656c; margin-bottom: 8px;">Requisição</div>
+              <div style="background: #17191c; border-radius: 10px; padding: 15px 16px; overflow-x: auto; height: 340px;">
+                <pre style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; line-height: 1.65; color: #d7dbe2; white-space: pre;">POST /v1/appointments
+X-Api-Key: pk_test_51Hx…2Zb
+X-Signature: 4f9a…hmac
+
+{
+  "externalId": "agd_9931",
+  "patient": {
+    "name": "Maria Silva",
+    "phone": "+5521999998888"
+  },
+  "appointment": {
+    "type": "Ressonância de Crânio",
+    "datetime": "2026-07-10T14:30:00-03:00",
+    "location": "Unidade Centro"
+  },
+  "notification": {
+    "channels": ["whatsapp"],
+    "reminderOffsets": ["24h", "3h"]
+  },
+  "callbackUrl": "https://seu-sistema.com/hooks"
+}</pre>
+              </div>
+            </div>
+            <div>
+              <div style="font-size: 12px; font-weight: 600; color: #61656c; margin-bottom: 8px;">Resposta · 202</div>
+              <div style="background: #17191c; border-radius: 10px; padding: 15px 16px; overflow-x: auto; height: 340px;">
+                <pre style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; line-height: 1.65; color: #d7dbe2; white-space: pre;">HTTP/1.1 202 Accepted
+
+{
+  "appointmentId": "cfm_a1b2c3",
+  "externalId": "agd_9931",
+  "status": "received",
+  "scheduledFor":
+    "2026-07-09T14:30:00-03:00"
+}</pre>
+              </div>
+            </div>
+          </div>
+
+          <div style="font-size: 12.5px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: #61656c; margin: 26px 0 10px;">Códigos de resposta</div>
+          <div style="border: 1px solid #ecedf0; border-radius: 10px; overflow: hidden;">
+            <sc-for list="{{ respCodes }}" as="r" hint-placeholder-count="6">
+              <div style="display: grid; grid-template-columns: 96px 1fr; padding: 11px 16px; border-bottom: 1px solid #f2f3f5; align-items: baseline;">
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; font-weight: 600; color: {{ r.color }};">{{ r.code }}</span>
+                <span style="font-size: 13px; color: #4b5158; line-height: 1.5;">{{ r.desc }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+
+        <!-- STATE MACHINE -->
+        <section id="doc-estados" style="scroll-margin-top: 24px; padding-top: 52px;">
+          <h2 style="margin: 0 0 12px; font-size: 22px; font-weight: 700; letter-spacing: -.02em;">Máquina de estados</h2>
+          <p style="margin: 0 0 18px; font-size: 14.5px; line-height: 1.7; color: #4b5158;">Todo agendamento percorre este ciclo. Estados terminais disparam o callback assinado.</p>
+          <div style="display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin-bottom: 22px;">
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 500; padding: 6px 11px; border-radius: 8px; background: #f1f2f4; color: #4b5158;">received</span>
+            <span style="color: #cdd0d6;">→</span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 500; padding: 6px 11px; border-radius: 8px; background: #f1f2f4; color: #4b5158;">scheduled</span>
+            <span style="color: #cdd0d6;">→</span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 500; padding: 6px 11px; border-radius: 8px; background: #f1f2f4; color: #4b5158;">sent</span>
+            <span style="color: #cdd0d6;">→</span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 500; padding: 6px 11px; border-radius: 8px; background: #eaf1ff; color: #2f6bf3;">awaiting_response</span>
+            <span style="color: #cdd0d6;">→</span>
+            <span style="display: inline-flex; gap: 6px; flex-wrap: wrap;">
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600; padding: 6px 11px; border-radius: 8px; background: #e7f6ec; color: #178a45;">confirmed</span>
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600; padding: 6px 11px; border-radius: 8px; background: #fdecec; color: #d13c3c;">cancelled</span>
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600; padding: 6px 11px; border-radius: 8px; background: #f0ecfd; color: #7c3aed;">reschedule_requested</span>
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600; padding: 6px 11px; border-radius: 8px; background: #f1f2f4; color: #6b7280;">no_response</span>
+            </span>
+          </div>
+          <div style="border: 1px solid #ecedf0; border-radius: 10px; overflow: hidden;">
+            <div style="display: grid; grid-template-columns: 210px 1fr; padding: 10px 16px; background: #fbfbfc; border-bottom: 1px solid #ecedf0; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #a2a7af;"><span>Estado</span><span>Significado</span></div>
+            <sc-for list="{{ states }}" as="st" hint-placeholder-count="6">
+              <div style="display: grid; grid-template-columns: 210px 1fr; padding: 11px 16px; border-bottom: 1px solid #f2f3f5; align-items: baseline;">
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: {{ st.color }};">{{ st.name }}</span>
+                <span style="font-size: 13px; color: #4b5158; line-height: 1.5;">{{ st.desc }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+
+        <!-- CALLBACKS -->
+        <section id="doc-callbacks" style="scroll-margin-top: 24px; padding-top: 52px;">
+          <h2 style="margin: 0 0 12px; font-size: 22px; font-weight: 700; letter-spacing: -.02em;">Callbacks</h2>
+          <p style="margin: 0 0 18px; font-size: 14.5px; line-height: 1.7; color: #4b5158;">Em cada mudança de estado relevante, o Confirma faz um <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px;">POST</span> assinado na sua <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px;">callbackUrl</span>. Valide o header <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px;">X-Confirma-Signature</span> e responda <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px;">2xx</span> — caso contrário aplicamos retry com backoff.</p>
+
+          <div style="font-size: 12.5px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: #61656c; margin-bottom: 10px;">Eventos</div>
+          <div style="border: 1px solid #ecedf0; border-radius: 10px; overflow: hidden; margin-bottom: 22px;">
+            <sc-for list="{{ events }}" as="e" hint-placeholder-count="5">
+              <div style="display: grid; grid-template-columns: 280px 1fr; padding: 11px 16px; border-bottom: 1px solid #f2f3f5; align-items: baseline;">
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #2f6bf3;">{{ e.name }}</span>
+                <span style="font-size: 13px; color: #4b5158; line-height: 1.5;">{{ e.desc }}</span>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+            <div>
+              <div style="font-size: 12px; font-weight: 600; color: #61656c; margin-bottom: 8px;">Corpo do callback</div>
+              <div style="background: #17191c; border-radius: 10px; padding: 15px 16px; overflow-x: auto;">
+                <pre style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; line-height: 1.65; color: #d7dbe2; white-space: pre;">X-Confirma-Signature: 9c2f…hmac
+
+{
+  "event": "appointment.confirmed",
+  "appointmentId": "cfm_a1b2c3",
+  "externalId": "agd_9931",
+  "status": "confirmed",
+  "respondedAt":
+    "2026-07-09T16:02:11-03:00",
+  "raw": { "reply": "1" }
+}</pre>
+              </div>
+            </div>
+            <div>
+              <div style="font-size: 12px; font-weight: 600; color: #61656c; margin-bottom: 8px;">Receptor (Express)</div>
+              <div style="background: #17191c; border-radius: 10px; padding: 15px 16px; overflow-x: auto;">
+                <pre style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; line-height: 1.65; color: #d7dbe2; white-space: pre;">app.post("/hooks", (req, res) =&gt; {
+  const sig = createHmac("sha256", secret)
+    .update(req.rawBody).digest("hex");
+  if (sig !==
+      req.headers["x-confirma-signature"])
+    return res.sendStatus(403);
+
+  updateAgenda(req.body);
+  res.sendStatus(200);
+});</pre>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TEMPLATES -->
+        <section id="doc-templates" style="scroll-margin-top: 24px; padding-top: 52px;">
+          <h2 style="margin: 0 0 12px; font-size: 22px; font-weight: 700; letter-spacing: -.02em;">Templates</h2>
+          <p style="margin: 0 0 16px; font-size: 14.5px; line-height: 1.7; color: #4b5158;">Templates são configuráveis por conta e mantidos estritamente <strong>transacionais</strong> (categoria utility). Variáveis são interpoladas do payload: <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px;">{{ vPatient }}</span>, <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px;">{{ vType }}</span>, <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px;">{{ vDatetime }}</span>.</p>
+          <div style="display: flex; gap: 10px; align-items: flex-start; padding: 13px 16px; border: 1px solid #f0dfb8; background: #fdf8ec; border-radius: 10px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c2820a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 1px;"><path d="M12 3l9 16H3zM12 10v4M12 17h.01"/></svg>
+            <span style="font-size: 13px; color: #7a5a12; line-height: 1.55;">Uma frase promocional dentro de um template transacional pode causar reclassificação para <em>marketing</em> pela Meta, multiplicando o custo por mensagem.</span>
+          </div>
+        </section>
+
+        <!-- RATE LIMITS -->
+        <section id="doc-ratelimits" style="scroll-margin-top: 24px; padding-top: 52px;">
+          <h2 style="margin: 0 0 12px; font-size: 22px; font-weight: 700; letter-spacing: -.02em;">Rate limits</h2>
+          <p style="margin: 0; font-size: 14.5px; line-height: 1.7; color: #4b5158;">A rota pública aplica rate limiting por conta para conter abuso. Ao exceder, a API retorna <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #d13c3c;">429 Too Many Requests</span> com o header <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px;">Retry-After</span>. O limite padrão é <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px;">120 req/min</span>, ajustável por conta.</p>
+        </section>
+
+        <!-- ERRORS -->
+        <section id="doc-erros" style="scroll-margin-top: 24px; padding-top: 52px;">
+          <h2 style="margin: 0 0 12px; font-size: 22px; font-weight: 700; letter-spacing: -.02em;">Erros</h2>
+          <p style="margin: 0 0 16px; font-size: 14.5px; line-height: 1.7; color: #4b5158;">Erros usam códigos HTTP padrão. O corpo traz <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px;">code</span> e <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px;">message</span>; em <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px;">422</span>, também <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px;">fields</span> com os campos inválidos.</p>
+          <div style="border: 1px solid #ecedf0; border-radius: 10px; overflow: hidden;">
+            <sc-for list="{{ errors }}" as="er" hint-placeholder-count="5">
+              <div style="display: grid; grid-template-columns: 96px 220px 1fr; padding: 11px 16px; border-bottom: 1px solid #f2f3f5; align-items: baseline;">
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; font-weight: 600; color: {{ er.color }};">{{ er.code }}</span>
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #8b9098;">{{ er.slug }}</span>
+                <span style="font-size: 13px; color: #4b5158; line-height: 1.5;">{{ er.desc }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+
+        <!-- SANDBOX -->
+        <section id="doc-sandbox" style="scroll-margin-top: 24px; padding-top: 52px;">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+            <h2 style="margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -.02em;">Sandbox</h2>
+            <span style="font-size: 10.5px; font-weight: 700; color: #8b9098; background: #f0f1f3; padding: 3px 8px; border-radius: 5px; letter-spacing: .03em;">SIMULADO</span>
+          </div>          <p style="margin: 0 0 20px; font-size: 14.5px; line-height: 1.7; color: #4b5158;">Monte uma chamada de <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; background: #f0f1f3; padding: 1px 6px; border-radius: 5px;">POST /v1/appointments</span> e veja a resposta. Isto é só uma prévia de como a chamada funciona — o sandbox real, contra sua própria conta e chaves, fica disponível no painel após o login.</p>
+
+          <div style="border: 1px solid #ecedf0; border-radius: 12px; overflow: hidden;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr;">
+
+              <div style="padding: 20px; border-right: 1px solid #ecedf0; display: flex; flex-direction: column; gap: 14px;">
+                <div>
+                  <label style="display: block; font-size: 11.5px; font-weight: 600; color: #8b9098; margin-bottom: 5px;">Nome do paciente</label>
+                  <input value="{{ sbName }}" onChange="{{ onSbName }}" type="text" style="width: 100%; padding: 8px 10px; border: 1px solid #dcdfe4; border-radius: 7px; font-size: 13px; font-family: inherit; box-sizing: border-box;"/>
+                </div>
+                <div>
+                  <label style="display: block; font-size: 11.5px; font-weight: 600; color: #8b9098; margin-bottom: 5px;">Telefone (E.164)</label>
+                  <input value="{{ sbPhone }}" onChange="{{ onSbPhone }}" type="text" style="width: 100%; padding: 8px 10px; border: 1px solid #dcdfe4; border-radius: 7px; font-size: 13px; font-family: 'IBM Plex Mono', monospace; box-sizing: border-box;"/>
+                </div>
+                <div>
+                  <label style="display: block; font-size: 11.5px; font-weight: 600; color: #8b9098; margin-bottom: 5px;">Data/hora do agendamento</label>
+                  <input value="{{ sbDatetime }}" onChange="{{ onSbDatetime }}" type="text" style="width: 100%; padding: 8px 10px; border: 1px solid #dcdfe4; border-radius: 7px; font-size: 13px; font-family: 'IBM Plex Mono', monospace; box-sizing: border-box;"/>
+                </div>
+                <div>
+                  <label style="display: block; font-size: 11.5px; font-weight: 600; color: #8b9098; margin-bottom: 5px;">externalId</label>
+                  <input value="{{ sbExternalId }}" onChange="{{ onSbExternalId }}" type="text" style="width: 100%; padding: 8px 10px; border: 1px solid #dcdfe4; border-radius: 7px; font-size: 13px; font-family: 'IBM Plex Mono', monospace; box-sizing: border-box;"/>
+                </div>
+                <div>
+                  <label style="display: block; font-size: 11.5px; font-weight: 600; color: #8b9098; margin-bottom: 5px;">callbackUrl</label>
+                  <input value="{{ sbCallbackUrl }}" onChange="{{ onSbCallbackUrl }}" type="text" placeholder="https://seu-erp.com/webhooks/confirma" style="width: 100%; padding: 8px 10px; border: 1px solid #dcdfe4; border-radius: 7px; font-size: 13px; font-family: 'IBM Plex Mono', monospace; box-sizing: border-box;"/>
+                  <div style="font-size: 11px; color: #a2a7af; margin-top: 4px; line-height: 1.5;">É pra essa URL que o Confirma devolve a resposta do paciente.</div>
+                </div>
+                <button onClick="{{ runSandbox }}" style="margin-top: 4px; padding: 10px; border-radius: 8px; background: #2f6bf3; color: #fff; border: none; font-size: 13.5px; font-weight: 600; cursor: pointer; font-family: inherit;">{{ sbButtonLabel }}</button>
+
+                <sc-if value="{{ sbSent }}">
+                  <div style="border-top: 1px solid #ecedf0; padding-top: 14px; margin-top: 2px;">
+                    <div style="font-size: 11.5px; font-weight: 600; color: #8b9098; margin-bottom: 8px;">Simular resposta do paciente</div>
+                    <div style="display: flex; gap: 8px;">
+                      <button onClick="{{ simulateConfirm }}" style="flex: 1; padding: 9px; border-radius: 7px; background: #e7f6ec; color: #178a45; border: 1px solid #c9ecd4; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit;">1 — Confirmar</button>
+                      <button onClick="{{ simulateCancel }}" style="flex: 1; padding: 9px; border-radius: 7px; background: #fdeeee; color: #d13c3c; border: 1px solid #f6cccc; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit;">2 — Cancelar</button>
+                    </div>
+                  </div>
+                </sc-if>
+              </div>
+
+              <div style="background: #17191c; display: flex; flex-direction: column;">
+                <div style="display: flex; align-items: center; gap: 6px; padding: 10px 16px; border-bottom: 1px solid #2a2d33;">
+                  <span style="width: 8px; height: 8px; border-radius: 50%; background: #3a3e44;"></span>
+                  <span style="width: 8px; height: 8px; border-radius: 50%; background: #3a3e44;"></span>
+                  <span style="width: 8px; height: 8px; border-radius: 50%; background: #3a3e44;"></span>
+                  <span style="margin-left: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; color: #8b9098;">resposta</span>
+                </div>
+                <pre style="margin: 0; padding: 16px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; line-height: 1.75; color: #d7dbe2; white-space: pre-wrap; word-break: break-word; flex: 1;">{{ sbResponseText }}</pre>
+                <sc-if value="{{ sbCallbackText }}">
+                  <div style="border-top: 1px solid #2a2d33; padding: 10px 16px 4px; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; color: #8b9098;">callback → {{ sbCallbackTarget }}</div>
+                  <pre style="margin: 0; padding: 4px 16px 16px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; line-height: 1.75; color: #d7dbe2; white-space: pre-wrap; word-break: break-word;">{{ sbCallbackText }}</pre>
+                </sc-if>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+      </article>
+
+      <!-- TOC -->
+      <aside style="position: sticky; top: 44px; align-self: start;">
+        <div style="font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #a2a7af; margin-bottom: 12px;">Nesta página</div>
+        <div style="display: flex; flex-direction: column; gap: 2px; border-left: 1px solid #ecedf0;">
+          <sc-for list="{{ toc }}" as="t" hint-placeholder-count="10">
+            <button onClick="{{ t.onNav }}" style="{{ t.style }}">{{ t.label }}</button>
+          </sc-for>
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    active: 'introducao', qlang: 'curl',
+    sbName: 'Maria Silva', sbPhone: '+5511987654321', sbDatetime: '2026-07-15T14:30', sbExternalId: 'agd_9931',
+    sbCallbackUrl: 'https://seu-erp.com/webhooks/confirma',
+    sbLoading: false, sbSent: false, sbAppointmentId: '',
+    sbResponseText: '// Preencha os campos e clique em "Executar chamada" para ver a resposta simulada.',
+    sbCallbackText: ''
+  };
+
+  onSbName = (e) => this.setState({ sbName: e.target.value });
+  onSbPhone = (e) => this.setState({ sbPhone: e.target.value });
+  onSbDatetime = (e) => this.setState({ sbDatetime: e.target.value });
+  onSbExternalId = (e) => this.setState({ sbExternalId: e.target.value });
+  onSbCallbackUrl = (e) => this.setState({ sbCallbackUrl: e.target.value });
+
+  runSandbox = () => {
+    this.setState({ sbLoading: true, sbResponseText: '// enviando...', sbCallbackText: '', sbSent: false });
+    setTimeout(() => {
+      const { sbName, sbDatetime, sbExternalId } = this.state;
+      const appointmentId = 'cfm_' + Math.random().toString(36).slice(2, 8);
+      const body = {
+        appointmentId,
+        externalId: sbExternalId || 'agd_0000',
+        patient: sbName || 'Paciente',
+        status: 'received',
+        scheduledFor: sbDatetime || '2026-07-15T14:30'
+      };
+      const text = '// 202 Accepted\n' + JSON.stringify(body, null, 2);
+      this.setState({ sbLoading: false, sbResponseText: text, sbSent: true, sbAppointmentId: appointmentId });
+    }, 550);
+  };
+
+  simulatePatientReply(status, reply) {
+    const { sbAppointmentId, sbExternalId, sbCallbackUrl } = this.state;
+    const body = {
+      event: 'appointment.' + status,
+      appointmentId: sbAppointmentId,
+      externalId: sbExternalId || 'agd_0000',
+      status,
+      respondedAt: new Date().toISOString(),
+      raw: { reply }
+    };
+    const text = '// 200 OK\n' + JSON.stringify(body, null, 2);
+    this.setState({ sbCallbackText: text, sbCallbackTarget: sbCallbackUrl || '(defina uma callbackUrl)' });
+  }
+  simulateConfirm = () => this.simulatePatientReply('confirmed', '1');
+  simulateCancel = () => this.simulatePatientReply('cancelled', '2');
+
+  setScroller(el) { if (el && !this._el) { this._el = el; el.addEventListener('scroll', () => this.onScroll()); } }
+  onScroll() {
+    const c = this._el; if (!c) return;
+    const ids = this.sectionIds();
+    const y = c.scrollTop + 120;
+    let cur = ids[0];
+    for (const id of ids) { const el = document.getElementById('doc-' + id); if (el && el.offsetTop <= y) cur = id; }
+    if (cur !== this.state.active) this.setState({ active: cur });
+  }
+  sectionIds() { return ['introducao','quickstart','autenticacao','idempotencia','agendamentos','estados','callbacks','templates','ratelimits','erros','sandbox']; }
+  goSection(id) {
+    const c = this._el, el = document.getElementById('doc-' + id);
+    if (c && el) c.scrollTo({ top: id === 'introducao' ? 0 : el.offsetTop - 20, behavior: 'smooth' });
+    this.setState({ active: id });
+  }
+
+  navItemStyle(active) {
+    return {
+      textAlign: 'left', padding: '7px 10px', borderRadius: '7px', border: 'none', cursor: 'pointer',
+      fontFamily: 'inherit', fontSize: '13px', fontWeight: active ? 600 : 500,
+      background: active ? '#eef3fe' : 'transparent', color: active ? '#2f6bf3' : '#4b5158'
+    };
+  }
+  tocStyle(active) {
+    return {
+      textAlign: 'left', padding: '4px 12px', border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+      fontSize: '12.5px', fontWeight: active ? 600 : 400, background: 'transparent',
+      color: active ? '#2f6bf3' : '#8b9098', marginLeft: '-1px',
+      borderLeft: '2px solid ' + (active ? '#2f6bf3' : 'transparent')
+    };
+  }
+
+  renderVals() {
+    const a = this.state.active;
+    const mk = (id, label) => ({ id, label, onNav: () => this.goSection(id), style: this.navItemStyle(a === id) });
+    const tk = (id, label) => ({ id, label, onNav: () => this.goSection(id), style: this.tocStyle(a === id) });
+
+    const navStart = [mk('introducao', 'Introdução'), mk('quickstart', 'Quickstart'), mk('autenticacao', 'Autenticação'), mk('idempotencia', 'Idempotência')];
+    const navApi = [mk('agendamentos', 'Criar agendamento'), mk('estados', 'Máquina de estados'), mk('callbacks', 'Callbacks'), mk('templates', 'Templates')];
+    const navOps = [mk('ratelimits', 'Rate limits'), mk('erros', 'Erros')];
+
+    const toc = [
+      tk('introducao', 'Introdução'), tk('quickstart', 'Quickstart'), tk('autenticacao', 'Autenticação'), tk('idempotencia', 'Idempotência'),
+      tk('agendamentos', 'Criar agendamento'), tk('estados', 'Máquina de estados'), tk('callbacks', 'Callbacks'),
+      tk('templates', 'Templates'), tk('ratelimits', 'Rate limits'), tk('erros', 'Erros'), tk('sandbox', 'Sandbox')
+    ];
+
+    const req = { req: 'obrigatório', reqColor: '#d13c3c' };
+    const opt = { req: 'opcional', reqColor: '#a2a7af' };
+    const bodyParams = [
+      { field: 'externalId', type: 'string', desc: 'ID do agendamento no seu sistema. Usado no callback e na idempotência.', ...req },
+      { field: 'patient.name', type: 'string', desc: 'Nome do paciente. Dado sensível — minimizado e criptografado.', ...req },
+      { field: 'patient.phone', type: 'string', desc: 'Telefone em formato E.164 (+55…).', ...req },
+      { field: 'appointment.type', type: 'string', desc: 'Tipo de exame ou consulta.', ...req },
+      { field: 'appointment.datetime', type: 'ISO 8601', desc: 'Data e hora do exame, com timezone.', ...req },
+      { field: 'appointment.location', type: 'string', desc: 'Unidade / local do atendimento.', ...opt },
+      { field: 'notification.reminderOffsets', type: 'string[]', desc: 'Offsets antes do exame, ex.: ["24h","3h"]. Sobrescreve o padrão da conta.', ...opt },
+      { field: 'callbackUrl', type: 'string', desc: 'URL para receber os callbacks. Sobrescreve o padrão da conta.', ...opt }
+    ];
+
+    const respCodes = [
+      { code: '202', color: '#178a45', desc: 'Aceito e enfileirado. Retorna o appointmentId interno.' },
+      { code: '200', color: '#178a45', desc: 'Idempotência: requisição já processada. Retorna o mesmo appointmentId.' },
+      { code: '401', color: '#d13c3c', desc: 'API key inválida ou ausente.' },
+      { code: '403', color: '#d13c3c', desc: 'Assinatura HMAC inválida.' },
+      { code: '422', color: '#c2820a', desc: 'Payload inválido. O corpo detalha os campos com erro.' },
+      { code: '429', color: '#c2820a', desc: 'Rate limit excedido. Veja o header Retry-After.' }
+    ];
+
+    const states = [
+      { name: 'received', color: '#4b5158', desc: 'Payload validado (HMAC + idempotência) e persistido.' },
+      { name: 'scheduled', color: '#4b5158', desc: 'Envio agendado para o offset configurado.' },
+      { name: 'sent', color: '#4b5158', desc: 'Mensagem entregue ao provider.' },
+      { name: 'awaiting_response', color: '#2f6bf3', desc: 'Aguardando resposta do paciente dentro da janela.' },
+      { name: 'confirmed', color: '#178a45', desc: 'Terminal — paciente confirmou. Dispara callback.' },
+      { name: 'cancelled', color: '#d13c3c', desc: 'Terminal — paciente cancelou. Dispara callback.' },
+      { name: 'reschedule_requested', color: '#7c3aed', desc: 'Terminal — paciente pediu remarcação. Dispara callback.' },
+      { name: 'no_response', color: '#6b7280', desc: 'Terminal — prazo expirou sem resposta. Dispara callback.' },
+      { name: 'delivery_failed', color: '#d13c3c', desc: 'Falha de envio após retries. Dispara callback.' }
+    ];
+
+    const events = [
+      { name: 'appointment.confirmed', desc: 'Paciente confirmou a presença.' },
+      { name: 'appointment.cancelled', desc: 'Paciente cancelou.' },
+      { name: 'appointment.reschedule_requested', desc: 'Paciente solicitou remarcação.' },
+      { name: 'appointment.no_response', desc: 'Janela expirou sem resposta.' },
+      { name: 'appointment.delivery_failed', desc: 'Não foi possível entregar a mensagem.' }
+    ];
+
+    const errors = [
+      { code: '401', slug: 'unauthorized', color: '#d13c3c', desc: 'API key ausente ou inválida.' },
+      { code: '403', slug: 'invalid_signature', color: '#d13c3c', desc: 'X-Signature não confere com o corpo.' },
+      { code: '422', slug: 'validation_error', color: '#c2820a', desc: 'Schema inválido; fields lista os campos.' },
+      { code: '429', slug: 'rate_limited', color: '#c2820a', desc: 'Excedeu o limite de requisições.' },
+      { code: '500', slug: 'internal_error', color: '#d13c3c', desc: 'Erro interno; a requisição pode ser reenviada com a mesma Idempotency-Key.' }
+    ];
+
+    const vPatient = '{' + '{patient.name}' + '}';
+    const vType = '{' + '{appointment.type}' + '}';
+    const vDatetime = '{' + '{appointment.datetime}' + '}';
+
+    const qsDots = [{ n: '1', h: '46px' }, { n: '2', h: '118px' }, { n: '3', h: '132px' }, { n: '4', h: '176px' }, { n: '5', h: '0px' }];
+    const codeCurl = 'curl -X POST https://api.confirma.dev/v1/appointments \\\n  -H "X-Api-Key: $CONFIRMA_KEY" \\\n  -H "X-Signature: $SIG" \\\n  -H "Idempotency-Key: $(uuidgen)" \\\n  -H "Content-Type: application/json" \\\n  -d @appointment.json';
+    const codeNode = 'await fetch("https://api.confirma.dev/v1/appointments", {\n  method: "POST",\n  headers: {\n    "X-Api-Key": pk,\n    "X-Signature": sig,\n    "Idempotency-Key": crypto.randomUUID(),\n    "Content-Type": "application/json"\n  },\n  body\n});';
+    const qlang = this.state.qlang || 'curl';
+    const tabStyle = (active) => ({ padding: '4px 12px', borderRadius: '5px', fontSize: '12px', fontWeight: 600, border: 'none', cursor: 'pointer', fontFamily: 'inherit', background: active ? '#fff' : 'transparent', color: active ? '#17191c' : '#8b9098', boxShadow: active ? '0 1px 2px rgba(0,0,0,.08)' : 'none' });
+
+    return {
+      vPatient, vType, vDatetime,
+      qsDots, codeSend: qlang === 'curl' ? codeCurl : codeNode,
+      langCurl: () => this.setState({ qlang: 'curl' }), langNode: () => this.setState({ qlang: 'node' }),
+      curlTab: tabStyle(qlang === 'curl'), nodeTab: tabStyle(qlang === 'node'),
+      setScroller: (el) => this.setScroller(el),
+      navStart, navApi, navOps, toc,
+      goSandbox: () => this.goSection('sandbox'),
+      sbName: this.state.sbName, onSbName: this.onSbName,
+      sbPhone: this.state.sbPhone, onSbPhone: this.onSbPhone,
+      sbDatetime: this.state.sbDatetime, onSbDatetime: this.onSbDatetime,
+      sbExternalId: this.state.sbExternalId, onSbExternalId: this.onSbExternalId,
+      sbCallbackUrl: this.state.sbCallbackUrl, onSbCallbackUrl: this.onSbCallbackUrl,
+      sbResponseText: this.state.sbResponseText,
+      sbCallbackText: this.state.sbCallbackText, sbCallbackTarget: this.state.sbCallbackTarget,
+      sbSent: this.state.sbSent,
+      sbButtonLabel: this.state.sbLoading ? 'Enviando...' : 'Executar chamada',
+      runSandbox: this.runSandbox, simulateConfirm: this.simulateConfirm, simulateCancel: this.simulateCancel,
+      bodyParams, respCodes, states, events, errors
+    };
+  }
+}
+</script>
+</body>
+</html>
