@@ -5,6 +5,7 @@ import {
     type ZodTypeProvider,
 } from 'fastify-type-provider-zod';
 import { loggerOptions } from './lib/logger.js';
+import { waitlistRoutes } from './modules/waitlist/index.js';
 import { registerCors } from './plugins/cors.js';
 import { registerPrisma } from './plugins/prisma.js';
 import { registerRateLimit } from './plugins/rate-limit.js';
@@ -22,6 +23,8 @@ export async function buildApp() {
     await registerPrisma(app);
 
     app.get('/health', async () => ({ ok: true }));
+
+    await app.register(waitlistRoutes);
 
     return app;
 }
