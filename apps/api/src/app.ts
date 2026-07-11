@@ -6,6 +6,7 @@ import {
 } from 'fastify-type-provider-zod';
 import { loggerOptions } from './lib/logger.js';
 import { registerCors } from './plugins/cors.js';
+import { registerPrisma } from './plugins/prisma.js';
 import { registerRateLimit } from './plugins/rate-limit.js';
 import { registerSwagger } from './plugins/swagger.js';
 
@@ -18,6 +19,7 @@ export async function buildApp() {
     await registerCors(app);
     await registerRateLimit(app);
     await registerSwagger(app);
+    await registerPrisma(app);
 
     app.get('/health', async () => ({ ok: true }));
 
