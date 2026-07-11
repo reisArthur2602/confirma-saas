@@ -7,6 +7,7 @@ import {
 import { loggerOptions } from './lib/logger.js';
 import { waitlistRoutes } from './modules/waitlist/index.js';
 import { registerCors } from './plugins/cors.js';
+import { registerErrorHandler } from './plugins/error-handler.js';
 import { registerPrisma } from './plugins/prisma.js';
 import { registerRateLimit } from './plugins/rate-limit.js';
 import { registerSwagger } from './plugins/swagger.js';
@@ -17,6 +18,7 @@ export async function buildApp() {
     app.setValidatorCompiler(validatorCompiler);
     app.setSerializerCompiler(serializerCompiler);
 
+    await registerErrorHandler(app);
     await registerCors(app);
     await registerRateLimit(app);
     await registerSwagger(app);

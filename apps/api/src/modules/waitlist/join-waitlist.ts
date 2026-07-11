@@ -1,3 +1,4 @@
+import { ConflictError } from '@/lib/errors.js';
 import { waitlistBody } from '@confirma/contracts';
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { z } from 'zod';
@@ -19,7 +20,6 @@ export const joinWaitlist: FastifyPluginAsyncZod = async (app) => {
                 body: waitlistBody,
                 response: {
                     200: z.object({ ok: z.literal(true) }),
-                    422: z.object({ error: z.unknown() }),
                 },
             },
         },
@@ -27,29 +27,21 @@ export const joinWaitlist: FastifyPluginAsyncZod = async (app) => {
         async (request, reply) => {
             const { name, email, interest, source } = request.body;
 
-            const { lead, isNew } = await prisma.$transaction(async (tx) => {
-                const existing = await tx.waitlistLead.findUnique({ where: { email } });
+            const existing = await prisma.waitlistLead.findUnique({ where: { email } });
 
-                const lead = await tx.waitlistLead.upsert({
-                    where: { email },
-                    create: { name, email, interest, source },
-                    update: { name, interest, source },
-                });
+            if (existing) throw new ConflictError('Este e-mail já está na lista de espera.');
 
-                return { lead, isNew: !existing };
+            const lead = await prisma.waitlistLead.create({
+                data: { name, email, interest, source },
             });
 
-            // Só dispara o e-mail de confirmação em cadastros novos (RF-35) —
-            // reenvio no upsert geraria ruído para quem já está na lista.
-            if (isNew) {
-                const firstName = lead.name.trim().split(/\s+/)[0] ?? lead.name;
+            const firstName = lead.name.trim().split(/\s+/)[0] ?? lead.name;
 
-                await sendEmail({
-                    to: lead.email,
-                    subject: 'Você garantiu acesso antecipado ao Confirma',
-                    html: buildWaitlistConfirmationEmailHtml(firstName),
-                });
-            }
+            await sendEmail({
+                to: lead.email,
+                subject: 'Você garantiu acesso antecipado ao Confirma',
+                html: buildWaitlistConfirmationEmailHtml(firstName),
+            });
 
             return reply.code(200).send({ ok: true });
         }
