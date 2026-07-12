@@ -1,4 +1,4 @@
-import { env } from "../config/env.js";
+import { env } from "@confirma/env";
 
 export const loggerOptions = {
   level: env.LOG_LEVEL,

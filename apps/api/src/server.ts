@@ -1,5 +1,5 @@
+import { env } from "@confirma/env";
 import { buildApp } from "./app.js";
-import { env } from "./config/env.js";
 
 async function main() {
   const app = await buildApp();

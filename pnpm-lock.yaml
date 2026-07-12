@@ -11,7 +11,13 @@ importers:
       lucide-react:
         specifier: ^0.545.0
         version: 0.545.0(react@19.2.4)
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
     devDependencies:
+      dotenv-cli:
+        specifier: ^7.4.4
+        version: 7.4.4
       prettier:
         specifier: ^3.7.4
         version: 3.7.4
@@ -27,6 +33,9 @@ importers:
       '@confirma/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
+      '@confirma/env':
+        specifier: workspace:*
+        version: link:../../packages/env
       '@fastify/cors':
         specifier: ^10.0.1
         version: 10.1.0
@@ -53,7 +62,7 @@ importers:
         version: 5.1.0
       fastify-type-provider-zod:
         specifier: ^4.0.2
-        version: 4.0.2(fastify@5.10.0)(zod@3.25.76)
+        version: 4.0.2(fastify@5.10.0)(zod@4.4.3)
       pg:
         specifier: ^8.13.1
         version: 8.22.0
@@ -66,9 +75,6 @@ importers:
       resend:
         specifier: ^4.0.1
         version: 4.8.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      zod:
-        specifier: ^3.24.1
-        version: 3.25.76
     devDependencies:
       '@confirma/config':
         specifier: workspace:*
@@ -91,9 +97,6 @@ importers:
       tsx:
         specifier: ^4.19.2
         version: 4.23.0
-      typescript:
-        specifier: ^5.9.2
-        version: 5.9.2
 
   apps/marketing:
     dependencies:
@@ -131,6 +134,9 @@ importers:
       '@types/react-dom':
         specifier: ^19
         version: 19.2.3(@types/react@19.2.17)
+      dotenv-cli:
+        specifier: ^7.4.4
+        version: 7.4.4
       eslint:
         specifier: ^9.39.1
         version: 9.39.1(jiti@2.7.0)
@@ -175,22 +181,28 @@ importers:
       globals:
         specifier: ^16.5.0
         version: 16.5.0
-      typescript:
-        specifier: ^5.9.2
-        version: 5.9.2
       typescript-eslint:
         specifier: ^8.50.0
         version: 8.50.0(eslint@9.39.1(jiti@2.7.0))(typescript@5.9.2)
 
   packages/contracts:
-    dependencies:
-      zod:
-        specifier: ^3.24.1
-        version: 3.25.76
     devDependencies:
       '@confirma/config':
         specifier: workspace:*
         version: link:../config
+
+  packages/env:
+    dependencies:
+      '@t3-oss/env-core':
+        specifier: ^0.13.4
+        version: 0.13.11(typescript@5.9.2)(valibot@1.2.0(typescript@5.9.2))(zod@4.4.3)
+    devDependencies:
+      '@confirma/config':
+        specifier: workspace:*
+        version: link:../config
+      '@types/node':
+        specifier: ^20
+        version: 20.19.43
       typescript:
         specifier: ^5.9.2
         version: 5.9.2
@@ -1640,6 +1652,23 @@ packages:
   '@swc/helpers@0.5.15':
     resolution: {integrity: sha512-JQ5TuMi45Owi4/BIMAJBoSQoOJu12oOk/gADqlcUL9JEdHB8vyjUSsxqeNXnmXHjYKMi2WcYtezGEEhqUI/E2g==}
 
+  '@t3-oss/env-core@0.13.11':
+    resolution: {integrity: sha512-sM7GYY+KL7H/Hl0BE0inWfk3nRHZOLhmVn7sHGxaZt9FAR6KqREXAE+6TqKfiavfXmpRxO/OZ2QgKRd+oiBYRQ==}
+    peerDependencies:
+      arktype: ^2.1.0
+      typescript: '>=5.0.0'
+      valibot: ^1.0.0-beta.7 || ^1.0.0
+      zod: ^3.24.0 || ^4.0.0
+    peerDependenciesMeta:
+      arktype:
+        optional: true
+      typescript:
+        optional: true
+      valibot:
+        optional: true
+      zod:
+        optional: true
+
   '@tailwindcss/node@4.3.2':
     resolution: {integrity: sha512-yWP/sqEcBLaD8JuA6zNwxoYKr75qxTioYwlRwekj5Jr/I5GXnoJfjetH/psLUIv74cYTH2lBUEzBkinthoYcBg==}
 
@@ -2135,8 +2164,20 @@ packages:
   domutils@3.2.2:
     resolution: {integrity: sha512-6kZKyUajlDuqlHKVX1w7gyslj9MPIXzIFiz/rGu35uC1wMi+kMhQwGhl4lt9unC9Vb9INnY9Z3/ZA3+FhASLaw==}
 
+  dotenv-cli@7.4.4:
+    resolution: {integrity: sha512-XkBYCG0tPIes+YZr4SpfFv76SQrV/LeCE8CI7JSEMi3VR9MvTihCGTOtbIexD6i2mXF+6px7trb1imVCXSNMDw==}
+    hasBin: true
+
+  dotenv-expand@10.0.0:
+    resolution: {integrity: sha512-GopVGCpVS1UKH75VKHGuQFqS1Gusej0z4FyQkPdwjil2gNIv+LNsqBlboOzpJFZKVT95GkCyWJbBSdFEFUWI2A==}
+    engines: {node: '>=12'}
+
   dotenv@16.0.3:
     resolution: {integrity: sha512-7GO6HghkA5fYG9TYnNxi14/7K9f5occMlp3zXAuSxn7CKCxt9xbNWG7yF8hTCSUchlfWSe3uLmlPfigevRItzQ==}
+    engines: {node: '>=12'}
+
+  dotenv@16.6.1:
+    resolution: {integrity: sha512-uBq4egWHTcTt33a72vpSG0z3HnPuIl6NqYcTrKEg2azoEyl2hpW0zqlxysq2pK9HlDIHyHyakeYaYnSAwd8bow==}
     engines: {node: '>=12'}
 
   dotenv@17.4.2:
@@ -3094,6 +3135,7 @@ packages:
   prettier@3.7.4:
     resolution: {integrity: sha512-v6UNi1+3hSlVvv8fSaoUbggEM5VErKmmpGA7Pl3HF8V6uKY7rvClBOJlH6yNwQtfTueNkGVpOv/mtWL9L4bgRA==}
     engines: {node: '>=14'}
+    hasBin: true
 
   prisma@7.8.0:
     resolution: {integrity: sha512-yfN4yrw7HV9kEJhoy1+jgah0jafEIQsf7uWouSsM8MvJtlubsk+kM7AIBWZ8+GJl74Yj3c+nbYqBkMOxtsZ3Lw==}
@@ -3518,6 +3560,7 @@ packages:
   typescript@5.9.2:
     resolution: {integrity: sha512-CWBzXQrc/qOkhidw1OzBTQuYRbfyxDXJMVJ1XNwUHGROVmuaeiEm3OslpZ1RV96d7SKKjZKrSJu3+t/xlw3R9A==}
     engines: {node: '>=14.17'}
+    hasBin: true
 
   unbox-primitive@1.1.0:
     resolution: {integrity: sha512-nWJ91DjeOkej/TA8pXQ3myruKpKEYgqvpw9lz4OPHj/NWFNluYrjbz9j01CJ8yKQd2g4jFoOkINCTW2I5LEEyw==}
@@ -3606,11 +3649,14 @@ packages:
     peerDependencies:
       zod: ^3.25.28 || ^4
 
-  zod@3.25.76:
-    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
-
   zod@4.4.3:
     resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
+
+catalogs:
+  default:
+    zod:
+      specifier: ^3.24.1
+      version: 3.25.76
 
 snapshots:
 
@@ -4970,6 +5016,12 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
+  '@t3-oss/env-core@0.13.11(typescript@5.9.2)(valibot@1.2.0(typescript@5.9.2))(zod@4.4.3)':
+    optionalDependencies:
+      typescript: 5.9.2
+      valibot: 1.2.0(typescript@5.9.2)
+      zod: 4.4.3
+
   '@tailwindcss/node@4.3.2':
     dependencies:
       '@jridgewell/remapping': 2.3.5
@@ -5485,7 +5537,18 @@ snapshots:
       domelementtype: 2.3.0
       domhandler: 5.0.3
 
+  dotenv-cli@7.4.4:
+    dependencies:
+      cross-spawn: 7.0.6
+      dotenv: 16.6.1
+      dotenv-expand: 10.0.0
+      minimist: 1.2.8
+
+  dotenv-expand@10.0.0: {}
+
   dotenv@16.0.3: {}
+
+  dotenv@16.6.1: {}
 
   dotenv@17.4.2: {}
 
@@ -5804,12 +5867,12 @@ snapshots:
 
   fastify-plugin@6.0.0: {}
 
-  fastify-type-provider-zod@4.0.2(fastify@5.10.0)(zod@3.25.76):
+  fastify-type-provider-zod@4.0.2(fastify@5.10.0)(zod@4.4.3):
     dependencies:
       '@fastify/error': 4.2.0
       fastify: 5.10.0
-      zod: 3.25.76
-      zod-to-json-schema: 3.25.2(zod@3.25.76)
+      zod: 4.4.3
+      zod-to-json-schema: 3.25.2(zod@4.4.3)
 
   fastify@5.10.0:
     dependencies:
@@ -7207,10 +7270,8 @@ snapshots:
       grammex: 3.1.12
       graphmatch: 1.1.1
 
-  zod-to-json-schema@3.25.2(zod@3.25.76):
+  zod-to-json-schema@3.25.2(zod@4.4.3):
     dependencies:
-      zod: 3.25.76
-
-  zod@3.25.76: {}
+      zod: 4.4.3
 
   zod@4.4.3: {}

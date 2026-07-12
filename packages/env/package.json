@@ -1,5 +1,5 @@
 {
-    "name": "@confirma/contracts",
+    "name": "@confirma/env",
     "version": "0.0.0",
     "type": "module",
     "private": true,
@@ -12,7 +12,12 @@
         "build": "tsc -p tsconfig.json",
         "check-types": "tsc --noEmit"
     },
+    "dependencies": {
+        "@t3-oss/env-core": "^0.13.4"
+    },
     "devDependencies": {
-        "@confirma/config": "workspace:*"
+        "@confirma/config": "workspace:*",
+        "@types/node": "^20",
+        "typescript": "^5.9.2"
     }
 }

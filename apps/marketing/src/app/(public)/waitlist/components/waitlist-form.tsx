@@ -48,8 +48,8 @@ type FormState = {
 const initialState: FormState = {
     name: '',
     email: '',
-    interest: undefined,
-    source: undefined,
+    interest: 'byo',
+    source: 'linkedin',
 };
 
 export function WaitlistForm() {
@@ -181,7 +181,7 @@ export function WaitlistForm() {
                                         'flex flex-col items-center gap-1.5 rounded-[9px] border px-3 py-3.5 text-sm font-medium transition-colors',
                                         selected
                                             ? 'border-primary bg-accent text-accent-foreground'
-                                            : 'border-input text-secondary-foreground hover:bg-accent/50',
+                                            : 'border-input text-secondary-foreground hover:bg-accent/50'
                                     )}
                                 >
                                     <Icon className="size-4.5" strokeWidth={1.9} />

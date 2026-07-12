@@ -5,8 +5,8 @@ export const waitlistBody = z.object({
     email: z.string().email(),
     interest: z
         .enum(['reduzir_faltas', 'nao_construir_fila', 'byo', 'documentacao', 'outro'])
-        .optional(),
-    source: z.enum(['linkedin', 'indicacao', 'comunidade', 'outro']).optional(),
+        .default('reduzir_faltas'),
+    source: z.enum(['linkedin', 'indicacao', 'comunidade', 'outro']).default('linkedin'),
 
     website: z.string().optional(),
 });

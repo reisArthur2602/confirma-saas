@@ -1,6 +1,6 @@
 import cors from "@fastify/cors";
+import { env } from "@confirma/env";
 import type { FastifyInstance } from "fastify";
-import { env } from "../config/env.js";
 
 export async function registerCors(app: FastifyInstance) {
   await app.register(cors, {
